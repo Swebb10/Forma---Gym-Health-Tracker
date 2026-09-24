@@ -1,0 +1,85 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function owner(uid) { return request.auth != null && request.auth.uid == uid; }
+    function text(d, key, max) { return d[key] is string && d[key].size() > 0 && d[key].size() <= max; }
+    function optionalNumber(d, key, min, max) { let value = d.get(key, min); return value is number && value >= min && value <= max; }
+    function date(d) { return d.date is string && d.date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$'); }
+    function audit() {
+      let d = request.resource.data;
+      return d.createdAt is timestamp && d.updatedAt == request.time
+        && (resource == null ? d.createdAt == request.time : d.createdAt == resource.data.createdAt);
+    }
+    function exercises(d) { return d.exercises is list && d.exercises.size() > 0 && d.exercises.size() <= 100; }
+    match /users/{uid}/routines/{id} {
+      allow read, delete: if owner(uid);
+      allow create, update: if owner(uid) && audit()
+        && request.resource.data.keys().hasOnly(['name','description','exercises','createdAt','updatedAt'])
+        && text(request.resource.data,'name',100)
+        && request.resource.data.description is string && request.resource.data.description.size() <= 500
+        && exercises(request.resource.data);
+    }
+    match /users/{uid}/workouts/{id} {
+      allow read, delete: if owner(uid);
+      allow create, update: if owner(uid) && audit()
+        && request.resource.data.keys().hasOnly(['date','routineId','name','duration','notes','exercises','createdAt','updatedAt'])
+        && date(request.resource.data) && text(request.resource.data,'name',100)
+        && (request.resource.data.routineId == null || request.resource.data.routineId is string)
+        && request.resource.data.duration is int && request.resource.data.duration > 0 && request.resource.data.duration <= 1440
+        && request.resource.data.notes is string && request.resource.data.notes.size() <= 1000
+        && exercises(request.resource.data);
+    }
+    match /users/{uid}/measurements/{id} {
+      allow read, delete: if owner(uid);
+      allow create, update: if owner(uid) && audit() && date(request.resource.data)
+        && request.resource.data.keys().hasOnly(['date','biceps','chest','waist','thighs','calves','createdAt','updatedAt'])
+        && request.resource.data.keys().hasAny(['biceps','chest','waist','thighs','calves'])
+        && optionalNumber(request.resource.data,'biceps',0.1,100)
+        && optionalNumber(request.resource.data,'chest',0.1,250)
+        && optionalNumber(request.resource.data,'waist',0.1,250)
+        && optionalNumber(request.resource.data,'thighs',0.1,150)
+        && optionalNumber(request.resource.data,'calves',0.1,100);
+    }
+    match /users/{uid}/bioimpedance/{id} {
+      allow read, delete: if owner(uid);
+      allow create, update: if owner(uid) && audit() && validBio(request.resource.data);
+    }
+    function validBio(d) {
+      return d.keys().hasOnly(['date','time','gender','age','height','weight','bodyFat','bmi','visceralFat','water','skeletalMuscle','boneMass','bmr','normalMuscle','normalFat','normalSkeleton','normalOther','fatMass','fatIndex','leanMass','fatLossIndex','fatProportion','leftArmKg','leftArmPct','rightArmKg','rightArmPct','torsoKg','torsoPct','leftLegKg','leftLegPct','rightLegKg','rightLegPct','createdAt','updatedAt'])
+        && d.keys().hasAll(['date','time','gender','age','height','weight','bodyFat','bmi'])
+        && date(d) && d.time is string && d.time.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$')
+        && d.gender in ['male','female','other','unspecified']
+        && d.age is int && d.age >= 1 && d.age <= 120
+        && optionalNumber(d,'height',30,250)
+        && optionalNumber(d,'weight',1,500)
+        && optionalNumber(d,'bodyFat',0,100)
+        && optionalNumber(d,'bmi',1,200)
+        && optionalNumber(d,'visceralFat',0,100)
+        && optionalNumber(d,'water',0,100)
+        && optionalNumber(d,'skeletalMuscle',0,100)
+        && optionalNumber(d,'boneMass',0,30)
+        && optionalNumber(d,'bmr',0,10000)
+        && optionalNumber(d,'normalMuscle',0,100)
+        && optionalNumber(d,'normalFat',0,100)
+        && optionalNumber(d,'normalSkeleton',0,100)
+        && optionalNumber(d,'normalOther',0,100)
+        && optionalNumber(d,'fatMass',0,400)
+        && optionalNumber(d,'fatIndex',0,200)
+        && optionalNumber(d,'leanMass',0,400)
+        && optionalNumber(d,'fatLossIndex',-100,200)
+        && optionalNumber(d,'fatProportion',0,100)
+        && optionalNumber(d,'leftArmKg',0,200)
+        && optionalNumber(d,'leftArmPct',0,100)
+        && optionalNumber(d,'rightArmKg',0,200)
+        && optionalNumber(d,'rightArmPct',0,100)
+        && optionalNumber(d,'torsoKg',0,200)
+        && optionalNumber(d,'torsoPct',0,100)
+        && optionalNumber(d,'leftLegKg',0,200)
+        && optionalNumber(d,'leftLegPct',0,100)
+        && optionalNumber(d,'rightLegKg',0,200)
+        && optionalNumber(d,'rightLegPct',0,100);
+    }
+    match /{document=**} { allow read, write: if false; }
+  }
+}
+

@@ -1,0 +1,38 @@
+{
+  "name": "gym-health-tracker",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "vitest run src",
+    "test:rules": "firebase emulators:exec --only firestore --project demo-forma \"node --test tests/firestore.test.mjs\"",
+    "test:e2e": "playwright test",
+    "format": "prettier --write src tests docs README.md *.json *.ts index.html",
+    "format:check": "prettier --check src tests docs README.md *.json *.ts index.html",
+    "test:integration": "firebase emulators:exec --only auth,firestore --project demo-forma \"playwright test --config playwright.firebase.config.ts\""
+  },
+  "dependencies": {
+    "firebase": "^12.0.0",
+    "lucide-react": "^0.468.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "recharts": "^3.0.0"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.2",
+    "@playwright/test": "^1.55.0",
+    "@tailwindcss/vite": "^4.1.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^4.7.0",
+    "firebase-tools": "^15.31.0",
+    "prettier": "^3.9.9",
+    "tailwindcss": "^4.1.0",
+    "typescript": "~5.8.3",
+    "vite": "^6.3.0",
+    "vitest": "^3.2.0"
+  }
+}

@@ -1,0 +1,83 @@
+export type SetEntry = { reps: number; weight: number };
+export type Exercise = {
+  id: string;
+  name: string;
+  group: string;
+  sets: SetEntry[];
+};
+export type Routine = {
+  id: string;
+  name: string;
+  description: string;
+  exercises: Exercise[];
+  createdAt?: unknown;
+  updatedAt?: unknown;
+};
+export type Workout = {
+  id: string;
+  date: string;
+  routineId: string | null;
+  name: string;
+  duration: number;
+  notes: string;
+  exercises: Exercise[];
+  createdAt?: unknown;
+  updatedAt?: unknown;
+};
+export type Measurement = {
+  id: string;
+  date: string;
+  biceps?: number;
+  chest?: number;
+  waist?: number;
+  thighs?: number;
+  calves?: number;
+  createdAt?: unknown;
+  updatedAt?: unknown;
+};
+export type BioRecord = {
+  id: string;
+  date: string;
+  time: string;
+  gender: string;
+  age: number;
+  height: number;
+  weight: number;
+  bodyFat: number;
+  bmi: number;
+  visceralFat?: number;
+  water?: number;
+  skeletalMuscle?: number;
+  boneMass?: number;
+  bmr?: number;
+  normalMuscle?: number;
+  normalFat?: number;
+  normalSkeleton?: number;
+  normalOther?: number;
+  fatMass?: number;
+  fatIndex?: number;
+  leanMass?: number;
+  fatLossIndex?: number;
+  fatProportion?: number;
+  leftArmKg?: number;
+  leftArmPct?: number;
+  rightArmKg?: number;
+  rightArmPct?: number;
+  torsoKg?: number;
+  torsoPct?: number;
+  leftLegKg?: number;
+  leftLegPct?: number;
+  rightLegKg?: number;
+  rightLegPct?: number;
+  createdAt?: unknown;
+  updatedAt?: unknown;
+};
+export type Collections = {
+  routines: Routine;
+  workouts: Workout;
+  measurements: Measurement;
+  bioimpedance: BioRecord;
+};
+export type Store = { [K in keyof Collections]: Collections[K][] };
+export type Page =
+  "dashboard" | "workouts" | "routines" | "measurements" | "bioimpedance";
