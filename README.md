@@ -1,5 +1,7 @@
 # Forma — Gym & Health Tracker
 
+Actualización de entrenamiento: [rutinas por días, kg/lb y medidas detalladas](docs/TRAINING-UPDATE.md).
+
 Aplicación en español con React 19, TypeScript, Vite, Tailwind CSS 4, Firebase Authentication, Firestore y Recharts. Preparada para Vercel.
 
 ## Ejecutar
@@ -92,7 +94,7 @@ Los valores VITE_* se incorporan durante la compilación: después de cambiarlos
 
 ## Semántica de datos
 
-- Pesos en kg, circunferencias y altura en cm, duración en minutos, energía en kcal.
+- Pesos de ejercicios en kg o lb (según `unit`); datos de bioimpedancia en kg; circunferencias y altura en cm, duración en minutos y energía en kcal.
 - No se reemplazan mediciones ausentes por cero.
 - IMC opcional en el formulario: se calcula como kg / metros² si se deja vacío.
 - Músculo esquelético estimado = peso × porcentaje / 100; no equivale a masa corporal magra.

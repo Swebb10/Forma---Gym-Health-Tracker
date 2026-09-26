@@ -1,9 +1,26 @@
 import { useState, type FormEvent } from "react";
 import { useData } from "../context/DataContext";
-import type { Workout, Routine } from "../types";
+import type { Workout, Routine, RoutineDay } from "../types";
 import { Modal, Field, FormFooter, ErrorMessage } from "./ui";
-import { ExerciseEditor, freshExercise } from "./ExerciseEditor";
+import { ExerciseEditor } from "./ExerciseEditor";
 import { localDate, validateExercises } from "../lib/metrics";
+import {
+  routineDays,
+  nextRoutineDay,
+  dayLabel,
+  freshExercise,
+} from "../lib/training";
+export function routineSession(
+  routine: Routine,
+  day = nextRoutineDay(routine),
+) {
+  return {
+    routineId: routine.id,
+    routineDayId: day.id,
+    name: `${routine.name} · ${day.name}`.slice(0, 100),
+    exercises: structuredClone(day.exercises),
+  };
+}
 export function WorkoutForm({
   initial,
   onClose,
@@ -15,8 +32,11 @@ export function WorkoutForm({
   const [value, setValue] = useState(initial),
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
-  async function submit(e: FormEvent) {
-    e.preventDefault();
+  const routine = data.routines.find((r) => r.id === value.routineId);
+  const sessions = routine ? routineDays(routine) : [];
+  const selectedExists = sessions.some((d) => d.id === value.routineDayId);
+  async function submit(event: FormEvent) {
+    event.preventDefault();
     if (!value.name.trim() || !validateExercises(value.exercises)) {
       setError("Añade un nombre y al menos un ejercicio con series válidas.");
       return;
@@ -26,7 +46,9 @@ export function WorkoutForm({
       await save("workouts", value);
       onClose();
     } catch {
-      setError("No se pudo guardar el entrenamiento. Revisa tu conexión.");
+      setError(
+        "No se pudo guardar el entrenamiento. Revisa tu conexión y los permisos de guardado.",
+      );
     } finally {
       setBusy(false);
     }
@@ -43,18 +65,24 @@ export function WorkoutForm({
           <Field label="Usar una rutina">
             <select
               value={value.routineId ?? ""}
-              onChange={(e) => {
-                const r = data.routines.find((r) => r.id === e.target.value);
+              onChange={(event) => {
+                const r = data.routines.find(
+                  (r) => r.id === event.target.value,
+                );
                 setValue({
                   ...value,
-                  routineId: r?.id ?? null,
                   ...(r
-                    ? { name: r.name, exercises: structuredClone(r.exercises) }
-                    : {}),
+                    ? routineSession(r)
+                    : { routineId: null, routineDayId: null }),
                 });
               }}
             >
               <option value="">Entrenamiento libre</option>
+              {value.routineId && !routine && (
+                <option value={value.routineId}>
+                  Rutina eliminada · sesión conservada
+                </option>
+              )}
               {data.routines.map((r) => (
                 <option key={r.id} value={r.id}>
                   {r.name}
@@ -62,6 +90,29 @@ export function WorkoutForm({
               ))}
             </select>
           </Field>
+          {routine && (
+            <Field label="Día de la rutina">
+              <select
+                value={selectedExists ? (value.routineDayId ?? "") : ""}
+                onChange={(event) => {
+                  const day = sessions.find((d) => d.id === event.target.value);
+                  if (day)
+                    setValue({ ...value, ...routineSession(routine, day) });
+                }}
+              >
+                {!selectedExists && (
+                  <option value="">
+                    Sesión guardada · conservar ejercicios
+                  </option>
+                )}
+                {sessions.map((day) => (
+                  <option key={day.id} value={day.id}>
+                    {dayLabel(day)}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          )}
           <Field label="Nombre de la sesión">
             <input
               required
@@ -113,12 +164,13 @@ export function WorkoutForm({
     </Modal>
   );
 }
-export const newWorkout = (routine?: Routine): Workout => ({
+export const newWorkout = (routine?: Routine, day?: RoutineDay): Workout => ({
   id: crypto.randomUUID(),
   date: localDate(),
-  routineId: routine?.id ?? null,
-  name: routine?.name ?? "Entrenamiento libre",
+  routineId: null,
+  name: "Entrenamiento libre",
   duration: 45,
   notes: "",
-  exercises: routine ? structuredClone(routine.exercises) : [freshExercise()],
+  exercises: [freshExercise()],
+  ...(routine ? routineSession(routine, day) : {}),
 });

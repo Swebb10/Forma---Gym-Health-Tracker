@@ -1,7 +1,13 @@
 import { useState, type FormEvent } from "react";
-import { Plus, Pencil, Ruler } from "lucide-react";
+import { Plus, Pencil, Ruler, Eye } from "lucide-react";
 import { useData } from "../context/DataContext";
-import { measurementFields } from "../lib/fields";
+import {
+  measurementSections,
+  legacyMeasurementFields,
+  allMeasurementFields,
+  hasMeasurement,
+  type MeasurementField,
+} from "../lib/measurements";
 import { localDate, dateLabel, numberLabel } from "../lib/metrics";
 import { ProgressChart } from "../components/ProgressChart";
 import {
@@ -15,29 +21,52 @@ import {
 import type { Measurement } from "../types";
 export default function Measurements() {
   const { data, save, remove } = useData();
-  const [selected, setSelected] = useState("waist"),
+  const [zone, setZone] = useState("Zona Media"),
+    [selected, setSelected] = useState<MeasurementField["key"]>("waist"),
     [editing, setEditing] = useState<Measurement | null>(null),
+    [viewing, setViewing] = useState<Measurement | null>(null),
     [busy, setBusy] = useState(false),
-    [error, setError] = useState("");
+    [error, setError] = useState(""),
+    [legacyKeys, setLegacyKeys] = useState<string[]>([]);
   const sorted = [...data.measurements].sort((a, b) =>
     a.date.localeCompare(b.date),
   );
-  const points = sorted.flatMap((r) => {
-    const value = r[selected as keyof Measurement];
-    return typeof value === "number" ? [{ date: r.date, value }] : [];
+  const sections = [
+    ...measurementSections,
+    ...(legacyMeasurementFields.some((f) => hasMeasurement(sorted, f))
+      ? [
+          {
+            title: "Registros anteriores",
+            fields: legacyMeasurementFields.filter((f) =>
+              hasMeasurement(sorted, f),
+            ),
+          },
+        ]
+      : []),
+  ];
+  const currentSection = sections.find((s) => s.title === zone) ?? sections[1];
+  const selectedField = allMeasurementFields.find((f) => f.key === selected)!;
+  const points = sorted.flatMap((record) => {
+    const value = record[selected];
+    return typeof value === "number" ? [{ date: record.date, value }] : [];
   });
-  const create = () => {
+  const open = (record?: Measurement) => {
     setError("");
-    setEditing({ id: crypto.randomUUID(), date: localDate() });
+    setLegacyKeys(
+      record
+        ? legacyMeasurementFields
+            .filter((f) => record[f.key] !== undefined)
+            .map((f) => f.key)
+        : [],
+    );
+    setEditing(
+      record ? { ...record } : { id: crypto.randomUUID(), date: localDate() },
+    );
   };
-  async function submit(e: FormEvent) {
-    e.preventDefault();
+  async function submit(event: FormEvent) {
+    event.preventDefault();
     if (!editing) return;
-    if (
-      !measurementFields.some(
-        (f) => typeof editing[f.key as keyof Measurement] === "number",
-      )
-    ) {
+    if (!allMeasurementFields.some((f) => typeof editing[f.key] === "number")) {
       setError("Completa al menos una medida.");
       return;
     }
@@ -46,52 +75,99 @@ export default function Measurements() {
       await save("measurements", editing);
       setEditing(null);
     } catch {
-      setError("No se pudo guardar. Revisa tu conexión.");
+      setError(
+        "No se pudo guardar. Revisa tu conexión y los permisos de guardado.",
+      );
     } finally {
       setBusy(false);
     }
   }
+  const fields = (items: MeasurementField[]) =>
+    items.map((field) => (
+      <Field key={field.key} label={field.label + " · cm"}>
+        <input
+          type="number"
+          min=".1"
+          max={field.max}
+          step=".1"
+          value={editing?.[field.key] ?? ""}
+          placeholder="Sin medir"
+          onChange={(e) =>
+            setEditing({
+              ...editing!,
+              [field.key]:
+                e.target.value === "" ? undefined : Number(e.target.value),
+            })
+          }
+        />
+      </Field>
+    ));
   return (
     <>
       <div className="section-heading">
         <div>
           <h2>Más allá de la báscula</h2>
-          <p className="muted">Observa los cambios, centímetro a centímetro.</p>
+          <p className="muted">
+            Observa tus cambios por zona y por lado del cuerpo.
+          </p>
         </div>
-        <button className="btn primary" onClick={create}>
+        <button className="btn primary" onClick={() => open()}>
           <Plus size={18} /> Añadir medidas
         </button>
       </div>
-      <div className="measurement-stats">
-        {measurementFields.map((f) => {
+      <div className="zone-tabs" role="group" aria-label="Zonas corporales">
+        {sections.map((section) => (
+          <button
+            key={section.title}
+            className={currentSection.title === section.title ? "active" : ""}
+            aria-pressed={currentSection.title === section.title}
+            onClick={() => {
+              setZone(section.title);
+              if (!section.fields.some((f) => f.key === selected))
+                setSelected(section.fields[0].key);
+            }}
+          >
+            {section.title}
+          </button>
+        ))}
+      </div>
+      {currentSection.title === "Registros anteriores" && (
+        <p className="legacy-note">
+          Se conservan las medidas antiguas sin asignarlas a un lado o punto
+          anatómico que no se registró.
+        </p>
+      )}
+      <div className="measurement-stats detailed-measurements">
+        {currentSection.fields.map((field) => {
           const latest = [...sorted]
             .reverse()
-            .find((r) => typeof r[f.key as keyof Measurement] === "number");
+            .find((r) => typeof r[field.key] === "number");
           return (
             <button
-              key={f.key}
-              className={`panel measure-stat ${selected === f.key ? "selected" : ""}`}
-              onClick={() => setSelected(f.key)}
+              key={field.key}
+              className={`panel measure-stat ${selected === field.key ? "selected" : ""}`}
+              aria-pressed={selected === field.key}
+              onClick={() => setSelected(field.key)}
             >
               <span>
                 <Ruler size={16} />
-                {f.label}
+                {field.label}
               </span>
               <strong>
-                {numberLabel(
-                  latest?.[f.key as keyof Measurement] as number | undefined,
-                )}{" "}
-                <small>cm</small>
+                {numberLabel(latest?.[field.key])} <small>cm</small>
               </strong>
+              <small className="muted">
+                {latest ? dateLabel(latest.date) : "Sin registros"}
+              </small>
             </button>
           );
         })}
       </div>
-      <section className="panel chart-panel">
+      <section className="panel chart-panel measurement-chart">
         <div className="panel-heading">
           <div>
             <span className="eyebrow">EVOLUCIÓN CORPORAL</span>
-            <h3>{measurementFields.find((f) => f.key === selected)?.label}</h3>
+            <h3>{selectedField.label}</h3>
           </div>
           <span className="tag">Centímetros</span>
         </div>
@@ -106,7 +182,7 @@ export default function Measurements() {
           <Empty
             title="Tu punto de partida"
             description="Registra al menos una medida para empezar."
-            onAction={create}
+            onAction={() => open()}
           />
         ) : (
           <div className="table-scroll">
@@ -114,39 +190,43 @@ export default function Measurements() {
               <thead>
                 <tr>
                   <th>Fecha</th>
-                  {measurementFields.map((f) => (
-                    <th key={f.key}>{f.label} · cm</th>
-                  ))}
+                  <th>{selectedField.label} · cm</th>
+                  <th>Medidas registradas</th>
                   <th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
-                {[...sorted].reverse().map((r) => (
-                  <tr key={r.id}>
+                {[...sorted].reverse().map((record) => (
+                  <tr key={record.id}>
                     <td>
-                      {dateLabel(r.date)} {r.date.slice(0, 4)}
+                      {dateLabel(record.date)} {record.date.slice(0, 4)}
                     </td>
-                    {measurementFields.map((f) => (
-                      <td key={f.key}>
-                        {numberLabel(
-                          r[f.key as keyof Measurement] as number | undefined,
-                        )}
-                      </td>
-                    ))}
+                    <td>{numberLabel(record[selected])}</td>
+                    <td>
+                      {
+                        allMeasurementFields.filter(
+                          (f) => typeof record[f.key] === "number",
+                        ).length
+                      }
+                    </td>
                     <td>
                       <div className="flex">
                         <button
                           className="icon-btn"
-                          aria-label={`Editar medidas del ${r.date}`}
-                          onClick={() => {
-                            setError("");
-                            setEditing({ ...r });
-                          }}
+                          aria-label={`Ver medidas del ${record.date}`}
+                          onClick={() => setViewing(record)}
+                        >
+                          <Eye size={16} />
+                        </button>
+                        <button
+                          className="icon-btn"
+                          aria-label={`Editar medidas del ${record.date}`}
+                          onClick={() => open(record)}
                         >
                           <Pencil size={16} />
                         </button>
                         <DeleteButton
-                          onDelete={() => remove("measurements", r.id)}
+                          onDelete={() => remove("measurements", record.id)}
                         />
                       </div>
                     </td>
@@ -167,13 +247,13 @@ export default function Measurements() {
           <form onSubmit={submit}>
             <div className="form-content">
               <p className="muted">
-                Registra las medidas en centímetros, siguiendo siempre el mismo
-                método.
+                Completa las medidas que tomaste, en centímetros. Usa el mismo
+                punto de referencia en cada evaluación.
               </p>
               <Field label="Fecha">
                 <input
-                  type="date"
                   required
+                  type="date"
                   max={localDate()}
                   value={editing.date}
                   onChange={(e) =>
@@ -181,35 +261,65 @@ export default function Measurements() {
                   }
                 />
               </Field>
-              <div className="form-grid">
-                {measurementFields.map((f) => (
-                  <Field key={f.key} label={f.label + " · cm"}>
-                    <input
-                      type="number"
-                      min=".1"
-                      max={f.max}
-                      step=".1"
-                      value={
-                        (editing[f.key as keyof Measurement] as number) ?? ""
-                      }
-                      placeholder="Sin medir"
-                      onChange={(e) =>
-                        setEditing({
-                          ...editing,
-                          [f.key]:
-                            e.target.value === ""
-                              ? undefined
-                              : Number(e.target.value),
-                        })
-                      }
-                    />
-                  </Field>
-                ))}
-              </div>
+              {measurementSections.map((section) => (
+                <section className="form-section" key={section.title}>
+                  <h3>{section.title}</h3>
+                  <div className="form-grid">{fields(section.fields)}</div>
+                </section>
+              ))}
+              {legacyKeys.length > 0 && (
+                <section className="form-section">
+                  <h3>Medidas anteriores sin lado definido</h3>
+                  <p className="small muted">
+                    Conservamos estos valores tal como se registraron.
+                  </p>
+                  <div className="form-grid">
+                    {fields(
+                      legacyMeasurementFields.filter((f) =>
+                        legacyKeys.includes(f.key),
+                      ),
+                    )}
+                  </div>
+                </section>
+              )}
               <ErrorMessage message={error} />
             </div>
             <FormFooter busy={busy} onClose={() => setEditing(null)} />
           </form>
+        </Modal>
+      )}
+      {viewing && (
+        <Modal
+          title={`Medidas del ${dateLabel(viewing.date)} ${viewing.date.slice(0, 4)}`}
+          onClose={() => setViewing(null)}
+        >
+          <div className="form-content measurement-detail">
+            {[
+              ...measurementSections,
+              {
+                title: "Registros anteriores",
+                fields: legacyMeasurementFields,
+              },
+            ]
+              .filter((section) =>
+                section.fields.some((f) => typeof viewing[f.key] === "number"),
+              )
+              .map((section) => (
+                <section key={section.title}>
+                  <h3>{section.title}</h3>
+                  <dl>
+                    {section.fields
+                      .filter((f) => typeof viewing[f.key] === "number")
+                      .map((f) => (
+                        <div key={f.key}>
+                          <dt>{f.label}</dt>
+                          <dd>{numberLabel(viewing[f.key])} cm</dd>
+                        </div>
+                      ))}
+                  </dl>
+                </section>
+              ))}
+          </div>
         </Modal>
       )}
     </>

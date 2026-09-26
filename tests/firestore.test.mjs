@@ -170,3 +170,110 @@ test("acepta una evaluación completa con todos los campos opcionales", async ()
     setDoc(doc(db, "users/full/bioimpedance/all"), { ...values, ...audit() }),
   );
 });
+
+test("guarda planes por días y sesiones en libras; rechaza planes vacíos", async () => {
+  const db = env.authenticatedContext("days").firestore();
+  const exercises = [
+    {
+      id: "curl",
+      name: "Curl",
+      group: "Bíceps",
+      unit: "lb",
+      sets: [{ reps: 10, weight: 25 }],
+    },
+  ];
+  const days = [{ id: "mon", name: "Push", weekday: "Lunes", exercises }];
+  await assertSucceeds(
+    setDoc(doc(db, "users/days/routines/plan"), {
+      name: "PPL",
+      description: "",
+      exercises,
+      days,
+      ...audit(),
+    }),
+  );
+  await assertSucceeds(
+    setDoc(doc(db, "users/days/workouts/session"), {
+      date: "2026-09-26",
+      routineId: "plan",
+      routineDayId: "mon",
+      name: "PPL · Push",
+      duration: 45,
+      notes: "",
+      exercises,
+      ...audit(),
+    }),
+  );
+  await assertFails(
+    setDoc(doc(db, "users/days/routines/empty"), {
+      name: "Vacío",
+      description: "",
+      exercises,
+      days: [],
+      ...audit(),
+    }),
+  );
+  await assertFails(
+    setDoc(doc(db, "users/days/routines/too-many"), {
+      name: "Exceso",
+      description: "",
+      exercises,
+      days: Array(15).fill(days[0]),
+      ...audit(),
+    }),
+  );
+});
+test("acepta las 17 circunferencias junto a valores históricos y valida rangos", async () => {
+  const db = env.authenticatedContext("measure").firestore();
+  const value = { date: "2026-09-26" };
+  for (const key of [
+    "neck",
+    "shoulders",
+    "chest",
+    "leftArmRelaxed",
+    "leftArmFlexed",
+    "rightArmRelaxed",
+    "rightArmFlexed",
+    "leftForearm",
+    "rightForearm",
+    "waist",
+    "hips",
+    "leftThighHigh",
+    "leftThighMid",
+    "rightThighHigh",
+    "rightThighMid",
+    "leftCalf",
+    "rightCalf",
+    "biceps",
+    "thighs",
+    "calves",
+  ])
+    value[key] = 40;
+  await assertSucceeds(
+    setDoc(doc(db, "users/measure/measurements/full"), {
+      ...value,
+      ...audit(),
+    }),
+  );
+  await assertSucceeds(
+    setDoc(doc(db, "users/measure/measurements/one"), {
+      date: "2026-09-26",
+      leftArmRelaxed: 31.2,
+      ...audit(),
+    }),
+  );
+  await assertFails(
+    setDoc(doc(db, "users/measure/measurements/negative"), {
+      ...value,
+      leftArmFlexed: -1,
+      ...audit(),
+    }),
+  );
+  await assertFails(
+    setDoc(doc(db, "users/measure/measurements/oversized"), {
+      ...value,
+      leftThighHigh: 151,
+      ...audit(),
+    }),
+  );
+});

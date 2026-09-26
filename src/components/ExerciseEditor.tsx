@@ -1,12 +1,14 @@
+import { useId } from "react";
 import { Plus, Trash2 } from "lucide-react";
-import type { Exercise } from "../types";
+import type { Exercise, WeightUnit } from "../types";
 import { Field } from "./ui";
-export const freshExercise = (): Exercise => ({
-  id: crypto.randomUUID(),
-  name: "",
-  group: "General",
-  sets: [{ reps: 10, weight: 0 }],
-});
+import {
+  muscleGroups,
+  freshExercise,
+  exerciseUnit,
+  fromKg,
+} from "../lib/training";
+export { freshExercise } from "../lib/training";
 export function ExerciseEditor({
   exercises,
   onChange,
@@ -14,11 +16,12 @@ export function ExerciseEditor({
   exercises: Exercise[];
   onChange: (value: Exercise[]) => void;
 }) {
+  const listId = useId();
   const update = (i: number, patch: Partial<Exercise>) =>
     onChange(exercises.map((e, n) => (n === i ? { ...e, ...patch } : e)));
   return (
     <div className="exercise-editor">
-      <datalist id="exercise-names">
+      <datalist id={listId}>
         {[
           "Press de banca",
           "Sentadilla",
@@ -53,7 +56,7 @@ export function ExerciseEditor({
               <input
                 required
                 maxLength={100}
-                list="exercise-names"
+                list={listId}
                 value={e.name}
                 placeholder="Ej. Press de banca"
                 onChange={(ev) => update(i, { name: ev.target.value })}
@@ -64,24 +67,40 @@ export function ExerciseEditor({
                 value={e.group}
                 onChange={(ev) => update(i, { group: ev.target.value })}
               >
-                {[
-                  "General",
-                  "Pecho",
-                  "Espalda",
-                  "Piernas",
-                  "Hombros",
-                  "Brazos",
-                  "Core",
-                ].map((g) => (
-                  <option key={g}>{g}</option>
+                {!muscleGroups.some((section) =>
+                  section.groups.includes(e.group),
+                ) && <option value={e.group}>{e.group} (anterior)</option>}
+                {muscleGroups.map((section) => (
+                  <optgroup key={section.label} label={section.label}>
+                    {section.groups.map((group) => (
+                      <option key={group}>{group}</option>
+                    ))}
+                  </optgroup>
                 ))}
               </select>
             </Field>
           </div>
+          <div className="weight-unit-row">
+            <Field label="Unidad del peso">
+              <select
+                value={exerciseUnit(e)}
+                onChange={(ev) =>
+                  update(i, { unit: ev.target.value as WeightUnit })
+                }
+              >
+                <option value="kg">Kilogramos (kg)</option>
+                <option value="lb">Libras (lb)</option>
+              </select>
+            </Field>
+            <p className="small muted">
+              Usa la unidad indicada en la máquina o pesa. Cambiarla conserva
+              los números ingresados.
+            </p>
+          </div>
           <div className="set-head">
             <span>Serie</span>
             <span>Repeticiones</span>
-            <span>Peso · kg</span>
+            <span>Peso · {exerciseUnit(e)}</span>
             <span />
           </div>
           {e.sets.map((s, j) => (
@@ -108,8 +127,8 @@ export function ExerciseEditor({
                 required
                 type="number"
                 min="0"
-                max="1500"
-                step=".25"
+                max={fromKg(1500, exerciseUnit(e))}
+                step="any"
                 value={s.weight}
                 onChange={(ev) =>
                   update(i, {

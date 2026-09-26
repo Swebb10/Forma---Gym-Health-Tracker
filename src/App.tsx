@@ -16,7 +16,7 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import { DataProvider, useData } from "./context/DataContext";
 import { WorkoutForm, newWorkout } from "./components/WorkoutForm";
 import { ErrorMessage } from "./components/ui";
-import type { Page, Routine, Workout } from "./types";
+import type { Page, Routine, RoutineDay, Workout } from "./types";
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Routines = lazy(() => import("./pages/Routines"));
 const Workouts = lazy(() => import("./pages/Workouts"));
@@ -72,7 +72,8 @@ function Workspace() {
     setMenu(false);
     window.scrollTo({ top: 0 });
   };
-  const start = (r?: Routine) => setWorkout(newWorkout(r));
+  const start = (r?: Routine, day?: RoutineDay) =>
+    setWorkout(newWorkout(r, day));
   return (
     <div className="app-shell">
       {menu && (

@@ -7,13 +7,6 @@ export type NumericField = {
   step?: string;
   required?: boolean;
 };
-export const measurementFields: NumericField[] = [
-  { key: "biceps", label: "Bíceps", unit: "cm", max: 100 },
-  { key: "chest", label: "Pecho", unit: "cm", max: 250 },
-  { key: "waist", label: "Cintura", unit: "cm", max: 250 },
-  { key: "thighs", label: "Muslos", unit: "cm", max: 150 },
-  { key: "calves", label: "Pantorrillas", unit: "cm", max: 100 },
-];
 export const bioSections: {
   title: string;
   description?: string;

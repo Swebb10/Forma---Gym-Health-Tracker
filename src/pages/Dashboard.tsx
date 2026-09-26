@@ -1,3 +1,4 @@
+import { nextRoutineDay, dayLabel } from "../lib/training";
 import { useState } from "react";
 import {
   ArrowUpRight,
@@ -20,7 +21,7 @@ import {
   exerciseProgress,
   muscleMass,
 } from "../lib/metrics";
-import type { Page, Routine } from "../types";
+import type { Page, Routine, RoutineDay, WeightUnit } from "../types";
 export default function Dashboard({
   onNavigate,
   onNew,
@@ -28,13 +29,17 @@ export default function Dashboard({
 }: {
   onNavigate: (page: Page) => void;
   onNew: () => void;
-  onStart: (r: Routine) => void;
+  onStart: (r: Routine, day?: RoutineDay) => void;
 }) {
   const { data } = useData(),
     { demo } = useAuth();
   const [metric, setMetric] = useState("weight"),
     [range, setRange] = useState("90"),
-    [exercise, setExercise] = useState("");
+    [exercise, setExercise] = useState(""),
+    [strengthUnit, setStrengthUnit] = useState<WeightUnit>("kg");
+  const nextDay = data.routines[0]
+    ? nextRoutineDay(data.routines[0])
+    : undefined;
   const bio = [...data.bioimpedance].sort((a, b) =>
     (a.date + a.time).localeCompare(b.date + b.time),
   );
@@ -60,9 +65,11 @@ export default function Dashboard({
     ...new Set(data.workouts.flatMap((w) => w.exercises.map((e) => e.name))),
   ].sort();
   const chosen = names.includes(exercise) ? exercise : (names[0] ?? "");
-  const exerciseData = exerciseProgress(data.workouts, chosen).filter(
-    (p) => p.date >= cutoff,
-  );
+  const exerciseData = exerciseProgress(
+    data.workouts,
+    chosen,
+    strengthUnit,
+  ).filter((p) => p.date >= cutoff);
   const monday = new Date();
   monday.setHours(0, 0, 0, 0);
   monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
@@ -296,11 +303,12 @@ export default function Dashboard({
                 </div>
                 <h3>{data.routines[0].name}</h3>
                 <p className="muted">
-                  {data.routines[0].exercises.length} ejercicios · A tu ritmo
+                  {nextDay && dayLabel(nextDay)} · {nextDay?.exercises.length}{" "}
+                  ejercicios
                 </p>
                 <button
                   className="btn secondary w-full"
-                  onClick={() => onStart(data.routines[0])}
+                  onClick={() => onStart(data.routines[0], nextDay)}
                 >
                   Empezar sesión <ArrowUpRight size={17} />
                 </button>
@@ -341,9 +349,24 @@ export default function Dashboard({
             ))}
           </select>
         </div>
-        <ProgressChart data={exerciseData} unit="kg" />
+        <div className="strength-unit">
+          <label>
+            Mostrar pesos en{" "}
+            <select
+              aria-label="Unidad del gráfico de fuerza"
+              value={strengthUnit}
+              onChange={(e) => setStrengthUnit(e.target.value as WeightUnit)}
+            >
+              <option value="kg">Kilogramos (kg)</option>
+              <option value="lb">Libras (lb)</option>
+            </select>
+          </label>
+        </div>
+        <ProgressChart data={exerciseData} unit={strengthUnit} />
         <p className="chart-footnote">
-          Mayor peso registrado por día para el ejercicio seleccionado.
+          Mayor peso registrado por día para el ejercicio seleccionado. Los
+          registros en kg y lb se convierten a la unidad elegida para
+          compararlos.
         </p>
       </section>
     </>

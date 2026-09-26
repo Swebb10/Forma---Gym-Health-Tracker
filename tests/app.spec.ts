@@ -32,7 +32,9 @@ test("rutina, sesión, medidas y bioimpedancia persisten en la demo", async ({
     .getByRole("link", { name: "Medidas corporales", exact: true })
     .click();
   await page.getByRole("button", { name: "Añadir medidas" }).click();
-  await page.getByLabel("Cintura · cm", { exact: true }).fill("81.5");
+  await page
+    .getByLabel("Cintura (A la altura del ombligo) · cm", { exact: true })
+    .fill("81.5");
   await page.getByRole("button", { name: "Guardar registro" }).click();
   await expect(
     page.getByRole("cell", { name: "81,5", exact: true }),

@@ -1,4 +1,6 @@
-# Esquema inicial de Firestore
+# Esquema de Firestore
+
+> Para rutinas por días, unidades kg/lb y las 17 medidas corporales, consulta [la actualización del modelo](TRAINING-UPDATE.md). Los ejemplos siguientes describen el formato anterior, que sigue siendo compatible.
 
 ## Colecciones
 

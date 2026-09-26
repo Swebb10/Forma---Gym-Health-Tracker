@@ -1,14 +1,24 @@
+export type WeightUnit = "kg" | "lb";
 export type SetEntry = { reps: number; weight: number };
 export type Exercise = {
   id: string;
   name: string;
   group: string;
+  /** Missing on legacy records means kilograms. */
+  unit?: WeightUnit;
   sets: SetEntry[];
+};
+export type RoutineDay = {
+  id: string;
+  name: string;
+  weekday: string;
+  exercises: Exercise[];
 };
 export type Routine = {
   id: string;
   name: string;
   description: string;
+  days?: RoutineDay[];
   exercises: Exercise[];
   createdAt?: unknown;
   updatedAt?: unknown;
@@ -17,6 +27,7 @@ export type Workout = {
   id: string;
   date: string;
   routineId: string | null;
+  routineDayId?: string | null;
   name: string;
   duration: number;
   notes: string;
@@ -27,6 +38,22 @@ export type Workout = {
 export type Measurement = {
   id: string;
   date: string;
+  neck?: number;
+  shoulders?: number;
+  leftArmRelaxed?: number;
+  leftArmFlexed?: number;
+  rightArmRelaxed?: number;
+  rightArmFlexed?: number;
+  leftForearm?: number;
+  rightForearm?: number;
+  hips?: number;
+  leftThighHigh?: number;
+  leftThighMid?: number;
+  rightThighHigh?: number;
+  rightThighMid?: number;
+  leftCalf?: number;
+  rightCalf?: number;
+  /** Legacy measurements without a recorded side. */
   biceps?: number;
   chest?: number;
   waist?: number;

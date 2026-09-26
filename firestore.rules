@@ -14,31 +14,50 @@ service cloud.firestore {
     match /users/{uid}/routines/{id} {
       allow read, delete: if owner(uid);
       allow create, update: if owner(uid) && audit()
-        && request.resource.data.keys().hasOnly(['name','description','exercises','createdAt','updatedAt'])
+        && request.resource.data.keys().hasOnly(['name','description','exercises','days','createdAt','updatedAt'])
         && text(request.resource.data,'name',100)
         && request.resource.data.description is string && request.resource.data.description.size() <= 500
-        && exercises(request.resource.data);
+        && exercises(request.resource.data)
+        && (!('days' in request.resource.data) || (request.resource.data.days is list && request.resource.data.days.size() > 0 && request.resource.data.days.size() <= 14));
     }
     match /users/{uid}/workouts/{id} {
       allow read, delete: if owner(uid);
       allow create, update: if owner(uid) && audit()
-        && request.resource.data.keys().hasOnly(['date','routineId','name','duration','notes','exercises','createdAt','updatedAt'])
+        && request.resource.data.keys().hasOnly(['date','routineId','routineDayId','name','duration','notes','exercises','createdAt','updatedAt'])
         && date(request.resource.data) && text(request.resource.data,'name',100)
         && (request.resource.data.routineId == null || request.resource.data.routineId is string)
+        && (request.resource.data.get('routineDayId',null) == null || request.resource.data.routineDayId is string)
         && request.resource.data.duration is int && request.resource.data.duration > 0 && request.resource.data.duration <= 1440
         && request.resource.data.notes is string && request.resource.data.notes.size() <= 1000
         && exercises(request.resource.data);
     }
     match /users/{uid}/measurements/{id} {
       allow read, delete: if owner(uid);
-      allow create, update: if owner(uid) && audit() && date(request.resource.data)
-        && request.resource.data.keys().hasOnly(['date','biceps','chest','waist','thighs','calves','createdAt','updatedAt'])
-        && request.resource.data.keys().hasAny(['biceps','chest','waist','thighs','calves'])
-        && optionalNumber(request.resource.data,'biceps',0.1,100)
-        && optionalNumber(request.resource.data,'chest',0.1,250)
-        && optionalNumber(request.resource.data,'waist',0.1,250)
-        && optionalNumber(request.resource.data,'thighs',0.1,150)
-        && optionalNumber(request.resource.data,'calves',0.1,100);
+      allow create, update: if owner(uid) && audit() && validMeasurements(request.resource.data);
+    }
+    function validMeasurements(d) {
+      return date(d) && d.keys().hasOnly(['date','createdAt','updatedAt','biceps','chest','waist','thighs','calves','neck','shoulders','leftArmRelaxed','leftArmFlexed','rightArmRelaxed','rightArmFlexed','leftForearm','rightForearm','hips','leftThighHigh','leftThighMid','rightThighHigh','rightThighMid','leftCalf','rightCalf'])
+        && d.keys().hasAny(['biceps','chest','waist','thighs','calves','neck','shoulders','leftArmRelaxed','leftArmFlexed','rightArmRelaxed','rightArmFlexed','leftForearm','rightForearm','hips','leftThighHigh','leftThighMid','rightThighHigh','rightThighMid','leftCalf','rightCalf'])
+        && optionalNumber(d,'biceps',0.1,100)
+        && optionalNumber(d,'chest',0.1,250)
+        && optionalNumber(d,'waist',0.1,250)
+        && optionalNumber(d,'thighs',0.1,150)
+        && optionalNumber(d,'calves',0.1,100)
+        && optionalNumber(d,'neck',0.1,100)
+        && optionalNumber(d,'shoulders',0.1,250)
+        && optionalNumber(d,'leftArmRelaxed',0.1,100)
+        && optionalNumber(d,'leftArmFlexed',0.1,100)
+        && optionalNumber(d,'rightArmRelaxed',0.1,100)
+        && optionalNumber(d,'rightArmFlexed',0.1,100)
+        && optionalNumber(d,'leftForearm',0.1,100)
+        && optionalNumber(d,'rightForearm',0.1,100)
+        && optionalNumber(d,'hips',0.1,250)
+        && optionalNumber(d,'leftThighHigh',0.1,150)
+        && optionalNumber(d,'leftThighMid',0.1,150)
+        && optionalNumber(d,'rightThighHigh',0.1,150)
+        && optionalNumber(d,'rightThighMid',0.1,150)
+        && optionalNumber(d,'leftCalf',0.1,100)
+        && optionalNumber(d,'rightCalf',0.1,100);
     }
     match /users/{uid}/bioimpedance/{id} {
       allow read, delete: if owner(uid);

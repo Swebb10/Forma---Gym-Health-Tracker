@@ -1,14 +1,16 @@
+import { exerciseUnit } from "../lib/training";
 import { useState } from "react";
 import { Plus, Clock3, Dumbbell, Pencil, ChevronDown } from "lucide-react";
 import { useData } from "../context/DataContext";
-import type { Workout } from "../types";
+import type { Workout, WeightUnit } from "../types";
 import { Empty, DeleteButton } from "../components/ui";
 import { dateLabel, volume, numberLabel } from "../lib/metrics";
 import { WorkoutForm } from "../components/WorkoutForm";
 export default function Workouts({ onNew }: { onNew: () => void }) {
   const { data, remove } = useData();
   const [editing, setEditing] = useState<Workout | null>(null),
-    [filter, setFilter] = useState("");
+    [filter, setFilter] = useState(""),
+    [unit, setUnit] = useState<WeightUnit>("kg");
   const sorted = [...data.workouts]
     .filter((w) => !filter || w.date.startsWith(filter))
     .sort((a, b) => b.date.localeCompare(a.date));
@@ -38,6 +40,17 @@ export default function Workouts({ onNew }: { onNew: () => void }) {
             Ver todo
           </button>
         )}
+        <label className="volume-unit">
+          Unidad del volumen{" "}
+          <select
+            aria-label="Unidad del volumen"
+            value={unit}
+            onChange={(e) => setUnit(e.target.value as WeightUnit)}
+          >
+            <option value="kg">kg</option>
+            <option value="lb">lb</option>
+          </select>
+        </label>
         <span className="muted ml-auto">{sorted.length} sesiones</span>
       </div>
       {!sorted.length ? (
@@ -66,7 +79,9 @@ export default function Workouts({ onNew }: { onNew: () => void }) {
                       <Clock3 size={14} />
                       {w.duration} min
                     </span>
-                    <span>{numberLabel(volume(w), 0)} kg de volumen</span>
+                    <span>
+                      {numberLabel(volume(w, unit), 1)} {unit} de volumen
+                    </span>
                   </div>
                 </div>
                 <button
@@ -90,7 +105,7 @@ export default function Workouts({ onNew }: { onNew: () => void }) {
                         {e.sets
                           .map(
                             (s, i) =>
-                              `Serie ${i + 1}: ${s.reps} rep × ${s.weight} kg`,
+                              `Serie ${i + 1}: ${s.reps} rep × ${numberLabel(s.weight, 2)} ${exerciseUnit(e)}`,
                           )
                           .join(" · ")}
                       </p>
