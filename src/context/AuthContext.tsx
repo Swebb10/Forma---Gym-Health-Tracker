@@ -5,7 +5,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { onAuthStateChanged, signOut, type User } from "firebase/auth";
+import { onIdTokenChanged, signOut, reload, type User } from "firebase/auth";
 import { auth, configured } from "../lib/firebase";
 type AuthState = {
   user: User | null;
@@ -13,17 +13,20 @@ type AuthState = {
   loading: boolean;
   startDemo: () => void;
   leave: () => Promise<void>;
+  refresh: () => Promise<void>;
 };
 const Context = createContext<AuthState>(null!);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null),
     [demo, setDemo] = useState(!configured),
     [loading, setLoading] = useState(configured);
+  const [, setRevision] = useState(0);
   useEffect(
     () =>
       auth
-        ? onAuthStateChanged(auth, (u) => {
+        ? onIdTokenChanged(auth, (u) => {
             setUser(u);
+            setRevision((r) => r + 1);
             setLoading(false);
           })
         : undefined,
@@ -36,6 +39,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         demo,
         loading,
         startDemo: () => setDemo(true),
+        refresh: async () => {
+          if (auth?.currentUser) {
+            await reload(auth.currentUser);
+            await auth.currentUser.getIdToken(true);
+            setRevision((r) => r + 1);
+          }
+        },
         leave: async () => {
           if (auth) await signOut(auth);
           setDemo(false);

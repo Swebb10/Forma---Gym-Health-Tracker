@@ -15,6 +15,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { demoData } from "../lib/demo";
+import { useSubscription } from "./SubscriptionContext";
 import { useAuth } from "./AuthContext";
 import type { Collections, Store } from "../types";
 const empty: Store = {
@@ -37,6 +38,7 @@ type DataState = {
 const Context = createContext<DataState>(null!);
 export function DataProvider({ children }: { children: ReactNode }) {
   const { user, demo } = useAuth();
+  const { canWrite } = useSubscription();
   const [data, setData] = useState<Store>(empty),
     [loading, setLoading] = useState(true),
     [error, setError] = useState("");
@@ -85,6 +87,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setData(next);
   }
   const save: DataState["save"] = async (key, value) => {
+    if (!canWrite)
+      throw new Error(
+        "Tu suscripción no permite guardar registros. Revisa Mi suscripción.",
+      );
     const clean = JSON.parse(JSON.stringify(value));
     if (demo) {
       updateDemo({

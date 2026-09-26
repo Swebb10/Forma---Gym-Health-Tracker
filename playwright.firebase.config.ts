@@ -1,7 +1,9 @@
 import { defineConfig } from "@playwright/test";
 export default defineConfig({
   testDir: "./tests",
-  testMatch: "firebase-ui.spec.ts",
+  outputDir: "test-results/firebase",
+  testMatch: ["firebase-ui.spec.ts", "subscription-ui.spec.ts"],
+  workers: 1,
   timeout: 60000,
   use: { baseURL: "http://127.0.0.1:5179", headless: true },
   webServer: {

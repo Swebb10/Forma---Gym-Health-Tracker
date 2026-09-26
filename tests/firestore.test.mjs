@@ -24,6 +24,18 @@ before(async () => {
       rules: readFileSync("firestore.rules", "utf8"),
     },
   });
+  await env.withSecurityRulesDisabled(async (context) => {
+    for (const id of ["alice", "full", "days", "measure"])
+      await setDoc(doc(context.firestore(), "members", id), {
+        email: id + "@example.com",
+        active: true,
+        subscriptionStatus: "trial",
+        subscriptionEndsAt: null,
+        notes: "",
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
+      });
+  });
 });
 after(async () => {
   await env?.cleanup();

@@ -134,10 +134,14 @@ La propiedad solo se aplica a los procesos iniciados desde esa terminal. Referen
 
 ### Comprobaciones realizadas
 
-- 6 pruebas de cálculos de métricas.
-- 3 pruebas de reglas: permisos por propietario, rechazo de datos inválidos y aceptación de una evaluación completa.
-- 2 pruebas de interfaz: flujos de demostración y adaptación móvil/tema.
-- 1 prueba integrada con Auth + Firestore emulados: registro, login, edición, borrado de campos opcionales, preservación del historial y separación entre cuentas.
-- Revisión visual en escritorio (1440 px) y móvil (390 px), tema claro y oscuro.
+- 22 pruebas unitarias de métricas, rutinas, unidades y suscripciones.
+- 11 pruebas de reglas de Firestore: permisos, vencimiento, aislamiento, pagos y auditoría.
+- 5 pruebas de interfaz de demostración y diseño responsivo.
+- 3 pruebas integradas con Auth + Firestore emulados: cuentas, entrenamientos y administración completa de suscripciones.
+- Compilación de producción y revisión visual en escritorio/móvil.
 
-La conexión a un proyecto Firebase real y el despliegue remoto quedan pendientes de tu configuración.
+### Suscripciones y súper administrador
+
+Consulta [la guía de activación y gestión](docs/SUBSCRIPTIONS.md). Incluye la elección de modo del propietario, prueba de 30 días, SINPE manual, referencias únicas y reglas necesarias.
+
+Esta actualización requiere publicar las reglas nuevas y desplegar el código actualizado; las pruebas no modifican Firebase ni Vercel reales.

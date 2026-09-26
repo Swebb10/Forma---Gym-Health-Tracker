@@ -107,4 +107,10 @@ export type Collections = {
 };
 export type Store = { [K in keyof Collections]: Collections[K][] };
 export type Page =
-  "dashboard" | "workouts" | "routines" | "measurements" | "bioimpedance";
+  | "dashboard"
+  | "workouts"
+  | "routines"
+  | "measurements"
+  | "bioimpedance"
+  | "subscription"
+  | "admin";

@@ -11,10 +11,20 @@ import {
   Menu,
   X,
   ArrowUpRight,
+  CreditCard,
+  ShieldCheck,
+  ArrowLeftRight,
 } from "lucide-react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { DataProvider, useData } from "./context/DataContext";
 import { WorkoutForm, newWorkout } from "./components/WorkoutForm";
+import {
+  SubscriptionProvider,
+  useSubscription,
+} from "./context/SubscriptionContext";
+import ModeChooser from "./components/ModeChooser";
+import OwnerVerification from "./components/OwnerVerification";
+import { membership } from "./lib/subscription";
 import { ErrorMessage } from "./components/ui";
 import type { Page, Routine, RoutineDay, Workout } from "./types";
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -23,16 +33,26 @@ const Workouts = lazy(() => import("./pages/Workouts"));
 const Measurements = lazy(() => import("./pages/Measurements"));
 const Bioimpedance = lazy(() => import("./pages/Bioimpedance"));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
-const nav = [
+const Subscription = lazy(() => import("./pages/Subscription"));
+const Admin = lazy(() => import("./pages/Admin"));
+const personalNav = [
   { id: "dashboard", label: "Resumen", icon: LayoutDashboard },
   { id: "workouts", label: "Entrenamientos", icon: Dumbbell },
   { id: "routines", label: "Mis rutinas", icon: ClipboardList },
   { id: "measurements", label: "Medidas corporales", icon: Ruler },
   { id: "bioimpedance", label: "Bioimpedancia", icon: Activity },
+  { id: "subscription", label: "Mi suscripción", icon: CreditCard },
 ] as const;
 function Workspace() {
   const { user, demo, leave } = useAuth(),
     { loading, error } = useData();
+  const { isAdmin, canWrite, member, now } = useSubscription();
+  const [mode, setMode] = useState<"user" | "admin">("user");
+  const [chooseMode, setChooseMode] = useState(true);
+  const nav =
+    mode === "admin" && isAdmin
+      ? [{ id: "admin" as const, label: "Administración", icon: ShieldCheck }]
+      : personalNav;
   const [page, setPage] = useState<Page>(() =>
       nav.some((n) => n.id === location.hash.slice(1))
         ? (location.hash.slice(1) as Page)
@@ -65,15 +85,30 @@ function Workspace() {
     };
     window.addEventListener("hashchange", update);
     return () => window.removeEventListener("hashchange", update);
-  }, []);
+  }, [mode, isAdmin]);
   const navigate = (next: Page) => {
     location.hash = next;
     setPage(next);
     setMenu(false);
     window.scrollTo({ top: 0 });
   };
-  const start = (r?: Routine, day?: RoutineDay) =>
-    setWorkout(newWorkout(r, day));
+  const selectMode = (next: "user" | "admin") => {
+    setMode(next);
+    setChooseMode(false);
+    setWorkout(null);
+    navigate(next === "admin" ? "admin" : "dashboard");
+  };
+  useEffect(() => {
+    if (!isAdmin && page === "admin") {
+      setMode("user");
+      navigate("dashboard");
+    }
+  }, [isAdmin, page]);
+  const start = (r?: Routine, day?: RoutineDay) => {
+    if (canWrite) setWorkout(newWorkout(r, day));
+  };
+  const visiblePage = !canWrite && page !== "admin" ? "subscription" : page;
+  const subscriptionState = membership(member, now);
   return (
     <div className="app-shell">
       {menu && (
@@ -85,8 +120,8 @@ function Workspace() {
       )}
       <aside className={`sidebar ${menu ? "open" : ""}`}>
         <a
-          href="#dashboard"
-          onClick={() => navigate("dashboard")}
+          href={mode === "admin" ? "#admin" : "#dashboard"}
+          onClick={() => navigate(mode === "admin" ? "admin" : "dashboard")}
           className="brand"
         >
           <span className="brand-mark">f.</span>forma
@@ -99,7 +134,11 @@ function Workspace() {
         >
           <X size={20} />
         </button>
-        <div className="sidebar-caption">TU ESPACIO PERSONAL</div>
+        <div className="sidebar-caption">
+          {mode === "admin" && isAdmin
+            ? "ADMINISTRACIÓN"
+            : "TU ESPACIO PERSONAL"}
+        </div>
         <nav aria-label="Navegación principal">
           {nav.map((n) => (
             <a
@@ -119,6 +158,14 @@ function Workspace() {
           ))}
         </nav>
         <div className="sidebar-bottom">
+          {isAdmin && (
+            <button
+              className="btn secondary mode-switch"
+              onClick={() => setChooseMode(true)}
+            >
+              <ArrowLeftRight size={16} /> Cambiar de modo
+            </button>
+          )}
           <div className="sidebar-note">
             <span className="small">EL PROGRESO ES PERSONAL</span>
             <p>Tu único punto de comparación eres tú.</p>
@@ -132,7 +179,15 @@ function Workspace() {
               <strong>
                 {demo ? "Perfil de demostración" : user?.email?.split("@")[0]}
               </strong>
-              <span>{demo ? "Datos de ejemplo" : "Cuenta personal"}</span>
+              <span>
+                {demo
+                  ? "Datos de ejemplo"
+                  : isAdmin
+                    ? mode === "admin"
+                      ? "Súper administrador"
+                      : "Modo usuario"
+                    : "Cuenta personal"}
+              </span>
             </div>
             <button
               className="icon-btn"
@@ -164,7 +219,8 @@ function Workspace() {
               <Menu size={22} />
             </button>
             <span className="topbar-breadcrumb">
-              Mi espacio <span>/</span>{" "}
+              {mode === "admin" ? "Administración" : "Mi espacio"}{" "}
+              <span>/</span>{" "}
               <strong>{nav.find((n) => n.id === page)?.label}</strong>
             </span>
           </div>
@@ -189,21 +245,49 @@ function Workspace() {
         </header>
         <main id="main">
           <ErrorMessage message={error || sessionError} />
+          <OwnerVerification />
+          {!canWrite && (
+            <p className="notice subscription-alert">
+              {member?.active
+                ? "Tu suscripción venció. Renueva tu plan para continuar registrando tu progreso."
+                : "Tu cuenta está suspendida. Contacta al administrador."}{" "}
+              Tus registros se conservan.
+            </p>
+          )}
+          {canWrite &&
+            !isAdmin &&
+            !demo &&
+            subscriptionState.days <= 7 &&
+            page !== "subscription" && (
+              <div className="notice subscription-alert">
+                Tu acceso vence en {subscriptionState.days} días.{" "}
+                <button
+                  className="text-button"
+                  onClick={() => navigate("subscription")}
+                >
+                  Ver mi suscripción
+                </button>
+              </div>
+            )}
           {loading ? (
             <div className="loading">Cargando tu progreso…</div>
           ) : (
             <Suspense fallback={<div className="loading">Cargando…</div>}>
-              {page === "dashboard" ? (
+              {visiblePage === "admin" && isAdmin ? (
+                <Admin />
+              ) : visiblePage === "subscription" ? (
+                <Subscription />
+              ) : visiblePage === "dashboard" ? (
                 <Dashboard
                   onNavigate={navigate}
                   onNew={() => start()}
                   onStart={start}
                 />
-              ) : page === "routines" ? (
+              ) : visiblePage === "routines" ? (
                 <Routines onStart={start} />
-              ) : page === "workouts" ? (
+              ) : visiblePage === "workouts" ? (
                 <Workouts onNew={() => start()} />
-              ) : page === "measurements" ? (
+              ) : visiblePage === "measurements" ? (
                 <Measurements />
               ) : (
                 <Bioimpedance />
@@ -220,17 +304,40 @@ function Workspace() {
           </footer>
         </main>
       </div>
-      {workout && (
+      {isAdmin && chooseMode && <ModeChooser onSelect={selectMode} />}
+      {workout && canWrite && (
         <WorkoutForm initial={workout} onClose={() => setWorkout(null)} />
       )}
     </div>
   );
 }
 function Gate() {
-  const { user, demo, loading } = useAuth();
-  if (loading) return <div className="loading">Preparando tu espacio…</div>;
+  const { user, demo, loading, leave } = useAuth();
+  const subscription = useSubscription();
+  if (loading || ((user || demo) && subscription.loading))
+    return <div className="loading">Preparando tu espacio…</div>;
+  if ((user || demo) && subscription.error)
+    return (
+      <main className="setup-error">
+        <h1>No se pudo preparar tu cuenta</h1>
+        <ErrorMessage message={subscription.error} />
+        <button className="btn primary" onClick={subscription.retry}>
+          Reintentar
+        </button>
+        <button className="btn secondary" onClick={() => void leaveSafe()}>
+          Cerrar sesión
+        </button>
+      </main>
+    );
+  async function leaveSafe() {
+    try {
+      await leave();
+    } catch {
+      subscription.retry();
+    }
+  }
   return user || demo ? (
-    <DataProvider>
+    <DataProvider key={demo ? "demo" : user!.uid}>
       <Workspace />
     </DataProvider>
   ) : (
@@ -245,7 +352,9 @@ export default function App() {
       <a className="skip-link" href="#main">
         Saltar al contenido
       </a>
-      <Gate />
+      <SubscriptionProvider>
+        <Gate />
+      </SubscriptionProvider>
     </AuthProvider>
   );
 }
