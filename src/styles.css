@@ -245,7 +245,10 @@ strong {
   width: 238px;
   background: var(--panel);
   border-right: 1px solid var(--border);
-  padding: 30px 18px 0;
+  --sidebar-padding: 18px;
+  padding: 0 var(--sidebar-padding);
+  height: 100dvh;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   z-index: 30;
@@ -317,10 +320,54 @@ strong {
   background: var(--blue);
   margin-left: auto;
 }
-.sidebar-bottom {
-  margin-top: auto;
-  padding-top: 35px;
+.sidebar-scroll {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior-y: contain;
+  scrollbar-width: thin;
+  margin: 0 calc(-1 * var(--sidebar-padding));
+  padding: 30px var(--sidebar-padding) 22px;
 }
+.sidebar-scroll > * {
+  flex-shrink: 0;
+}
+.sidebar-scroll nav {
+  margin-bottom: 24px;
+}
+.sidebar-scroll .sidebar-note {
+  margin-top: auto;
+  margin-bottom: 0;
+}
+.sidebar-bottom {
+  flex-shrink: 0;
+  padding-top: 12px;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (max-height: 800px) {
+  .sidebar-scroll {
+    padding-top: 20px;
+    padding-bottom: 14px;
+  }
+  .sidebar-caption {
+    margin-top: 24px;
+    margin-bottom: 12px;
+  }
+  .sidebar nav {
+    gap: 4px;
+  }
+  .sidebar nav a {
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+  .sidebar-scroll .sidebar-note {
+    padding: 12px 15px;
+  }
+}
+
 .sidebar-note {
   margin: 0 6px 22px;
   padding: 20px 15px;
@@ -1297,8 +1344,7 @@ td {
 @media (max-width: 1200px) {
   .sidebar {
     width: 210px;
-    padding-left: 13px;
-    padding-right: 13px;
+    --sidebar-padding: 13px;
   }
   .sidebar nav a {
     font-size: 13px;
@@ -1432,7 +1478,7 @@ td {
     transform: translateX(-100%);
     transition: transform 0.2s;
     width: 250px;
-    padding: 25px 18px 0;
+    --sidebar-padding: 18px;
   }
   .sidebar.open {
     transform: translateX(0);

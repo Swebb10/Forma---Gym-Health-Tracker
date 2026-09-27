@@ -119,44 +119,51 @@ function Workspace() {
         />
       )}
       <aside className={`sidebar ${menu ? "open" : ""}`}>
-        <a
-          href={mode === "admin" ? "#admin" : "#dashboard"}
-          onClick={() => navigate(mode === "admin" ? "admin" : "dashboard")}
-          className="brand"
-        >
-          <span className="brand-mark">f.</span>forma
-          <span className="brand-dot">®</span>
-        </a>
-        <button
-          className="icon-btn mobile-close"
-          aria-label="Cerrar menú"
-          onClick={() => setMenu(false)}
-        >
-          <X size={20} />
-        </button>
-        <div className="sidebar-caption">
-          {mode === "admin" && isAdmin
-            ? "ADMINISTRACIÓN"
-            : "TU ESPACIO PERSONAL"}
+        <div className="sidebar-scroll">
+          <a
+            href={mode === "admin" ? "#admin" : "#dashboard"}
+            onClick={() => navigate(mode === "admin" ? "admin" : "dashboard")}
+            className="brand"
+          >
+            <span className="brand-mark">f.</span>forma
+            <span className="brand-dot">®</span>
+          </a>
+          <button
+            className="icon-btn mobile-close"
+            aria-label="Cerrar menú"
+            onClick={() => setMenu(false)}
+          >
+            <X size={20} />
+          </button>
+          <div className="sidebar-caption">
+            {mode === "admin" && isAdmin
+              ? "ADMINISTRACIÓN"
+              : "TU ESPACIO PERSONAL"}
+          </div>
+          <nav aria-label="Navegación principal">
+            {nav.map((n) => (
+              <a
+                href={"#" + n.id}
+                key={n.id}
+                className={page === n.id ? "active" : ""}
+                aria-current={page === n.id ? "page" : undefined}
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate(n.id);
+                }}
+              >
+                <n.icon size={20} />
+                {n.label}
+                {page === n.id && <span className="nav-dot" />}
+              </a>
+            ))}
+          </nav>
+          <div className="sidebar-note">
+            <span className="small">EL PROGRESO ES PERSONAL</span>
+            <p>Tu único punto de comparación eres tú.</p>
+            <Activity size={28} />
+          </div>
         </div>
-        <nav aria-label="Navegación principal">
-          {nav.map((n) => (
-            <a
-              href={"#" + n.id}
-              key={n.id}
-              className={page === n.id ? "active" : ""}
-              aria-current={page === n.id ? "page" : undefined}
-              onClick={(e) => {
-                e.preventDefault();
-                navigate(n.id);
-              }}
-            >
-              <n.icon size={20} />
-              {n.label}
-              {page === n.id && <span className="nav-dot" />}
-            </a>
-          ))}
-        </nav>
         <div className="sidebar-bottom">
           {isAdmin && (
             <button
@@ -166,11 +173,6 @@ function Workspace() {
               <ArrowLeftRight size={16} /> Cambiar de modo
             </button>
           )}
-          <div className="sidebar-note">
-            <span className="small">EL PROGRESO ES PERSONAL</span>
-            <p>Tu único punto de comparación eres tú.</p>
-            <Activity size={28} />
-          </div>
           <div className="profile">
             <span className="avatar">
               {demo ? "D" : (user?.email?.[0].toUpperCase() ?? "U")}
