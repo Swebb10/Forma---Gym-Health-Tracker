@@ -1,3 +1,5 @@
+import LanguageSelector from "../components/LanguageSelector";
+import { t, useLanguage } from "../lib/i18n";
 import { useState, type FormEvent } from "react";
 import {
   createUserWithEmailAndPassword,
@@ -14,6 +16,7 @@ import { auth, configured } from "../lib/firebase";
 import { useAuth } from "../context/AuthContext";
 import { Field, ErrorMessage } from "../components/ui";
 export default function AuthPage() {
+  useLanguage();
   const { startDemo } = useAuth();
   const [mode, setMode] = useState<"login" | "register" | "reset">("login"),
     [email, setEmail] = useState(""),
@@ -61,45 +64,52 @@ export default function AuthPage() {
           <span className="brand-dot">®</span>
         </div>
         <div>
-          <span className="eyebrow">GYM & HEALTH TRACKER</span>
+          <span className="eyebrow">{t("GYM & HEALTH TRACKER")}</span>
           <h1>
-            Tu esfuerzo.
+            {t("Tu esfuerzo.")}
             <br />
-            Tu evolución.
+            {t("Tu evolución.")}
           </h1>
-          <p>Un espacio para entrenar con intención y entender tu progreso.</p>
+          <p>
+            {t(
+              "Un espacio para entrenar con intención y entender tu progreso.",
+            )}
+          </p>
           <div className="auth-features">
             <span>
-              <Dumbbell /> Entrenamientos a tu medida
+              <Dumbbell /> {t("Entrenamientos a tu medida")}
             </span>
             <span>
-              <Activity /> Tu salud, en perspectiva
+              <Activity /> {t("Tu salud, en perspectiva")}
             </span>
             <span>
-              <ChartNoAxesCombined /> Cada avance cuenta
+              <ChartNoAxesCombined /> {t("Cada avance cuenta")}
             </span>
           </div>
         </div>
-        <small>Construye tu mejor versión, un día a la vez.</small>
+        <small>{t("Construye tu mejor versión, un día a la vez.")}</small>
       </section>
       <section className="auth-form">
         <div className="auth-form-inner">
-          <span className="eyebrow">TU PRÓXIMO PASO</span>
+          <div className="auth-language">
+            <LanguageSelector />
+          </div>
+          <span className="eyebrow">{t("TU PRÓXIMO PASO")}</span>
           <h2>
             {mode === "register"
-              ? "Crea tu cuenta"
+              ? t("Crea tu cuenta")
               : mode === "reset"
-                ? "Recupera tu acceso"
-                : "Qué bueno verte"}
+                ? t("Recupera tu acceso")
+                : t("Qué bueno verte")}
           </h2>
           <p className="muted">
             {mode === "register"
-              ? "Empieza a registrar lo que te hace más fuerte."
-              : "Continúa donde lo dejaste."}
+              ? t("Empieza a registrar lo que te hace más fuerte.")
+              : t("Continúa donde lo dejaste.")}
           </p>
           {configured ? (
             <form onSubmit={submit}>
-              <Field label="Correo electrónico">
+              <Field label={t("Correo electrónico")}>
                 <input
                   type="email"
                   autoComplete="email"
@@ -110,7 +120,7 @@ export default function AuthPage() {
                 />
               </Field>
               {mode !== "reset" && (
-                <Field label="Contraseña">
+                <Field label={t("Contraseña")}>
                   <input
                     type="password"
                     required
@@ -120,24 +130,24 @@ export default function AuthPage() {
                     }
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Mínimo 8 caracteres"
+                    placeholder={t("Mínimo 8 caracteres")}
                   />
                 </Field>
               )}
-              <ErrorMessage message={error} />
+              <ErrorMessage message={t(error)} />
               {message && (
                 <p role="status" className="success">
-                  {message}
+                  {t(message)}
                 </p>
               )}
               <button className="btn primary w-full" disabled={busy}>
                 {busy
-                  ? "Un momento…"
+                  ? t("Un momento…")
                   : mode === "register"
-                    ? "Crear cuenta"
+                    ? t("Crear cuenta")
                     : mode === "reset"
-                      ? "Enviar instrucciones"
-                      : "Iniciar sesión"}
+                      ? t("Enviar instrucciones")
+                      : t("Iniciar sesión")}
                 <ArrowRight size={18} />
               </button>
               <button
@@ -150,8 +160,8 @@ export default function AuthPage() {
                 }}
               >
                 {mode === "register"
-                  ? "Ya tengo una cuenta"
-                  : "Crear una cuenta"}
+                  ? t("Ya tengo una cuenta")
+                  : t("Crear una cuenta")}
               </button>
               {mode === "login" && (
                 <button
@@ -162,7 +172,7 @@ export default function AuthPage() {
                     setError("");
                   }}
                 >
-                  Olvidé mi contraseña
+                  {t("Olvidé mi contraseña")}
                 </button>
               )}
               {mode === "reset" && (
@@ -171,22 +181,23 @@ export default function AuthPage() {
                   className="text-button"
                   onClick={() => setMode("login")}
                 >
-                  Volver al inicio de sesión
+                  {t("Volver al inicio de sesión")}
                 </button>
               )}
             </form>
           ) : (
             <p className="notice">
-              Firebase todavía no está conectado. Puedes explorar la aplicación
-              con datos de ejemplo.
+              {t(
+                "Firebase todavía no está conectado. Puedes explorar la aplicación con datos de ejemplo.",
+              )}
             </p>
           )}
           <div className="divider" />
           <button className="btn secondary w-full" onClick={startDemo}>
-            Explorar demostración <ArrowRight size={17} />
+            {t("Explorar demostración")} <ArrowRight size={17} />
           </button>
           <p className="small muted">
-            La demostración se guarda solo en esta pestaña.
+            {t("La demostración se guarda solo en esta pestaña.")}
           </p>
         </div>
       </section>

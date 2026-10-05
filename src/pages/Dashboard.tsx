@@ -1,3 +1,4 @@
+import { t, useLanguage, getLocale } from "../lib/i18n";
 import { nextRoutineDay, dayLabel } from "../lib/training";
 import { useState } from "react";
 import {
@@ -31,6 +32,7 @@ export default function Dashboard({
   onNew: () => void;
   onStart: (r: Routine, day?: RoutineDay) => void;
 }) {
+  useLanguage();
   const { data } = useData(),
     { demo } = useAuth();
   const [metric, setMetric] = useState("weight"),
@@ -81,7 +83,9 @@ export default function Dashboard({
     date.setDate(date.getDate() + i);
     return {
       date: localDate(date),
-      label: ["L", "M", "X", "J", "V", "S", "D"][i],
+      label: new Intl.DateTimeFormat(getLocale(), { weekday: "narrow" }).format(
+        date,
+      ),
       number: date.getDate(),
     };
   });
@@ -121,24 +125,27 @@ export default function Dashboard({
     <>
       <div className="dashboard-heading">
         <div>
-          <span className="eyebrow">TU PROGRESO, EN PERSPECTIVA</span>
+          <span className="eyebrow">{t("TU PROGRESO, EN PERSPECTIVA")}</span>
           <h1>
-            Un poco más fuerte.<span className="blue"> Cada día.</span>
+            {t("Un poco más fuerte.")}
+            <span className="blue"> {t("Cada día.")}</span>
           </h1>
           <p className="muted">
-            Así se ve el esfuerzo que estás poniendo en ti.
+            {t("Así se ve el esfuerzo que estás poniendo en ti.")}
           </p>
         </div>
         <button className="btn primary" onClick={onNew}>
-          <Plus size={18} /> Registrar entrenamiento
+          <Plus size={18} /> {t("Registrar entrenamiento")}
         </button>
       </div>
       {demo && (
         <div className="demo-banner">
           <span className="demo-dot" />
           <span>
-            <strong>Estás explorando una demostración.</strong> Estos datos son
-            de ejemplo; tus cambios se guardan en esta pestaña.
+            <strong>{t("Estás explorando una demostración.")}</strong>{" "}
+            {t(
+              "Estos datos son de ejemplo; tus cambios se guardan en esta pestaña.",
+            )}
           </span>
         </div>
       )}
@@ -146,12 +153,12 @@ export default function Dashboard({
         {cards.map((c) => (
           <article className="panel stat-card" key={c.label}>
             <div className="flex justify-between items-center">
-              <span className="muted">{c.label}</span>
+              <span className="muted">{t(c.label)}</span>
               <c.icon size={18} className="muted" />
             </div>
             <div className="stat-value">
               {numberLabel(c.value)}
-              <span>{c.unit}</span>
+              <span>{t(c.unit)}</span>
             </div>
             <p className="stat-note">
               {c.delta !== undefined && (
@@ -160,7 +167,7 @@ export default function Dashboard({
                   {numberLabel(c.delta)}{" "}
                 </span>
               )}
-              {c.note}
+              {t(c.note)}
             </p>
           </article>
         ))}
@@ -170,23 +177,23 @@ export default function Dashboard({
           <section className="panel chart-panel">
             <div className="panel-heading">
               <div>
-                <span className="eyebrow">COMPOSICIÓN CORPORAL</span>
-                <h3>Pequeños cambios. Progreso real.</h3>
+                <span className="eyebrow">{t("COMPOSICIÓN CORPORAL")}</span>
+                <h3>{t("Pequeños cambios. Progreso real.")}</h3>
               </div>
               <select
-                aria-label="Período de gráficos"
+                aria-label={t("Período de gráficos")}
                 value={range}
                 onChange={(e) => setRange(e.target.value)}
               >
-                <option value="30">30 días</option>
-                <option value="90">90 días</option>
-                <option value="all">Todo</option>
+                <option value="30">{t("30 días")}</option>
+                <option value="90">{t("90 días")}</option>
+                <option value="all">{t("Todo")}</option>
               </select>
             </div>
             <div
               className="chart-tabs"
               role="group"
-              aria-label="Métrica de composición"
+              aria-label={t("Métrica de composición")}
             >
               {[
                 { key: "weight", label: "Peso corporal" },
@@ -199,29 +206,30 @@ export default function Dashboard({
                   className={metric === m.key ? "active" : ""}
                   onClick={() => setMetric(m.key)}
                 >
-                  {m.label}
+                  {t(m.label)}
                 </button>
               ))}
             </div>
             <ProgressChart data={points} unit={metric === "fat" ? "%" : "kg"} />
             {metric === "muscle" && (
               <p className="chart-footnote">
-                Estimación: peso × porcentaje de músculo esquelético. No
-                equivale a masa magra.
+                {t(
+                  "Estimación: peso × porcentaje de músculo esquelético. No equivale a masa magra.",
+                )}
               </p>
             )}
           </section>
           <section className="panel">
             <div className="panel-heading">
               <div>
-                <span className="eyebrow">CONSTANCIA EN MOVIMIENTO</span>
-                <h3>Últimos entrenamientos</h3>
+                <span className="eyebrow">{t("CONSTANCIA EN MOVIMIENTO")}</span>
+                <h3>{t("Últimos entrenamientos")}</h3>
               </div>
               <button
                 className="text-button"
                 onClick={() => onNavigate("workouts")}
               >
-                Ver todos <ArrowUpRight size={16} />
+                {t("Ver todos")} <ArrowUpRight size={16} />
               </button>
             </div>
             {workouts.length ? (
@@ -237,39 +245,43 @@ export default function Dashboard({
                   <span className="grow text-left">
                     <strong>{w.name}</strong>
                     <span className="muted small block">
-                      {dateLabel(w.date)} · {w.exercises.length} ejercicios
+                      {dateLabel(w.date)} · {w.exercises.length}{" "}
+                      {t("ejercicios")}
                     </span>
                   </span>
                   <span className="muted small flex items-center gap-1">
                     <Clock3 size={14} />
-                    {w.duration} min
+                    {w.duration} {t("min")}
                   </span>
                   <ChevronRight size={17} className="muted" />
                 </button>
               ))
             ) : (
-              <p className="p-6 muted">Tu primera sesión aparecerá aquí.</p>
+              <p className="p-6 muted">
+                {t("Tu primera sesión aparecerá aquí.")}
+              </p>
             )}
           </section>
         </div>
         <aside className="side-column">
           <section className="weekly-card">
             <div className="flex items-center justify-between">
-              <span className="eyebrow">ESTA SEMANA</span>
+              <span className="eyebrow">{t("ESTA SEMANA")}</span>
               <CalendarDays size={18} />
             </div>
-            <h3>Mantén el ritmo.</h3>
+            <h3>{t("Mantén el ritmo.")}</h3>
             <p>
               {weekly ? (
-                <>
-                  Ya registraste{" "}
-                  <strong>
-                    {weekly} {weekly === 1 ? "sesión" : "sesiones"}
-                  </strong>{" "}
-                  esta semana.
-                </>
+                <strong>
+                  {t(
+                    weekly === 1
+                      ? "{0} sesión registrada esta semana."
+                      : "{0} sesiones registradas esta semana.",
+                    { 0: weekly },
+                  )}
+                </strong>
               ) : (
-                "Tu próxima sesión puede ser hoy."
+                t("Tu próxima sesión puede ser hoy.")
               )}
             </p>
             <div className="week-days">
@@ -291,11 +303,11 @@ export default function Dashboard({
               ))}
             </div>
             <div className="week-legend">
-              <span /> Día con entrenamiento registrado
+              <span /> {t("Día con entrenamiento registrado")}
             </div>
           </section>
           <section className="panel routine-pick">
-            <span className="eyebrow">TU PRÓXIMA SESIÓN</span>
+            <span className="eyebrow">{t("TU PRÓXIMA SESIÓN")}</span>
             {data.routines[0] ? (
               <>
                 <div className="routine-pick-icon">
@@ -304,26 +316,26 @@ export default function Dashboard({
                 <h3>{data.routines[0].name}</h3>
                 <p className="muted">
                   {nextDay && dayLabel(nextDay)} · {nextDay?.exercises.length}{" "}
-                  ejercicios
+                  {t("ejercicios")}
                 </p>
                 <button
                   className="btn secondary w-full"
                   onClick={() => onStart(data.routines[0], nextDay)}
                 >
-                  Empezar sesión <ArrowUpRight size={17} />
+                  {t("Empezar sesión")} <ArrowUpRight size={17} />
                 </button>
               </>
             ) : (
               <>
-                <h3>Diseña tu rutina</h3>
+                <h3>{t("Diseña tu rutina")}</h3>
                 <p className="muted">
-                  Prepara los ejercicios de tu próxima sesión.
+                  {t("Prepara los ejercicios de tu próxima sesión.")}
                 </p>
                 <button
                   className="btn secondary"
                   onClick={() => onNavigate("routines")}
                 >
-                  Crear rutina <Plus size={16} />
+                  {t("Crear rutina")} <Plus size={16} />
                 </button>
               </>
             )}
@@ -333,16 +345,16 @@ export default function Dashboard({
       <section className="panel chart-panel strength-panel">
         <div className="panel-heading">
           <div>
-            <span className="eyebrow">PROGRESO DE FUERZA</span>
-            <h3>El peso de tu constancia</h3>
+            <span className="eyebrow">{t("PROGRESO DE FUERZA")}</span>
+            <h3>{t("El peso de tu constancia")}</h3>
           </div>
           <select
-            aria-label="Ejercicio del gráfico"
+            aria-label={t("Ejercicio del gráfico")}
             value={chosen}
             onChange={(e) => setExercise(e.target.value)}
           >
             {!names.length && (
-              <option value="">Sin ejercicios registrados</option>
+              <option value="">{t("Sin ejercicios registrados")}</option>
             )}
             {names.map((n) => (
               <option key={n}>{n}</option>
@@ -351,22 +363,22 @@ export default function Dashboard({
         </div>
         <div className="strength-unit">
           <label>
-            Mostrar pesos en{" "}
+            {t("Mostrar pesos en")}{" "}
             <select
-              aria-label="Unidad del gráfico de fuerza"
+              aria-label={t("Unidad del gráfico de fuerza")}
               value={strengthUnit}
               onChange={(e) => setStrengthUnit(e.target.value as WeightUnit)}
             >
-              <option value="kg">Kilogramos (kg)</option>
-              <option value="lb">Libras (lb)</option>
+              <option value="kg">{t("Kilogramos (kg)")}</option>
+              <option value="lb">{t("Libras (lb)")}</option>
             </select>
           </label>
         </div>
         <ProgressChart data={exerciseData} unit={strengthUnit} />
         <p className="chart-footnote">
-          Mayor peso registrado por día para el ejercicio seleccionado. Los
-          registros en kg y lb se convierten a la unidad elegida para
-          compararlos.
+          {t(
+            "Mayor peso registrado por día para el ejercicio seleccionado. Los registros en kg y lb se convierten a la unidad elegida para compararlos.",
+          )}
         </p>
       </section>
     </>

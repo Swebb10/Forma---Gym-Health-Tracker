@@ -1,3 +1,4 @@
+import { getLanguage, subscribeLanguage } from "./i18n";
 import { initializeApp } from "firebase/app";
 import { getAuth, connectAuthEmulator } from "firebase/auth";
 import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
@@ -23,4 +24,12 @@ export const db = app ? getFirestore(app) : null;
 if (auth && db && env.VITE_USE_FIREBASE_EMULATORS === "true") {
   connectAuthEmulator(auth, "http://127.0.0.1:9099", { disableWarnings: true });
   connectFirestoreEmulator(db, "127.0.0.1", 8080);
+}
+
+if (auth) {
+  const syncLanguage = () => {
+    auth.languageCode = getLanguage();
+  };
+  syncLanguage();
+  subscribeLanguage(syncLanguage);
 }

@@ -1,3 +1,5 @@
+import LanguageSelector from "./components/LanguageSelector";
+import { t, useLanguage, getLocale } from "./lib/i18n";
 import { useState, useEffect, lazy, Suspense } from "react";
 import {
   LayoutDashboard,
@@ -44,6 +46,7 @@ const personalNav = [
   { id: "subscription", label: "Mi suscripción", icon: CreditCard },
 ] as const;
 function Workspace() {
+  useLanguage();
   const { user, demo, leave } = useAuth(),
     { loading, error } = useData();
   const { isAdmin, canWrite, member, now } = useSubscription();
@@ -114,7 +117,7 @@ function Workspace() {
       {menu && (
         <button
           className="sidebar-overlay"
-          aria-label="Cerrar navegación"
+          aria-label={t("Cerrar navegación")}
           onClick={() => setMenu(false)}
         />
       )}
@@ -130,17 +133,17 @@ function Workspace() {
           </a>
           <button
             className="icon-btn mobile-close"
-            aria-label="Cerrar menú"
+            aria-label={t("Cerrar menú")}
             onClick={() => setMenu(false)}
           >
             <X size={20} />
           </button>
           <div className="sidebar-caption">
             {mode === "admin" && isAdmin
-              ? "ADMINISTRACIÓN"
-              : "TU ESPACIO PERSONAL"}
+              ? t("ADMINISTRACIÓN")
+              : t("TU ESPACIO PERSONAL")}
           </div>
-          <nav aria-label="Navegación principal">
+          <nav aria-label={t("Navegación principal")}>
             {nav.map((n) => (
               <a
                 href={"#" + n.id}
@@ -153,14 +156,14 @@ function Workspace() {
                 }}
               >
                 <n.icon size={20} />
-                {n.label}
+                {t(n.label)}
                 {page === n.id && <span className="nav-dot" />}
               </a>
             ))}
           </nav>
           <div className="sidebar-note">
-            <span className="small">EL PROGRESO ES PERSONAL</span>
-            <p>Tu único punto de comparación eres tú.</p>
+            <span className="small">{t("EL PROGRESO ES PERSONAL")}</span>
+            <p>{t("Tu único punto de comparación eres tú.")}</p>
             <Activity size={28} />
           </div>
         </div>
@@ -170,7 +173,7 @@ function Workspace() {
               className="btn secondary mode-switch"
               onClick={() => setChooseMode(true)}
             >
-              <ArrowLeftRight size={16} /> Cambiar de modo
+              <ArrowLeftRight size={16} /> {t("Cambiar de modo")}
             </button>
           )}
           <div className="profile">
@@ -179,21 +182,25 @@ function Workspace() {
             </span>
             <div>
               <strong>
-                {demo ? "Perfil de demostración" : user?.email?.split("@")[0]}
+                {demo
+                  ? t("Perfil de demostración")
+                  : user?.email?.split("@")[0]}
               </strong>
               <span>
                 {demo
-                  ? "Datos de ejemplo"
+                  ? t("Datos de ejemplo")
                   : isAdmin
                     ? mode === "admin"
-                      ? "Súper administrador"
-                      : "Modo usuario"
-                    : "Cuenta personal"}
+                      ? t("Súper administrador")
+                      : t("Modo usuario")
+                    : t("Cuenta personal")}
               </span>
             </div>
             <button
               className="icon-btn"
-              aria-label={demo ? "Salir de demostración" : "Cerrar sesión"}
+              aria-label={
+                demo ? t("Salir de demostración") : t("Cerrar sesión")
+              }
               onClick={async () => {
                 try {
                   await leave();
@@ -214,30 +221,33 @@ function Workspace() {
           <div className="flex items-center gap-3">
             <button
               className="icon-btn mobile-menu"
-              aria-label="Abrir menú"
+              aria-label={t("Abrir menú")}
               aria-expanded={menu}
               onClick={() => setMenu(true)}
             >
               <Menu size={22} />
             </button>
             <span className="topbar-breadcrumb">
-              {mode === "admin" ? "Administración" : "Mi espacio"}{" "}
+              {mode === "admin" ? t("Administración") : t("Mi espacio")}{" "}
               <span>/</span>{" "}
-              <strong>{nav.find((n) => n.id === page)?.label}</strong>
+              <strong>{t(nav.find((n) => n.id === page)?.label ?? "")}</strong>
             </span>
           </div>
           <div className="flex items-center gap-4">
             <span className="topbar-date">
-              {new Intl.DateTimeFormat("es", {
+              {new Intl.DateTimeFormat(getLocale(), {
                 weekday: "short",
                 day: "numeric",
                 month: "long",
                 year: "numeric",
               }).format(new Date())}
             </span>
+            <LanguageSelector />
             <button
               className="icon-btn theme-button"
-              aria-label={dark ? "Activar tema claro" : "Activar tema oscuro"}
+              aria-label={
+                dark ? t("Activar tema claro") : t("Activar tema oscuro")
+              }
               aria-pressed={dark}
               onClick={() => setDark(!dark)}
             >
@@ -251,9 +261,13 @@ function Workspace() {
           {!canWrite && (
             <p className="notice subscription-alert">
               {member?.active
-                ? "Tu suscripción venció. Renueva tu plan para continuar registrando tu progreso."
-                : "Tu cuenta está suspendida. Contacta al administrador."}{" "}
-              Tus registros se conservan.
+                ? t(
+                    "Tu suscripción venció. Renueva tu plan para continuar registrando tu progreso.",
+                  )
+                : t(
+                    "Tu cuenta está suspendida. Contacta al administrador.",
+                  )}{" "}
+              {t("Tus registros se conservan.")}
             </p>
           )}
           {canWrite &&
@@ -262,19 +276,23 @@ function Workspace() {
             subscriptionState.days <= 7 &&
             page !== "subscription" && (
               <div className="notice subscription-alert">
-                Tu acceso vence en {subscriptionState.days} días.{" "}
+                {t("Tu acceso vence en {0} días.", {
+                  0: subscriptionState.days,
+                })}{" "}
                 <button
                   className="text-button"
                   onClick={() => navigate("subscription")}
                 >
-                  Ver mi suscripción
+                  {t("Ver mi suscripción")}
                 </button>
               </div>
             )}
           {loading ? (
-            <div className="loading">Cargando tu progreso…</div>
+            <div className="loading">{t("Cargando tu progreso…")}</div>
           ) : (
-            <Suspense fallback={<div className="loading">Cargando…</div>}>
+            <Suspense
+              fallback={<div className="loading">{t("Cargando…")}</div>}
+            >
               {visiblePage === "admin" && isAdmin ? (
                 <Admin />
               ) : visiblePage === "subscription" ? (
@@ -301,7 +319,7 @@ function Workspace() {
               forma <span className="muted">/ Gym & Health Tracker</span>
             </span>
             <span>
-              Tu bienestar, paso a paso <ArrowUpRight size={13} />
+              {t("Tu bienestar, paso a paso")} <ArrowUpRight size={13} />
             </span>
           </footer>
         </main>
@@ -314,20 +332,22 @@ function Workspace() {
   );
 }
 function Gate() {
+  useLanguage();
   const { user, demo, loading, leave } = useAuth();
   const subscription = useSubscription();
   if (loading || ((user || demo) && subscription.loading))
-    return <div className="loading">Preparando tu espacio…</div>;
+    return <div className="loading">{t("Preparando tu espacio…")}</div>;
   if ((user || demo) && subscription.error)
     return (
       <main className="setup-error">
-        <h1>No se pudo preparar tu cuenta</h1>
+        <LanguageSelector />
+        <h1>{t("No se pudo preparar tu cuenta")}</h1>
         <ErrorMessage message={subscription.error} />
         <button className="btn primary" onClick={subscription.retry}>
-          Reintentar
+          {t("Reintentar")}
         </button>
         <button className="btn secondary" onClick={() => void leaveSafe()}>
-          Cerrar sesión
+          {t("Cerrar sesión")}
         </button>
       </main>
     );
@@ -343,16 +363,17 @@ function Gate() {
       <Workspace />
     </DataProvider>
   ) : (
-    <Suspense fallback={<div className="loading">Cargando…</div>}>
+    <Suspense fallback={<div className="loading">{t("Cargando…")}</div>}>
       <AuthPage />
     </Suspense>
   );
 }
 export default function App() {
+  useLanguage();
   return (
     <AuthProvider>
       <a className="skip-link" href="#main">
-        Saltar al contenido
+        {t("Saltar al contenido")}
       </a>
       <SubscriptionProvider>
         <Gate />

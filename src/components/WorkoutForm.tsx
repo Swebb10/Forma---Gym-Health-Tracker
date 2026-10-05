@@ -1,3 +1,4 @@
+import { t, useLanguage } from "../lib/i18n";
 import { useState, type FormEvent } from "react";
 import { useData } from "../context/DataContext";
 import type { Workout, Routine, RoutineDay } from "../types";
@@ -28,6 +29,7 @@ export function WorkoutForm({
   initial: Workout;
   onClose: () => void;
 }) {
+  useLanguage();
   const { data, save } = useData();
   const [value, setValue] = useState(initial),
     [busy, setBusy] = useState(false),
@@ -55,14 +57,14 @@ export function WorkoutForm({
   }
   return (
     <Modal
-      title="Registrar entrenamiento"
+      title={t("Registrar entrenamiento")}
       onClose={() => {
         if (!busy) onClose();
       }}
     >
       <form onSubmit={submit}>
         <div className="form-content">
-          <Field label="Usar una rutina">
+          <Field label={t("Usar una rutina")}>
             <select
               value={value.routineId ?? ""}
               onChange={(event) => {
@@ -77,10 +79,10 @@ export function WorkoutForm({
                 });
               }}
             >
-              <option value="">Entrenamiento libre</option>
+              <option value="">{t("Entrenamiento libre")}</option>
               {value.routineId && !routine && (
                 <option value={value.routineId}>
-                  Rutina eliminada · sesión conservada
+                  {t("Rutina eliminada · sesión conservada")}
                 </option>
               )}
               {data.routines.map((r) => (
@@ -91,7 +93,7 @@ export function WorkoutForm({
             </select>
           </Field>
           {routine && (
-            <Field label="Día de la rutina">
+            <Field label={t("Día de la rutina")}>
               <select
                 value={selectedExists ? (value.routineDayId ?? "") : ""}
                 onChange={(event) => {
@@ -102,7 +104,7 @@ export function WorkoutForm({
               >
                 {!selectedExists && (
                   <option value="">
-                    Sesión guardada · conservar ejercicios
+                    {t("Sesión guardada · conservar ejercicios")}
                   </option>
                 )}
                 {sessions.map((day) => (
@@ -113,7 +115,7 @@ export function WorkoutForm({
               </select>
             </Field>
           )}
-          <Field label="Nombre de la sesión">
+          <Field label={t("Nombre de la sesión")}>
             <input
               required
               maxLength={100}
@@ -122,7 +124,7 @@ export function WorkoutForm({
             />
           </Field>
           <div className="form-grid">
-            <Field label="Fecha">
+            <Field label={t("Fecha")}>
               <input
                 type="date"
                 required
@@ -131,7 +133,7 @@ export function WorkoutForm({
                 onChange={(e) => setValue({ ...value, date: e.target.value })}
               />
             </Field>
-            <Field label="Duración · minutos">
+            <Field label={t("Duración · minutos")}>
               <input
                 type="number"
                 min="1"
@@ -149,15 +151,15 @@ export function WorkoutForm({
             exercises={value.exercises}
             onChange={(exercises) => setValue({ ...value, exercises })}
           />
-          <Field label="Notas de la sesión">
+          <Field label={t("Notas de la sesión")}>
             <textarea
               maxLength={1000}
               value={value.notes}
               onChange={(e) => setValue({ ...value, notes: e.target.value })}
-              placeholder="¿Cómo te sentiste hoy?"
+              placeholder={t("¿Cómo te sentiste hoy?")}
             />
           </Field>
-          <ErrorMessage message={error} />
+          <ErrorMessage message={t(error)} />
         </div>
         <FormFooter busy={busy} onClose={onClose} />
       </form>
@@ -168,7 +170,7 @@ export const newWorkout = (routine?: Routine, day?: RoutineDay): Workout => ({
   id: crypto.randomUUID(),
   date: localDate(),
   routineId: null,
-  name: "Entrenamiento libre",
+  name: t("Entrenamiento libre"),
   duration: 45,
   notes: "",
   exercises: [freshExercise()],

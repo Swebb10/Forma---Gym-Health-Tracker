@@ -1,3 +1,4 @@
+import { t, useLanguage } from "../lib/i18n";
 import { crc, PLANS, costaRicaDay, type Payment } from "../lib/subscription";
 import { subscriptionDate as dateLabel } from "../lib/subscription";
 export default function PaymentHistory({
@@ -7,25 +8,28 @@ export default function PaymentHistory({
   payments: Payment[];
   admin?: boolean;
 }) {
+  useLanguage();
   return payments.length ? (
     <div className="payment-history">
       {payments.map((p) => (
         <article key={p.id} className="payment-row">
           <div>
             <strong>
-              {PLANS.find((plan) => plan.id === p.plan)?.label ?? p.plan} ·{" "}
+              {t(PLANS.find((plan) => plan.id === p.plan)?.label ?? p.plan)} ·{" "}
               {crc(p.amount)}
             </strong>
             <p className="muted small">
               {admin && <>{p.email} · </>}
               {p.verifiedAt
                 ? dateLabel(costaRicaDay(p.verifiedAt.toMillis()))
-                : "Confirmando…"}
+                : t("Confirmando…")}
             </p>
-            <p className="small">Referencia SINPE: {p.reference}</p>
+            <p className="small">
+              {t("Referencia SINPE:")} {p.reference}
+            </p>
           </div>
           <span className="small muted">
-            Hasta{" "}
+            {t("Hasta")}{" "}
             {p.subscriptionEndsAt
               ? dateLabel(costaRicaDay(p.subscriptionEndsAt.toMillis() - 1))
               : "—"}
@@ -34,6 +38,6 @@ export default function PaymentHistory({
       ))}
     </div>
   ) : (
-    <p className="muted">Todavía no hay pagos confirmados.</p>
+    <p className="muted">{t("Todavía no hay pagos confirmados.")}</p>
   );
 }

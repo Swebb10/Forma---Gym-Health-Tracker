@@ -1,3 +1,4 @@
+import { t, useLanguage } from "../../lib/i18n";
 import { useState, type FormEvent } from "react";
 import { Timestamp } from "firebase/firestore";
 import { ErrorMessage, Field, Modal } from "../ui";
@@ -35,6 +36,7 @@ function Footer({
   onClose: () => void;
   label: string;
 }) {
+  useLanguage();
   return (
     <div className="form-footer">
       <button
@@ -43,10 +45,10 @@ function Footer({
         disabled={busy}
         onClick={onClose}
       >
-        Cancelar
+        {t("Cancelar")}
       </button>
       <button className="btn primary" disabled={busy}>
-        {busy ? "Guardando…" : label}
+        {busy ? t("Guardando…") : label}
       </button>
     </div>
   );
@@ -60,6 +62,7 @@ export function PaymentForm({
   billing: Billing;
   onClose: () => void;
 }) {
+  useLanguage();
   const [plan, setPlan] = useState<PlanId>("monthly"),
     [reference, setReference] = useState(""),
     [confirmed, setConfirmed] = useState(false);
@@ -85,29 +88,29 @@ export function PaymentForm({
     }
   }
   return (
-    <Modal title="Registrar pago SINPE" onClose={close}>
+    <Modal title={t("Registrar pago SINPE")} onClose={close}>
       <form onSubmit={submit}>
         <div className="form-content">
           <p>
-            Cuenta: <strong>{member.email}</strong>
+            {t("Cuenta:")} <strong>{member.email}</strong>
           </p>
-          <Field label="Plan pagado">
+          <Field label={t("Plan pagado")}>
             <select
               value={plan}
               onChange={(e) => setPlan(e.target.value as PlanId)}
             >
               {PLANS.map((p) => (
                 <option key={p.id} value={p.id}>
-                  {p.label} · {crc(quote[p.id])}
+                  {t(p.label)} · {crc(quote[p.id])}
                 </option>
               ))}
             </select>
           </Field>
           <div className="payment-preview">
-            <span>Monto a confirmar</span>
+            <span>{t("Monto a confirmar")}</span>
             <strong>{crc(quote[plan])}</strong>
             <span>
-              Nuevo vencimiento estimado:{" "}
+              {t("Nuevo vencimiento estimado:")}{" "}
               {dateLabel(
                 costaRicaDay(
                   renewalEnd(member, PLANS.find((p) => p.id === plan)!.months) -
@@ -116,11 +119,12 @@ export function PaymentForm({
               )}
             </span>
             <small>
-              La fecha se recalcula al guardar para conservar cualquier
-              renovación reciente.
+              {t(
+                "La fecha se recalcula al guardar para conservar cualquier renovación reciente.",
+              )}
             </small>
           </div>
-          <Field label="Referencia SINPE">
+          <Field label={t("Referencia SINPE")}>
             <input
               value={reference}
               onChange={(e) => setReference(e.target.value)}
@@ -128,7 +132,7 @@ export function PaymentForm({
               minLength={4}
               maxLength={80}
               pattern="[A-Za-z0-9-]{4,80}"
-              placeholder="Número de referencia de la transferencia"
+              placeholder={t("Número de referencia de la transferencia")}
             />
           </Field>
           <label className="checkbox-line">
@@ -139,13 +143,18 @@ export function PaymentForm({
               required
             />
             <span>
-              Verifiqué en mi banco que recibí este monto y que la referencia
-              corresponde a esta cuenta.
+              {t(
+                "Verifiqué en mi banco que recibí este monto y que la referencia corresponde a esta cuenta.",
+              )}
             </span>
           </label>
-          <ErrorMessage message={error} />
+          <ErrorMessage message={t(error)} />
         </div>
-        <Footer busy={busy} onClose={close} label="Confirmar pago y renovar" />
+        <Footer
+          busy={busy}
+          onClose={close}
+          label={t("Confirmar pago y renovar")}
+        />
       </form>
     </Modal>
   );
@@ -157,6 +166,7 @@ export function MembershipForm({
   member: Member;
   onClose: () => void;
 }) {
+  useLanguage();
   const [end, setEnd] = useState(membership(member).endDay),
     [notes, setNotes] = useState(member.notes),
     [reason, setReason] = useState("");
@@ -193,7 +203,7 @@ export function MembershipForm({
     }
   }
   return (
-    <Modal title="Editar suscripción" onClose={close}>
+    <Modal title={t("Editar suscripción")} onClose={close}>
       <form onSubmit={submit}>
         <div className="form-content">
           <p>{member.email}</p>
@@ -203,11 +213,11 @@ export function MembershipForm({
               checked={changeDate}
               onChange={(e) => setChangeDate(e.target.checked)}
             />
-            <span>Ajustar manualmente el vencimiento</span>
+            <span>{t("Ajustar manualmente el vencimiento")}</span>
           </label>
           {changeDate && (
             <>
-              <Field label="Acceso hasta (inclusive)">
+              <Field label={t("Acceso hasta (inclusive)")}>
                 <input
                   type="date"
                   value={end}
@@ -216,19 +226,20 @@ export function MembershipForm({
                 />
               </Field>
               <p className="small muted">
-                Este ajuste reemplaza el periodo actual y no registra un pago.
-                Para una transferencia, utiliza «Registrar SINPE».
+                {t(
+                  "Este ajuste reemplaza el periodo actual y no registra un pago. Para una transferencia, utiliza «Registrar SINPE».",
+                )}
               </p>
             </>
           )}
-          <Field label="Notas de la suscripción">
+          <Field label={t("Notas de la suscripción")}>
             <textarea
               maxLength={1000}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
             />
           </Field>
-          <Field label="Motivo del cambio">
+          <Field label={t("Motivo del cambio")}>
             <textarea
               required
               maxLength={500}
@@ -236,9 +247,9 @@ export function MembershipForm({
               onChange={(e) => setReason(e.target.value)}
             />
           </Field>
-          <ErrorMessage message={error} />
+          <ErrorMessage message={t(error)} />
         </div>
-        <Footer busy={busy} onClose={close} label="Guardar cambios" />
+        <Footer busy={busy} onClose={close} label={t("Guardar cambios")} />
       </form>
     </Modal>
   );
@@ -250,6 +261,7 @@ export function StatusForm({
   member: Member;
   onClose: () => void;
 }) {
+  useLanguage();
   const [reason, setReason] = useState(""),
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
@@ -271,7 +283,7 @@ export function StatusForm({
   }
   return (
     <Modal
-      title={member.active ? "Suspender cuenta" : "Reactivar cuenta"}
+      title={member.active ? t("Suspender cuenta") : t("Reactivar cuenta")}
       onClose={close}
     >
       <form onSubmit={submit}>
@@ -279,10 +291,14 @@ export function StatusForm({
           <p>{member.email}</p>
           <p className="muted">
             {member.active
-              ? "Se bloqueará el registro de actividad. Sus datos y pagos se conservarán."
-              : "Se recuperará el acceso si su periodo sigue vigente. La prueba gratuita no se reinicia."}
+              ? t(
+                  "Se bloqueará el registro de actividad. Sus datos y pagos se conservarán.",
+                )
+              : t(
+                  "Se recuperará el acceso si su periodo sigue vigente. La prueba gratuita no se reinicia.",
+                )}
           </p>
-          <Field label="Motivo">
+          <Field label={t("Motivo")}>
             <textarea
               required
               maxLength={500}
@@ -290,18 +306,21 @@ export function StatusForm({
               onChange={(e) => setReason(e.target.value)}
             />
           </Field>
-          <ErrorMessage message={error} />
+          <ErrorMessage message={t(error)} />
         </div>
         <Footer
           busy={busy}
           onClose={close}
-          label={member.active ? "Confirmar suspensión" : "Reactivar cuenta"}
+          label={
+            member.active ? t("Confirmar suspensión") : t("Reactivar cuenta")
+          }
         />
       </form>
     </Modal>
   );
 }
 export function BillingSettings({ billing }: { billing: Billing }) {
+  useLanguage();
   const [draft, setDraft] = useState(billing),
     [busy, setBusy] = useState(false),
     [message, setMessage] = useState(""),
@@ -325,14 +344,15 @@ export function BillingSettings({ billing }: { billing: Billing }) {
   }
   return (
     <form className="panel billing-section" onSubmit={submit}>
-      <h3>Precios y SINPE Móvil</h3>
+      <h3>{t("Precios y SINPE Móvil")}</h3>
       <p className="muted">
-        Estos datos aparecen en «Mi suscripción». Los pagos anteriores conservan
-        su importe original.
+        {t(
+          "Estos datos aparecen en «Mi suscripción». Los pagos anteriores conservan su importe original.",
+        )}
       </p>
       <div className="form-grid">
         {PLANS.map((p) => (
-          <Field key={p.id} label={p.label + " · CRC"}>
+          <Field key={p.id} label={t(p.label) + " · CRC"}>
             <input
               type="number"
               min={1}
@@ -346,7 +366,7 @@ export function BillingSettings({ billing }: { billing: Billing }) {
             />
           </Field>
         ))}
-        <Field label="Teléfono SINPE">
+        <Field label={t("Teléfono SINPE")}>
           <input
             inputMode="numeric"
             pattern="[678][0-9]{7}"
@@ -356,7 +376,7 @@ export function BillingSettings({ billing }: { billing: Billing }) {
             onChange={(e) => setDraft({ ...draft, phone: e.target.value })}
           />
         </Field>
-        <Field label="Titular SINPE">
+        <Field label={t("Titular SINPE")}>
           <input
             maxLength={120}
             required
@@ -365,14 +385,14 @@ export function BillingSettings({ billing }: { billing: Billing }) {
           />
         </Field>
       </div>
-      <ErrorMessage message={error} />
+      <ErrorMessage message={t(error)} />
       {message && (
         <p className="success" role="status">
-          {message}
+          {t(message)}
         </p>
       )}
       <button className="btn primary" disabled={busy}>
-        {busy ? "Guardando…" : "Guardar configuración"}
+        {busy ? t("Guardando…") : t("Guardar configuración")}
       </button>
     </form>
   );

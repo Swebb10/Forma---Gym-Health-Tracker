@@ -1,3 +1,4 @@
+import { getLocale, t } from "./i18n";
 import type { User } from "firebase/auth";
 export const OWNER_EMAIL = "swebb1732@gmail.com";
 export const isSuperAdmin = (
@@ -47,7 +48,7 @@ export type Payment = {
   verifiedBy: string;
 };
 export const crc = (value: number) =>
-  new Intl.NumberFormat("es-CR", {
+  new Intl.NumberFormat(getLocale(), {
     style: "currency",
     currency: "CRC",
     maximumFractionDigits: 0,
@@ -146,20 +147,16 @@ export function paymentLink(
     billing.phone +
     "?text=" +
     encodeURIComponent(
-      "Hola, quiero enviar el comprobante SINPE de Forma.\nCuenta: " +
-        member.email +
-        "\nID: " +
-        member.id +
-        "\nPlan: " +
-        label +
-        "\nMonto: " +
-        crc(billing[plan]),
+      t(
+        "Hola, quiero enviar el comprobante SINPE de Forma.\nCuenta: {0}\nID: {1}\nPlan: {2}\nMonto: {3}",
+        { 0: member.email, 1: member.id, 2: t(label), 3: crc(billing[plan]) },
+      ),
     )
   );
 }
 
 export const subscriptionDate = (day: string) =>
-  new Intl.DateTimeFormat("es-CR", {
+  new Intl.DateTimeFormat(getLocale(), {
     day: "numeric",
     month: "short",
     year: "numeric",

@@ -1,3 +1,4 @@
+import { t, useLanguage } from "../lib/i18n";
 import { useEffect, useState } from "react";
 import {
   collection,
@@ -34,6 +35,7 @@ type Audit = {
   changedAt?: { toMillis: () => number };
 };
 export default function Admin() {
+  useLanguage();
   const { isAdmin, billing, now } = useSubscription();
   const { user } = useAuth();
   const [members, setMembers] = useState<Member[]>([]),
@@ -99,24 +101,27 @@ export default function Admin() {
     )
     .reduce((sum, p) => sum + p.amount, 0);
   const stats = [
-    ["Usuarios", customers.length],
-    ["Con acceso", customers.filter((m) => membership(m, now).allowed).length],
+    [t("Usuarios"), customers.length],
     [
-      "Por renovar",
+      t("Con acceso"),
+      customers.filter((m) => membership(m, now).allowed).length,
+    ],
+    [
+      t("Por renovar"),
       customers.filter((m) =>
         ["expired", "critical", "warning"].includes(membership(m, now).status),
       ).length,
     ],
-    ["Cobros visibles este mes", crc(revenue)],
+    [t("Cobros visibles este mes"), crc(revenue)],
   ];
   return (
     <div className="billing-page">
       <header className="section-header">
         <div>
-          <span className="eyebrow">CONTROL DE FORMA</span>
-          <h1>Administración</h1>
+          <span className="eyebrow">{t("CONTROL DE FORMA")}</span>
+          <h1>{t("Administración")}</h1>
           <p className="muted">
-            Gestiona cuentas, suscripciones y pagos desde un solo lugar.
+            {t("Gestiona cuentas, suscripciones y pagos desde un solo lugar.")}
           </p>
         </div>
       </header>
@@ -131,59 +136,60 @@ export default function Admin() {
       <div
         className="admin-tabs"
         role="group"
-        aria-label="Secciones de administración"
+        aria-label={t("Secciones de administración")}
       >
         {[
           { id: "members", label: "Suscripciones", icon: Users },
           { id: "payments", label: "Pagos", icon: CreditCard },
           { id: "settings", label: "Configuración", icon: Settings },
           { id: "audit", label: "Actividad", icon: History },
-        ].map((t) => (
+        ].map((tabItem) => (
           <button
-            key={t.id}
-            className={"btn " + (tab === t.id ? "primary" : "secondary")}
-            aria-pressed={tab === t.id}
-            onClick={() => setTab(t.id)}
+            key={tabItem.id}
+            className={"btn " + (tab === tabItem.id ? "primary" : "secondary")}
+            aria-pressed={tab === tabItem.id}
+            onClick={() => setTab(tabItem.id)}
           >
-            <t.icon size={17} />
-            {t.label}
+            <tabItem.icon size={17} />
+            {t(tabItem.label)}
           </button>
         ))}
       </div>
-      <ErrorMessage message={error} />
+      <ErrorMessage message={t(error)} />
       {tab === "members" && (
         <>
           <div className="admin-filters">
-            <Field label="Buscar cuenta">
+            <Field label={t("Buscar cuenta")}>
               <div className="search-field">
                 <Search size={17} />
                 <input
-                  placeholder="Correo o ID de usuario"
+                  placeholder={t("Correo o ID de usuario")}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
               </div>
             </Field>
-            <Field label="Estado">
+            <Field label={t("Estado")}>
               <select
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
               >
-                <option value="all">Todos los estados</option>
+                <option value="all">{t("Todos los estados")}</option>
                 {Object.entries(STATUS_LABELS).map(([k, v]) => (
                   <option key={k} value={k}>
-                    {v}
+                    {t(v)}
                   </option>
                 ))}
               </select>
             </Field>
           </div>
           <p className="muted small">
-            Las cuentas existentes aparecen cuando vuelven a iniciar sesión en
-            esta versión. Cada cuenta tiene una única prueba de 30 días.
+            {t(
+              "Las cuentas existentes aparecen cuando vuelven a iniciar sesión en esta versión. Cada cuenta tiene una única prueba de 30 días.",
+            )}
           </p>
           {loading ? (
-            <p>Cargando cuentas…</p>
+            <p>{t("Cargando cuentas…")}</p>
           ) : filtered.length ? (
             <div className="member-list">
               {filtered.map((m) => {
@@ -194,7 +200,9 @@ export default function Admin() {
                     <div className="member-heading">
                       <div>
                         <h3>{m.email}</h3>
-                        <p className="small muted">ID: {m.id}</p>
+                        <p className="small muted">
+                          {t("ID:")} {m.id}
+                        </p>
                       </div>
                       <span
                         className={
@@ -202,20 +210,22 @@ export default function Admin() {
                         }
                       >
                         {owner
-                          ? "Súper administrador"
-                          : STATUS_LABELS[state.status]}
+                          ? t("Súper administrador")
+                          : t(STATUS_LABELS[state.status])}
                       </span>
                     </div>
                     <div className="member-details">
                       <span>
                         {owner
-                          ? "Acceso personal incluido"
+                          ? t("Acceso personal incluido")
                           : state.endDay
-                            ? "Vence: " + dateLabel(state.endDay)
-                            : "Sin periodo activo"}
+                            ? t("Vence: ") + dateLabel(state.endDay)
+                            : t("Sin periodo activo")}
                       </span>
                       {!owner && state.allowed && (
-                        <span>{state.days} días restantes</span>
+                        <span>
+                          {state.days} {t("días restantes")}
+                        </span>
                       )}
                     </div>
                     {m.notes && <p className="small muted">{m.notes}</p>}
@@ -228,19 +238,19 @@ export default function Admin() {
                             setForm({ kind: "payment", member: m })
                           }
                         >
-                          Registrar SINPE
+                          {t("Registrar SINPE")}
                         </button>
                         <button
                           className="btn secondary"
                           onClick={() => setForm({ kind: "edit", member: m })}
                         >
-                          Editar suscripción
+                          {t("Editar suscripción")}
                         </button>
                         <button
                           className="btn secondary"
                           onClick={() => setForm({ kind: "status", member: m })}
                         >
-                          {m.active ? "Suspender" : "Reactivar"}
+                          {m.active ? t("Suspender") : t("Reactivar")}
                         </button>
                       </div>
                     )}
@@ -250,20 +260,22 @@ export default function Admin() {
             </div>
           ) : (
             <div className="panel billing-section">
-              <p>No hay cuentas que coincidan.</p>
+              <p>{t("No hay cuentas que coincidan.")}</p>
             </div>
           )}
         </>
       )}
       {tab === "payments" && (
         <section className="panel billing-section">
-          <h3>Pagos confirmados</h3>
+          <h3>{t("Pagos confirmados")}</h3>
           <p className="muted small">
-            Últimos 100 pagos. Los importes resumen solo este historial visible.
+            {t(
+              "Últimos 100 pagos. Los importes resumen solo este historial visible.",
+            )}
           </p>
           <ErrorMessage message={history.error} />
           {history.loading ? (
-            <p>Cargando pagos…</p>
+            <p>{t("Cargando pagos…")}</p>
           ) : (
             <PaymentHistory payments={history.payments} admin />
           )}
@@ -272,10 +284,11 @@ export default function Admin() {
       {tab === "settings" && <BillingSettings billing={billing} />}
       {tab === "audit" && (
         <section className="panel billing-section">
-          <h3>Actividad administrativa</h3>
+          <h3>{t("Actividad administrativa")}</h3>
           <p className="muted small">
-            Últimos 50 ajustes de cuentas y suscripciones. Las transferencias
-            aparecen en «Pagos».
+            {t(
+              "Últimos 50 ajustes de cuentas y suscripciones. Las transferencias aparecen en «Pagos».",
+            )}
           </p>
           {audit.length ? (
             audit.map((a) => (
@@ -287,12 +300,12 @@ export default function Admin() {
                 <span className="small muted">
                   {a.changedAt
                     ? dateLabel(costaRicaDay(a.changedAt.toMillis()))
-                    : "Guardando…"}
+                    : t("Guardando…")}
                 </span>
               </article>
             ))
           ) : (
-            <p className="muted">Todavía no hay ajustes.</p>
+            <p className="muted">{t("Todavía no hay ajustes.")}</p>
           )}
         </section>
       )}

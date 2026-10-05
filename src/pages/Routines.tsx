@@ -1,3 +1,4 @@
+import { t, useLanguage } from "../lib/i18n";
 import { useState, type FormEvent } from "react";
 import {
   Plus,
@@ -32,6 +33,7 @@ export default function Routines({
 }: {
   onStart: (routine: Routine, day?: RoutineDay) => void;
 }) {
+  useLanguage();
   const { data, save, remove } = useData();
   const [editing, setEditing] = useState<Routine | null>(null),
     [active, setActive] = useState(""),
@@ -120,19 +122,19 @@ export default function Routines({
     <>
       <div className="section-heading">
         <div>
-          <h2>Tu plan, a tu manera</h2>
+          <h2>{t("Tu plan, a tu manera")}</h2>
           <p className="muted">
-            Organiza tus rutinas por días y entrena una sesión a la vez.
+            {t("Organiza tus rutinas por días y entrena una sesión a la vez.")}
           </p>
         </div>
         <button className="btn primary" onClick={() => edit()}>
-          <Plus size={18} /> Nueva rutina
+          <Plus size={18} /> {t("Nueva rutina")}
         </button>
       </div>
       {!data.routines.length ? (
         <Empty
-          title="Todo empieza con un plan"
-          description="Crea una rutina y organiza sus ejercicios por días."
+          title={t("Todo empieza con un plan")}
+          description={t("Crea una rutina y organiza sus ejercicios por días.")}
           onAction={() => edit()}
         />
       ) : (
@@ -146,21 +148,22 @@ export default function Routines({
                     <Dumbbell size={25} />
                   </span>
                   <span className="eyebrow">
-                    RUTINA {String(i + 1).padStart(2, "0")}
+                    {t("RUTINA")} {String(i + 1).padStart(2, "0")}
                   </span>
                 </div>
                 <h3>{routine.name}</h3>
                 <p className="muted">
                   {routine.description ||
-                    "Tu plan de entrenamiento personalizado."}
+                    t("Tu plan de entrenamiento personalizado.")}
                 </p>
                 <div className="tags">
                   <span>
-                    {sessions.length} {sessions.length === 1 ? "día" : "días"}
+                    {sessions.length}{" "}
+                    {sessions.length === 1 ? t("día") : t("días")}
                   </span>
                   <span>
                     {sessions.reduce((n, d) => n + d.exercises.length, 0)}{" "}
-                    ejercicios
+                    {t("ejercicios")}
                   </span>
                 </div>
                 <div className="routine-sessions">
@@ -168,24 +171,24 @@ export default function Routines({
                     <section className="routine-session" key={day.id}>
                       <div className="routine-session-heading">
                         <div>
-                          <span className="eyebrow">{day.weekday}</span>
+                          <span className="eyebrow">{t(day.weekday)}</span>
                           <h4>{day.name}</h4>
                         </div>
                         <button
                           className="text-button"
                           aria-label={
                             sessions.length === 1
-                              ? "Entrenar"
-                              : `Entrenar ${dayLabel(day)}`
+                              ? t("Entrenar")
+                              : t("Entrenar {0}", { "0": dayLabel(day) })
                           }
                           onClick={() => onStart(routine, day)}
                         >
-                          Entrenar <ArrowUpRight size={16} />
+                          {t("Entrenar")} <ArrowUpRight size={16} />
                         </button>
                       </div>
                       <details>
                         <summary>
-                          {day.exercises.length} ejercicios · Ver detalle
+                          {day.exercises.length} {t("ejercicios · Ver detalle")}
                         </summary>
                         <ul className="routine-list">
                           {day.exercises.map((exercise) => (
@@ -193,14 +196,17 @@ export default function Routines({
                               <span>
                                 {exercise.name}
                                 <small className="block muted">
-                                  {exercise.group}
+                                  {t(exercise.group)}
                                 </small>
                               </span>
                               <span>
                                 {exercise.sets
-                                  .map(
-                                    (set) =>
-                                      `${set.reps} rep × ${numberLabel(set.weight, 2)} ${exerciseUnit(exercise)}`,
+                                  .map((set) =>
+                                    t("{0} rep × {1} {2}", {
+                                      "0": set.reps,
+                                      "1": numberLabel(set.weight, 2),
+                                      "2": exerciseUnit(exercise),
+                                    }),
                                   )
                                   .join(" · ")}
                               </span>
@@ -214,10 +220,10 @@ export default function Routines({
                 <div className="routine-footer">
                   <button
                     className="text-button"
-                    aria-label={`Editar ${routine.name}`}
+                    aria-label={t("Editar {0}", { "0": routine.name })}
                     onClick={() => edit(routine)}
                   >
-                    <Pencil size={16} /> Editar rutina
+                    <Pencil size={16} /> {t("Editar rutina")}
                   </button>
                   <DeleteButton
                     onDelete={() => remove("routines", routine.id)}
@@ -232,8 +238,8 @@ export default function Routines({
         <Modal
           title={
             data.routines.some((r) => r.id === editing.id)
-              ? "Editar rutina"
-              : "Nueva rutina"
+              ? t("Editar rutina")
+              : t("Nueva rutina")
           }
           onClose={() => {
             if (!busy) setEditing(null);
@@ -241,7 +247,7 @@ export default function Routines({
         >
           <form className="routine-form" onSubmit={submit}>
             <div className="form-content">
-              <Field label="Nombre de la rutina">
+              <Field label={t("Nombre de la rutina")}>
                 <input
                   required
                   maxLength={100}
@@ -249,28 +255,28 @@ export default function Routines({
                   onChange={(e) =>
                     setEditing({ ...editing, name: e.target.value })
                   }
-                  placeholder="Ej. Push, Pull & Legs"
+                  placeholder={t("Ej. Push, Pull & Legs")}
                 />
               </Field>
-              <Field label="Descripción">
+              <Field label={t("Descripción")}>
                 <textarea
                   maxLength={500}
                   value={editing.description}
                   onChange={(e) =>
                     setEditing({ ...editing, description: e.target.value })
                   }
-                  placeholder="Enfoque y objetivos del plan"
+                  placeholder={t("Enfoque y objetivos del plan")}
                 />
               </Field>
               <section className="routine-day-editor">
                 <div className="day-editor-heading">
-                  <h3>Días de entrenamiento</h3>
+                  <h3>{t("Días de entrenamiento")}</h3>
                   <span className="small muted">{days.length} / 14</span>
                 </div>
                 <div
                   className="day-tabs"
                   role="group"
-                  aria-label="Días de la rutina"
+                  aria-label={t("Días de la rutina")}
                 >
                   {days.map((day, i) => (
                     <button
@@ -288,7 +294,7 @@ export default function Routines({
                 {selected && (
                   <div className="day-edit-content">
                     <div className="form-grid">
-                      <Field label="Día de la semana">
+                      <Field label={t("Día de la semana")}>
                         <select
                           value={selected.weekday}
                           onChange={(e) =>
@@ -296,16 +302,18 @@ export default function Routines({
                           }
                         >
                           {weekdays.map((day) => (
-                            <option key={day}>{day}</option>
+                            <option key={day} value={day}>
+                              {t(day)}
+                            </option>
                           ))}
                         </select>
                       </Field>
-                      <Field label="Nombre de la sesión">
+                      <Field label={t("Nombre de la sesión")}>
                         <input
                           required
                           maxLength={60}
                           value={selected.name}
-                          placeholder="Ej. Push"
+                          placeholder={t("Ej. Push")}
                           onChange={(e) => updateDay({ name: e.target.value })}
                         />
                       </Field>
@@ -315,7 +323,7 @@ export default function Routines({
                         type="button"
                         className="icon-btn"
                         disabled={days[0].id === selected.id}
-                        aria-label="Mover día antes"
+                        aria-label={t("Mover día antes")}
                         onClick={() => moveDay(-1)}
                       >
                         <ArrowUp size={16} />
@@ -324,7 +332,7 @@ export default function Routines({
                         type="button"
                         className="icon-btn"
                         disabled={days.at(-1)?.id === selected.id}
-                        aria-label="Mover día después"
+                        aria-label={t("Mover día después")}
                         onClick={() => moveDay(1)}
                       >
                         <ArrowDown size={16} />
@@ -336,7 +344,10 @@ export default function Routines({
                         onClick={() => {
                           if (
                             window.confirm(
-                              `¿Eliminar ${dayLabel(selected)} y sus ejercicios de esta rutina?`,
+                              t(
+                                "¿Eliminar {0} y sus ejercicios de esta rutina?",
+                                { "0": dayLabel(selected) },
+                              ),
                             )
                           ) {
                             const remaining = days.filter(
@@ -347,7 +358,7 @@ export default function Routines({
                           }
                         }}
                       >
-                        <Trash2 size={15} /> Quitar día
+                        <Trash2 size={15} /> {t("Quitar día")}
                       </button>
                     </div>
                     <ExerciseEditor
@@ -362,10 +373,10 @@ export default function Routines({
                   disabled={days.length >= 14}
                   onClick={addDay}
                 >
-                  <Plus size={17} /> Añadir día
+                  <Plus size={17} /> {t("Añadir día")}
                 </button>
               </section>
-              <ErrorMessage message={error} />
+              <ErrorMessage message={t(error)} />
             </div>
             <FormFooter busy={busy} onClose={() => setEditing(null)} />
           </form>

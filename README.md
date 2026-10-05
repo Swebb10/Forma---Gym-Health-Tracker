@@ -145,3 +145,7 @@ La propiedad solo se aplica a los procesos iniciados desde esa terminal. Referen
 Consulta [la guía de activación y gestión](docs/SUBSCRIPTIONS.md). Incluye la elección de modo del propietario, prueba de 30 días, SINPE manual, referencias únicas y reglas necesarias.
 
 Esta actualización requiere publicar las reglas nuevas y desplegar el código actualizado; las pruebas no modifican Firebase ni Vercel reales.
+
+## Idiomas
+
+Español, inglés, alemán, ruso, portugués y francés, con selector y preferencia guardada por navegador. Consulta [la guía de idiomas](docs/LANGUAGES.md). No requiere cambios en Firebase.

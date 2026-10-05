@@ -1,3 +1,4 @@
+import { t, useLanguage } from "../lib/i18n";
 import {
   ResponsiveContainer,
   AreaChart,
@@ -18,18 +19,23 @@ export function ProgressChart({
   unit: string;
   color?: string;
 }) {
+  useLanguage();
   const id = useId().replace(/:/g, "");
   if (!data.length)
     return (
       <div className="chart-empty">
-        Los próximos registros darán forma a tu progreso.
+        {t("Los próximos registros darán forma a tu progreso.")}
       </div>
     );
   return (
     <div
       className="chart"
       role="img"
-      aria-label={`Evolución: ${data.length} registros. Último valor ${numberLabel(data.at(-1)?.value)} ${unit}`}
+      aria-label={t("Evolución: {0} registros. Último valor {1} {2}", {
+        "0": data.length,
+        "1": numberLabel(data.at(-1)?.value),
+        "2": unit,
+      })}
     >
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart
@@ -56,6 +62,7 @@ export function ProgressChart({
             tick={{ fill: "var(--muted)", fontSize: 12 }}
           />
           <YAxis
+            tickFormatter={(value) => numberLabel(Number(value))}
             domain={["auto", "auto"]}
             axisLine={false}
             tickLine={false}
@@ -66,7 +73,7 @@ export function ProgressChart({
             labelFormatter={(label) => dateLabel(String(label))}
             formatter={(value) => [
               `${numberLabel(Number(value))} ${unit}`,
-              "Valor",
+              t("Valor"),
             ]}
             contentStyle={{
               background: "var(--panel)",

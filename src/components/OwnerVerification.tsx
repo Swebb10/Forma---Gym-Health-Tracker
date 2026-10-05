@@ -1,9 +1,11 @@
+import { t, useLanguage } from "../lib/i18n";
 import { useState } from "react";
 import { sendEmailVerification } from "firebase/auth";
 import { useAuth } from "../context/AuthContext";
 import { OWNER_EMAIL } from "../lib/subscription";
 import { ErrorMessage } from "./ui";
 export default function OwnerVerification() {
+  useLanguage();
   const { user, refresh } = useAuth();
   const [busy, setBusy] = useState(false),
     [message, setMessage] = useState(""),
@@ -35,10 +37,12 @@ export default function OwnerVerification() {
   }
   return (
     <section className="notice verification">
-      <strong>Activa tu acceso de súper administrador</strong>
+      <strong>{t("Activa tu acceso de súper administrador")}</strong>
       <p>
-        Confirma que eres el titular de {OWNER_EMAIL}. Después podrás elegir
-        cómo entrar.
+        {t(
+          "Confirma que eres el titular de {0}. Después podrás elegir cómo entrar.",
+          { 0: OWNER_EMAIL },
+        )}
       </p>
       <div className="billing-actions">
         <button
@@ -46,18 +50,18 @@ export default function OwnerVerification() {
           disabled={busy}
           onClick={() => act(true)}
         >
-          Enviar verificación
+          {t("Enviar verificación")}
         </button>
         <button
           className="btn primary"
           disabled={busy}
           onClick={() => act(false)}
         >
-          Ya verifiqué mi correo
+          {t("Ya verifiqué mi correo")}
         </button>
       </div>
-      {message && <p role="status">{message}</p>}
-      <ErrorMessage message={error} />
+      {message && <p role="status">{t(message)}</p>}
+      <ErrorMessage message={t(error)} />
     </section>
   );
 }

@@ -1,12 +1,14 @@
+import { t, useLanguage } from "../lib/i18n";
 import { exerciseUnit } from "../lib/training";
 import { useState } from "react";
 import { Plus, Clock3, Dumbbell, Pencil, ChevronDown } from "lucide-react";
 import { useData } from "../context/DataContext";
 import type { Workout, WeightUnit } from "../types";
 import { Empty, DeleteButton } from "../components/ui";
-import { dateLabel, volume, numberLabel } from "../lib/metrics";
+import { monthLabel, volume, numberLabel } from "../lib/metrics";
 import { WorkoutForm } from "../components/WorkoutForm";
 export default function Workouts({ onNew }: { onNew: () => void }) {
+  useLanguage();
   const { data, remove } = useData();
   const [editing, setEditing] = useState<Workout | null>(null),
     [filter, setFilter] = useState(""),
@@ -18,18 +20,20 @@ export default function Workouts({ onNew }: { onNew: () => void }) {
     <>
       <div className="section-heading">
         <div>
-          <h2>Cada sesión cuenta</h2>
-          <p className="muted">El trabajo de hoy es el progreso de mañana.</p>
+          <h2>{t("Cada sesión cuenta")}</h2>
+          <p className="muted">
+            {t("El trabajo de hoy es el progreso de mañana.")}
+          </p>
         </div>
         <button className="btn primary" onClick={onNew}>
-          <Plus size={18} /> Registrar sesión
+          <Plus size={18} /> {t("Registrar sesión")}
         </button>
       </div>
       <div className="filter-bar">
         <label className="flex items-center gap-3">
-          Filtrar por mes{" "}
+          {t("Filtrar por mes")}{" "}
           <input
-            aria-label="Filtrar por mes"
+            aria-label={t("Filtrar por mes")}
             type="month"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
@@ -37,13 +41,13 @@ export default function Workouts({ onNew }: { onNew: () => void }) {
         </label>
         {filter && (
           <button className="text-button" onClick={() => setFilter("")}>
-            Ver todo
+            {t("Ver todo")}
           </button>
         )}
         <label className="volume-unit">
-          Unidad del volumen{" "}
+          {t("Unidad del volumen")}{" "}
           <select
-            aria-label="Unidad del volumen"
+            aria-label={t("Unidad del volumen")}
             value={unit}
             onChange={(e) => setUnit(e.target.value as WeightUnit)}
           >
@@ -51,12 +55,16 @@ export default function Workouts({ onNew }: { onNew: () => void }) {
             <option value="lb">lb</option>
           </select>
         </label>
-        <span className="muted ml-auto">{sorted.length} sesiones</span>
+        <span className="muted ml-auto">
+          {sorted.length} {t("sesiones")}
+        </span>
       </div>
       {!sorted.length ? (
         <Empty
-          title="Sin entrenamientos en este período"
-          description="Registra una sesión para empezar a ver tu evolución."
+          title={t("Sin entrenamientos en este período")}
+          description={t(
+            "Registra una sesión para empezar a ver tu evolución.",
+          )}
           onAction={onNew}
         />
       ) : (
@@ -66,27 +74,27 @@ export default function Workouts({ onNew }: { onNew: () => void }) {
               <div className="workout-summary">
                 <div className="date-block">
                   <strong>{new Date(w.date + "T12:00:00").getDate()}</strong>
-                  <span>{dateLabel(w.date).split(" ").slice(1).join(" ")}</span>
+                  <span>{monthLabel(w.date)}</span>
                 </div>
                 <div className="grow">
                   <h3>{w.name}</h3>
                   <div className="workout-meta">
                     <span>
                       <Dumbbell size={14} />
-                      {w.exercises.length} ejercicios
+                      {w.exercises.length} {t("ejercicios")}
                     </span>
                     <span>
                       <Clock3 size={14} />
-                      {w.duration} min
+                      {w.duration} {t("min")}
                     </span>
                     <span>
-                      {numberLabel(volume(w, unit), 1)} {unit} de volumen
+                      {numberLabel(volume(w, unit), 1)} {unit} {t("de volumen")}
                     </span>
                   </div>
                 </div>
                 <button
                   className="icon-btn"
-                  aria-label={`Editar sesión del ${w.date}`}
+                  aria-label={t("Editar sesión del {0}", { "0": w.date })}
                   onClick={() => setEditing(structuredClone(w))}
                 >
                   <Pencil size={17} />
@@ -95,7 +103,7 @@ export default function Workouts({ onNew }: { onNew: () => void }) {
               </div>
               <details>
                 <summary>
-                  Ver ejercicios y series <ChevronDown size={15} />
+                  {t("Ver ejercicios y series")} <ChevronDown size={15} />
                 </summary>
                 <div className="workout-details">
                   {w.exercises.map((e) => (
@@ -103,9 +111,13 @@ export default function Workouts({ onNew }: { onNew: () => void }) {
                       <strong>{e.name}</strong>
                       <p className="muted">
                         {e.sets
-                          .map(
-                            (s, i) =>
-                              `Serie ${i + 1}: ${s.reps} rep × ${numberLabel(s.weight, 2)} ${exerciseUnit(e)}`,
+                          .map((s, i) =>
+                            t("Serie {0}: {1} rep × {2} {3}", {
+                              "0": i + 1,
+                              "1": s.reps,
+                              "2": numberLabel(s.weight, 2),
+                              "3": exerciseUnit(e),
+                            }),
                           )
                           .join(" · ")}
                       </p>

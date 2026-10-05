@@ -1,17 +1,19 @@
+import { getLocale } from "./i18n";
 import { toKg, fromKg, exerciseUnit } from "./training";
 import type { BioRecord, Workout, WeightUnit } from "../types";
 export const localDate = (date = new Date()) =>
   `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 export const dateLabel = (value: string) =>
-  new Intl.DateTimeFormat("es", { day: "numeric", month: "short" }).format(
-    new Date(`${value}T12:00:00`),
-  );
+  new Intl.DateTimeFormat(getLocale(), {
+    day: "numeric",
+    month: "short",
+  }).format(new Date(`${value}T12:00:00`));
 export const numberLabel = (value: number | undefined, decimals = 1) =>
   value === undefined
     ? "—"
-    : new Intl.NumberFormat("es", { maximumFractionDigits: decimals }).format(
-        value,
-      );
+    : new Intl.NumberFormat(getLocale(), {
+        maximumFractionDigits: decimals,
+      }).format(value);
 export const volume = (workout: Workout, unit: WeightUnit = "kg") =>
   fromKg(
     workout.exercises.reduce(
@@ -83,3 +85,8 @@ export function validateExercises(
     )
   );
 }
+
+export const monthLabel = (date: string) =>
+  new Intl.DateTimeFormat(getLocale(), { month: "short" }).format(
+    new Date(`${date}T12:00:00`),
+  );

@@ -1,3 +1,4 @@
+import { t, useLanguage } from "../lib/i18n";
 import { useState, type FormEvent } from "react";
 import { Plus, Pencil, Activity, ChevronDown } from "lucide-react";
 import { useData } from "../context/DataContext";
@@ -14,6 +15,7 @@ import {
 import type { BioRecord } from "../types";
 type Draft = Record<string, string>;
 export default function Bioimpedance() {
+  useLanguage();
   const { data, save, remove } = useData();
   const [draft, setDraft] = useState<Draft | null>(null),
     [busy, setBusy] = useState(false),
@@ -72,26 +74,29 @@ export default function Bioimpedance() {
     <>
       <div className="section-heading">
         <div>
-          <h2>Una mirada más completa</h2>
+          <h2>{t("Una mirada más completa")}</h2>
           <p className="muted">
-            Tus evaluaciones de composición corporal, en un solo lugar.
+            {t("Tus evaluaciones de composición corporal, en un solo lugar.")}
           </p>
         </div>
         <button className="btn primary" onClick={() => edit()}>
-          <Plus size={18} /> Nueva evaluación
+          <Plus size={18} /> {t("Nueva evaluación")}
         </button>
       </div>
       <div className="info-strip">
         <Activity size={20} />
         <p>
-          Transcribe los resultados de tu evaluación. Compara mediciones tomadas
-          en condiciones similares.
+          {t(
+            "Transcribe los resultados de tu evaluación. Compara mediciones tomadas en condiciones similares.",
+          )}
         </p>
       </div>
       {!sorted.length ? (
         <Empty
-          title="Registra tu primera evaluación"
-          description="Ten a mano el informe de tu nutricionista o báscula de bioimpedancia."
+          title={t("Registra tu primera evaluación")}
+          description={t(
+            "Ten a mano el informe de tu nutricionista o báscula de bioimpedancia.",
+          )}
           onAction={() => edit()}
         />
       ) : (
@@ -100,7 +105,7 @@ export default function Bioimpedance() {
             <article className="panel bio-card" key={r.id}>
               <div className="panel-heading">
                 <div>
-                  <span className="eyebrow">EVALUACIÓN CORPORAL</span>
+                  <span className="eyebrow">{t("EVALUACIÓN CORPORAL")}</span>
                   <h3>
                     {dateLabel(r.date)} {r.date.slice(0, 4)}{" "}
                     <span className="muted small">· {r.time}</span>
@@ -109,7 +114,7 @@ export default function Bioimpedance() {
                 <div className="flex">
                   <button
                     className="icon-btn"
-                    aria-label={`Editar evaluación del ${r.date}`}
+                    aria-label={t("Editar evaluación del {0}", { "0": r.date })}
                     onClick={() => edit(r)}
                   >
                     <Pencil size={17} />
@@ -129,40 +134,40 @@ export default function Bioimpedance() {
                   { label: "IMC", value: r.bmi, unit: "kg/m²" },
                 ].map((m) => (
                   <div key={m.label}>
-                    <span className="muted">{m.label}</span>
+                    <span className="muted">{t(m.label)}</span>
                     <strong>
-                      {numberLabel(m.value)} <small>{m.unit}</small>
+                      {numberLabel(m.value)} <small>{t(m.unit)}</small>
                     </strong>
                   </div>
                 ))}
               </div>
               <details>
                 <summary>
-                  Ver evaluación completa <ChevronDown size={15} />
+                  {t("Ver evaluación completa")} <ChevronDown size={15} />
                 </summary>
                 <div className="bio-details">
                   <p className="muted">
-                    Género:{" "}
+                    {t("Género:")}{" "}
                     {{
-                      male: "Masculino",
-                      female: "Femenino",
-                      other: "Otro",
-                      unspecified: "Sin especificar",
+                      male: t("Masculino"),
+                      female: t("Femenino"),
+                      other: t("Otro"),
+                      unspecified: t("Sin especificar"),
                     }[r.gender] ?? r.gender}
                   </p>
                   {bioSections.map((section) => (
                     <section key={section.title}>
-                      <h4>{section.title}</h4>
+                      <h4>{t(section.title)}</h4>
                       <dl>
                         {section.fields.map((f) => (
                           <div key={f.key}>
-                            <dt>{f.label}</dt>
+                            <dt>{t(f.label)}</dt>
                             <dd>
                               {numberLabel(
                                 r[f.key as keyof BioRecord] as
                                   number | undefined,
                               )}{" "}
-                              {f.unit}
+                              {t(f.unit)}
                             </dd>
                           </div>
                         ))}
@@ -177,7 +182,7 @@ export default function Bioimpedance() {
       )}
       {draft && (
         <Modal
-          title="Evaluación de bioimpedancia"
+          title={t("Evaluación de bioimpedancia")}
           onClose={() => {
             if (!busy) setDraft(null);
           }}
@@ -185,11 +190,12 @@ export default function Bioimpedance() {
           <form onSubmit={submit}>
             <div className="form-content">
               <p className="muted">
-                Completa los campos de tu informe. Los campos marcados con * son
-                obligatorios.
+                {t(
+                  "Completa los campos de tu informe. Los campos marcados con * son obligatorios.",
+                )}
               </p>
               <div className="form-grid">
-                <Field label="Fecha *">
+                <Field label={t("Fecha *")}>
                   <input
                     required
                     type="date"
@@ -198,7 +204,7 @@ export default function Bioimpedance() {
                     onChange={(e) => set("date", e.target.value)}
                   />
                 </Field>
-                <Field label="Hora *">
+                <Field label={t("Hora *")}>
                   <input
                     required
                     type="time"
@@ -206,15 +212,15 @@ export default function Bioimpedance() {
                     onChange={(e) => set("time", e.target.value)}
                   />
                 </Field>
-                <Field label="Género">
+                <Field label={t("Género")}>
                   <select
                     value={draft.gender}
                     onChange={(e) => set("gender", e.target.value)}
                   >
-                    <option value="unspecified">Sin especificar</option>
-                    <option value="female">Femenino</option>
-                    <option value="male">Masculino</option>
-                    <option value="other">Otro</option>
+                    <option value="unspecified">{t("Sin especificar")}</option>
+                    <option value="female">{t("Femenino")}</option>
+                    <option value="male">{t("Masculino")}</option>
+                    <option value="other">{t("Otro")}</option>
                   </select>
                 </Field>
               </div>
@@ -224,17 +230,20 @@ export default function Bioimpedance() {
                     <span className="index">
                       {String(i + 1).padStart(2, "0")}
                     </span>
-                    {section.title}
+                    {t(section.title)}
                   </h3>
                   {section.description && (
-                    <p className="small muted">{section.description}</p>
+                    <p className="small muted">{t(section.description)}</p>
                   )}
                   <div className="form-grid">
                     {section.fields.map((f) => (
                       <Field
                         key={f.key}
                         label={
-                          f.label + " · " + f.unit + (f.required ? " *" : "")
+                          t(f.label) +
+                          " · " +
+                          t(f.unit) +
+                          (f.required ? " *" : "")
                         }
                       >
                         <input
@@ -252,7 +261,7 @@ export default function Bioimpedance() {
                                     Number(draft.height),
                                   ),
                                 )
-                              : "Sin medir"
+                              : t("Sin medir")
                           }
                           onChange={(e) => set(f.key, e.target.value)}
                         />
@@ -261,13 +270,14 @@ export default function Bioimpedance() {
                   </div>
                   {i === 1 && (
                     <p className="small muted">
-                      Si dejas el IMC vacío, se calculará a partir del peso y la
-                      altura.
+                      {t(
+                        "Si dejas el IMC vacío, se calculará a partir del peso y la altura.",
+                      )}
                     </p>
                   )}
                 </section>
               ))}
-              <ErrorMessage message={error} />
+              <ErrorMessage message={t(error)} />
             </div>
             <FormFooter busy={busy} onClose={() => setDraft(null)} />
           </form>

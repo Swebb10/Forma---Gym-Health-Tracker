@@ -1,3 +1,4 @@
+import { t, useLanguage } from "../lib/i18n";
 import { useState, type FormEvent } from "react";
 import { Plus, Pencil, Ruler, Eye } from "lucide-react";
 import { useData } from "../context/DataContext";
@@ -20,6 +21,7 @@ import {
 } from "../components/ui";
 import type { Measurement } from "../types";
 export default function Measurements() {
+  useLanguage();
   const { data, save, remove } = useData();
   const [zone, setZone] = useState("Zona Media"),
     [selected, setSelected] = useState<MeasurementField["key"]>("waist"),
@@ -84,14 +86,14 @@ export default function Measurements() {
   }
   const fields = (items: MeasurementField[]) =>
     items.map((field) => (
-      <Field key={field.key} label={field.label + " · cm"}>
+      <Field key={field.key} label={t(field.label) + " · cm"}>
         <input
           type="number"
           min=".1"
           max={field.max}
           step=".1"
           value={editing?.[field.key] ?? ""}
-          placeholder="Sin medir"
+          placeholder={t("Sin medir")}
           onChange={(e) =>
             setEditing({
               ...editing!,
@@ -106,16 +108,20 @@ export default function Measurements() {
     <>
       <div className="section-heading">
         <div>
-          <h2>Más allá de la báscula</h2>
+          <h2>{t("Más allá de la báscula")}</h2>
           <p className="muted">
-            Observa tus cambios por zona y por lado del cuerpo.
+            {t("Observa tus cambios por zona y por lado del cuerpo.")}
           </p>
         </div>
         <button className="btn primary" onClick={() => open()}>
-          <Plus size={18} /> Añadir medidas
+          <Plus size={18} /> {t("Añadir medidas")}
         </button>
       </div>
-      <div className="zone-tabs" role="group" aria-label="Zonas corporales">
+      <div
+        className="zone-tabs"
+        role="group"
+        aria-label={t("Zonas corporales")}
+      >
         {sections.map((section) => (
           <button
             key={section.title}
@@ -127,14 +133,15 @@ export default function Measurements() {
                 setSelected(section.fields[0].key);
             }}
           >
-            {section.title}
+            {t(section.title)}
           </button>
         ))}
       </div>
       {currentSection.title === "Registros anteriores" && (
         <p className="legacy-note">
-          Se conservan las medidas antiguas sin asignarlas a un lado o punto
-          anatómico que no se registró.
+          {t(
+            "Se conservan las medidas antiguas sin asignarlas a un lado o punto anatómico que no se registró.",
+          )}
         </p>
       )}
       <div className="measurement-stats detailed-measurements">
@@ -151,13 +158,13 @@ export default function Measurements() {
             >
               <span>
                 <Ruler size={16} />
-                {field.label}
+                {t(field.label)}
               </span>
               <strong>
                 {numberLabel(latest?.[field.key])} <small>cm</small>
               </strong>
               <small className="muted">
-                {latest ? dateLabel(latest.date) : "Sin registros"}
+                {latest ? dateLabel(latest.date) : t("Sin registros")}
               </small>
             </button>
           );
@@ -166,22 +173,24 @@ export default function Measurements() {
       <section className="panel chart-panel measurement-chart">
         <div className="panel-heading">
           <div>
-            <span className="eyebrow">EVOLUCIÓN CORPORAL</span>
-            <h3>{selectedField.label}</h3>
+            <span className="eyebrow">{t("EVOLUCIÓN CORPORAL")}</span>
+            <h3>{t(selectedField.label)}</h3>
           </div>
-          <span className="tag">Centímetros</span>
+          <span className="tag">{t("Centímetros")}</span>
         </div>
         <ProgressChart data={points} unit="cm" />
       </section>
       <section className="panel">
         <div className="panel-heading">
-          <h3>Historial de medidas</h3>
-          <span className="muted">{sorted.length} registros</span>
+          <h3>{t("Historial de medidas")}</h3>
+          <span className="muted">
+            {sorted.length} {t("registros")}
+          </span>
         </div>
         {!sorted.length ? (
           <Empty
-            title="Tu punto de partida"
-            description="Registra al menos una medida para empezar."
+            title={t("Tu punto de partida")}
+            description={t("Registra al menos una medida para empezar.")}
             onAction={() => open()}
           />
         ) : (
@@ -189,10 +198,10 @@ export default function Measurements() {
             <table>
               <thead>
                 <tr>
-                  <th>Fecha</th>
-                  <th>{selectedField.label} · cm</th>
-                  <th>Medidas registradas</th>
-                  <th>Acciones</th>
+                  <th>{t("Fecha")}</th>
+                  <th>{t(selectedField.label)} · cm</th>
+                  <th>{t("Medidas registradas")}</th>
+                  <th>{t("Acciones")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -213,14 +222,18 @@ export default function Measurements() {
                       <div className="flex">
                         <button
                           className="icon-btn"
-                          aria-label={`Ver medidas del ${record.date}`}
+                          aria-label={t("Ver medidas del {0}", {
+                            "0": record.date,
+                          })}
                           onClick={() => setViewing(record)}
                         >
                           <Eye size={16} />
                         </button>
                         <button
                           className="icon-btn"
-                          aria-label={`Editar medidas del ${record.date}`}
+                          aria-label={t("Editar medidas del {0}", {
+                            "0": record.date,
+                          })}
                           onClick={() => open(record)}
                         >
                           <Pencil size={16} />
@@ -239,7 +252,7 @@ export default function Measurements() {
       </section>
       {editing && (
         <Modal
-          title="Medidas corporales"
+          title={t("Medidas corporales")}
           onClose={() => {
             if (!busy) setEditing(null);
           }}
@@ -247,10 +260,11 @@ export default function Measurements() {
           <form onSubmit={submit}>
             <div className="form-content">
               <p className="muted">
-                Completa las medidas que tomaste, en centímetros. Usa el mismo
-                punto de referencia en cada evaluación.
+                {t(
+                  "Completa las medidas que tomaste, en centímetros. Usa el mismo punto de referencia en cada evaluación.",
+                )}
               </p>
-              <Field label="Fecha">
+              <Field label={t("Fecha")}>
                 <input
                   required
                   type="date"
@@ -263,15 +277,15 @@ export default function Measurements() {
               </Field>
               {measurementSections.map((section) => (
                 <section className="form-section" key={section.title}>
-                  <h3>{section.title}</h3>
+                  <h3>{t(section.title)}</h3>
                   <div className="form-grid">{fields(section.fields)}</div>
                 </section>
               ))}
               {legacyKeys.length > 0 && (
                 <section className="form-section">
-                  <h3>Medidas anteriores sin lado definido</h3>
+                  <h3>{t("Medidas anteriores sin lado definido")}</h3>
                   <p className="small muted">
-                    Conservamos estos valores tal como se registraron.
+                    {t("Conservamos estos valores tal como se registraron.")}
                   </p>
                   <div className="form-grid">
                     {fields(
@@ -282,7 +296,7 @@ export default function Measurements() {
                   </div>
                 </section>
               )}
-              <ErrorMessage message={error} />
+              <ErrorMessage message={t(error)} />
             </div>
             <FormFooter busy={busy} onClose={() => setEditing(null)} />
           </form>
@@ -290,7 +304,10 @@ export default function Measurements() {
       )}
       {viewing && (
         <Modal
-          title={`Medidas del ${dateLabel(viewing.date)} ${viewing.date.slice(0, 4)}`}
+          title={t("Medidas del {0} {1}", {
+            "0": dateLabel(viewing.date),
+            "1": viewing.date.slice(0, 4),
+          })}
           onClose={() => setViewing(null)}
         >
           <div className="form-content measurement-detail">
@@ -306,13 +323,13 @@ export default function Measurements() {
               )
               .map((section) => (
                 <section key={section.title}>
-                  <h3>{section.title}</h3>
+                  <h3>{t(section.title)}</h3>
                   <dl>
                     {section.fields
                       .filter((f) => typeof viewing[f.key] === "number")
                       .map((f) => (
                         <div key={f.key}>
-                          <dt>{f.label}</dt>
+                          <dt>{t(f.label)}</dt>
                           <dd>{numberLabel(viewing[f.key])} cm</dd>
                         </div>
                       ))}

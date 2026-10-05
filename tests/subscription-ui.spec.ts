@@ -1,3 +1,4 @@
+import { catalogs } from "../src/lib/locales";
 import { test, expect, type Page } from "@playwright/test";
 const screenshots = process.env.FORMA_SCREENSHOTS ?? "test-results";
 const password = "Test-1234-password";
@@ -102,6 +103,24 @@ test("suscripciones, verificación de dueño, pagos, cambios de modo y suspensi�
   await expect(
     admin.getByRole("heading", { name: "Administración", exact: true }),
   ).toBeVisible();
+  for (const language of ["en", "de", "ru", "pt", "fr"] as const) {
+    await admin
+      .locator(".topbar .language-selector select")
+      .selectOption(language);
+    await expect(
+      admin.getByRole("heading", {
+        name: catalogs[language]["Administración"],
+        exact: true,
+      }),
+    ).toBeVisible();
+    await expect(
+      admin.getByRole("button", {
+        name: catalogs[language]["Configuración"],
+        exact: true,
+      }),
+    ).toBeVisible();
+  }
+  await admin.locator(".topbar .language-selector select").selectOption("es");
   await admin.getByLabel("Buscar cuenta").fill(email);
   const card = admin.locator(".member-card").filter({ hasText: email });
   await card.getByRole("button", { name: "Registrar SINPE" }).click();

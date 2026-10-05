@@ -1,3 +1,5 @@
+import LanguageSelector from "./LanguageSelector";
+import { t, useLanguage } from "../lib/i18n";
 import { useEffect, useRef, type ReactNode } from "react";
 import { X, Plus, Trash2 } from "lucide-react";
 export function Field({
@@ -7,9 +9,10 @@ export function Field({
   label: string;
   children: ReactNode;
 }) {
+  useLanguage();
   return (
     <label className="field">
-      <span>{label}</span>
+      <span>{t(label)}</span>
       {children}
     </label>
   );
@@ -23,6 +26,7 @@ export function Empty({
   description: string;
   onAction?: () => void;
 }) {
+  useLanguage();
   return (
     <div className="empty">
       <div className="empty-icon">
@@ -32,7 +36,7 @@ export function Empty({
       <p>{description}</p>
       {onAction && (
         <button className="btn primary" onClick={onAction}>
-          Crear primer registro
+          {t("Crear primer registro")}
         </button>
       )}
     </div>
@@ -47,6 +51,7 @@ export function Modal({
   children: ReactNode;
   onClose: () => void;
 }) {
+  useLanguage();
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const d = ref.current;
@@ -73,14 +78,17 @@ export function Modal({
     >
       <div className="modal-head">
         <h2>{title}</h2>
-        <button
-          type="button"
-          className="icon-btn"
-          onClick={onClose}
-          aria-label="Cerrar"
-        >
-          <X size={20} />
-        </button>
+        <div className="modal-actions">
+          <LanguageSelector />
+          <button
+            type="button"
+            className="icon-btn"
+            onClick={onClose}
+            aria-label={t("Cerrar")}
+          >
+            <X size={20} />
+          </button>
+        </div>
       </div>
       {children}
     </dialog>
@@ -93,6 +101,7 @@ export function FormFooter({
   busy: boolean;
   onClose: () => void;
 }) {
+  useLanguage();
   return (
     <div className="form-footer">
       <button
@@ -101,30 +110,33 @@ export function FormFooter({
         disabled={busy}
         onClick={onClose}
       >
-        Cancelar
+        {t("Cancelar")}
       </button>
       <button className="btn primary" disabled={busy}>
-        {busy ? "Guardando…" : "Guardar registro"}
+        {busy ? t("Guardando…") : t("Guardar registro")}
       </button>
     </div>
   );
 }
 export function DeleteButton({ onDelete }: { onDelete: () => Promise<void> }) {
+  useLanguage();
   return (
     <button
       className="icon-btn danger"
-      aria-label="Eliminar registro"
+      aria-label={t("Eliminar registro")}
       onClick={async () => {
         if (
           window.confirm(
-            "¿Eliminar este registro? Esta acción no se puede deshacer.",
+            t("¿Eliminar este registro? Esta acción no se puede deshacer."),
           )
         ) {
           try {
             await onDelete();
           } catch {
             window.alert(
-              "No se pudo eliminar. Comprueba tu conexión e inténtalo de nuevo.",
+              t(
+                "No se pudo eliminar. Comprueba tu conexión e inténtalo de nuevo.",
+              ),
             );
           }
         }
@@ -135,9 +147,10 @@ export function DeleteButton({ onDelete }: { onDelete: () => Promise<void> }) {
   );
 }
 export function ErrorMessage({ message }: { message: string }) {
+  useLanguage();
   return message ? (
     <p className="error" role="alert">
-      {message}
+      {t(message)}
     </p>
   ) : null;
 }

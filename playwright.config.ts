@@ -4,6 +4,7 @@ export default defineConfig({
   outputDir: "test-results/demo",
   testMatch: [
     "app.spec.ts",
+    "i18n.spec.ts",
     "training-update.spec.ts",
     "subscription-demo.spec.ts",
   ],

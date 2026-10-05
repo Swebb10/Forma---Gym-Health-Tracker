@@ -1,3 +1,4 @@
+import { t } from "./i18n";
 import type { Exercise, Routine, RoutineDay, WeightUnit } from "../types";
 export const muscleGroups = [
   {
@@ -44,7 +45,7 @@ export const freshExercise = (): Exercise => ({
 });
 export const freshDay = (index = 0): RoutineDay => ({
   id: crypto.randomUUID(),
-  name: `Día ${index + 1}`,
+  name: t("Día {0}", { 0: index + 1 }),
   weekday: "Sin asignar",
   exercises: [freshExercise()],
 });
@@ -54,14 +55,14 @@ export function routineDays(routine: Routine): RoutineDay[] {
     : [
         {
           id: `${routine.id}-legacy`,
-          name: "Sesión general",
+          name: t("Sesión general"),
           weekday: "Sin asignar",
           exercises: routine.exercises,
         },
       ];
 }
 export const dayLabel = (day: RoutineDay) =>
-  day.weekday === "Sin asignar" ? day.name : `${day.weekday} · ${day.name}`;
+  day.weekday === "Sin asignar" ? day.name : `${t(day.weekday)} · ${day.name}`;
 export function nextRoutineDay(routine: Routine, date = new Date()) {
   const days = routineDays(routine);
   const today = weekdays[date.getDay() === 0 ? 7 : date.getDay()];
