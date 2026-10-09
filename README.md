@@ -149,3 +149,7 @@ Esta actualización requiere publicar las reglas nuevas y desplegar el código a
 ## Idiomas
 
 Español, inglés, alemán, ruso, portugués y francés, con selector y preferencia guardada por navegador. Consulta [la guía de idiomas](docs/LANGUAGES.md). No requiere cambios en Firebase.
+
+## Nutrición
+
+Objetivos, calorías y macros estimados, Macro-Guía y resumen del perfil. Consulta [activación, método y datos](docs/NUTRITION.md). Esta funcionalidad requiere publicar el archivo firestore.rules actualizado antes de desplegar el frontend.

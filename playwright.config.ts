@@ -5,6 +5,7 @@ export default defineConfig({
   testMatch: [
     "app.spec.ts",
     "i18n.spec.ts",
+    "nutrition.spec.ts",
     "training-update.spec.ts",
     "subscription-demo.spec.ts",
   ],

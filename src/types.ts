@@ -107,6 +107,7 @@ export type Collections = {
 };
 export type Store = { [K in keyof Collections]: Collections[K][] };
 export type Page =
+  | "nutrition"
   | "dashboard"
   | "workouts"
   | "routines"

@@ -1,7 +1,9 @@
+import { NutritionProvider } from "./context/NutritionContext";
 import LanguageSelector from "./components/LanguageSelector";
 import { t, useLanguage, getLocale } from "./lib/i18n";
 import { useState, useEffect, lazy, Suspense } from "react";
 import {
+  Utensils,
   LayoutDashboard,
   Dumbbell,
   ClipboardList,
@@ -29,6 +31,7 @@ import OwnerVerification from "./components/OwnerVerification";
 import { membership } from "./lib/subscription";
 import { ErrorMessage } from "./components/ui";
 import type { Page, Routine, RoutineDay, Workout } from "./types";
+const Nutrition = lazy(() => import("./pages/Nutrition"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Routines = lazy(() => import("./pages/Routines"));
 const Workouts = lazy(() => import("./pages/Workouts"));
@@ -43,6 +46,7 @@ const personalNav = [
   { id: "routines", label: "Mis rutinas", icon: ClipboardList },
   { id: "measurements", label: "Medidas corporales", icon: Ruler },
   { id: "bioimpedance", label: "Bioimpedancia", icon: Activity },
+  { id: "nutrition", label: "Nutrición", icon: Utensils },
   { id: "subscription", label: "Mi suscripción", icon: CreditCard },
 ] as const;
 function Workspace() {
@@ -307,6 +311,8 @@ function Workspace() {
                 <Routines onStart={start} />
               ) : visiblePage === "workouts" ? (
                 <Workouts onNew={() => start()} />
+              ) : visiblePage === "nutrition" ? (
+                <Nutrition />
               ) : visiblePage === "measurements" ? (
                 <Measurements />
               ) : (
@@ -360,7 +366,9 @@ function Gate() {
   }
   return user || demo ? (
     <DataProvider key={demo ? "demo" : user!.uid}>
-      <Workspace />
+      <NutritionProvider>
+        <Workspace />
+      </NutritionProvider>
     </DataProvider>
   ) : (
     <Suspense fallback={<div className="loading">{t("Cargando…")}</div>}>

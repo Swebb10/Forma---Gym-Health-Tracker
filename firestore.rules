@@ -107,6 +107,52 @@ service cloud.firestore {
       return d.createdAt is timestamp && d.updatedAt == request.time
         && (resource == null ? d.createdAt == request.time : d.createdAt == resource.data.createdAt);
     }
+    function nutritionNumbers(d) {
+      return d is map && d.keys().hasOnly(['age','height','weight']) && d.keys().hasAll(['age','height','weight'])
+        && d.age is int && d.age >= 1 && d.age <= 120
+        && d.height is number && d.height >= 100 && d.height <= 250
+        && d.weight is number && d.weight >= 30 && d.weight <= 300;
+    }
+    function validNutrition(n) {
+      let p = n.preferences;
+      let i = n.inputs;
+      let s = n.sources;
+      return n is map && n.keys().hasOnly(['version','preferences','inputs','targets','sources'])
+        && n.version == 1 && p is map
+        && p.keys().hasOnly(['goal','activity','source','sex','manual','specialCase'])
+        && p.keys().hasAll(['goal','activity','source','sex','manual','specialCase'])
+        && p.goal in ['bulk','recomp','cut','maintain']
+        && p.activity in ['sedentary','light','moderate','high']
+        && p.source in ['bio','manual'] && p.sex in ['male','female',''] && p.specialCase is bool
+        && (p.manual == null || nutritionNumbers(p.manual))
+        && (p.source != 'manual' || p.manual != null)
+        && (i == null || (i is map && i.keys().hasOnly(['age','height','weight','sex'])
+          && nutritionNumbers({'age':i.age,'height':i.height,'weight':i.weight}) && i.sex in ['male','female'] && i.sex == p.sex))
+        && (n.targets == null || (i != null && i.age >= 18 && i.age <= 100 && !p.specialCase && nutritionTargets(n.targets)))
+        && s is map && s.keys().hasOnly(['bioId','bioDate','measurementId','measurementDate'])
+        && nullableId(s.bioId) && nullableId(s.measurementId) && nullableDate(s.bioDate) && nullableDate(s.measurementDate);
+    }
+    function nullableId(v) { return v == null || (v is string && v.size() > 0 && v.size() <= 128); }
+    function nullableDate(v) { return v == null || (v is string && v.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')); }
+    function nutritionTargets(d) {
+      let energy = 4*d.protein + 4*d.carbs + 9*d.fat;
+      return d is map && d.keys().hasOnly(['calories','protein','carbs','fat','resting','maintenance'])
+        && d.calories is int && d.calories >= 1200 && d.calories <= 6000
+        && d.protein is int && d.protein > 0 && d.protein <= 600
+        && d.carbs is int && d.carbs >= 0 && d.carbs <= 1500
+        && d.fat is int && d.fat > 0 && d.fat <= 300
+        && d.resting is int && d.resting > 0 && d.resting <= 6000
+        && d.maintenance is int && d.maintenance > 0 && d.maintenance <= 8000
+        && energy >= d.calories-10 && energy <= d.calories+10;
+    }
+    // Private health profile. Billing administrators cannot read other users' health data.
+    match /users/{uid} {
+      allow get: if owner(uid);
+      allow create, update: if canWrite(uid) && audit()
+        && request.resource.data.keys().hasOnly(['nutrition','createdAt','updatedAt'])
+        && validNutrition(request.resource.data.nutrition);
+      allow list, delete: if false;
+    }
     function exercises(d) { return d.exercises is list && d.exercises.size() > 0 && d.exercises.size() <= 100; }
     match /users/{uid}/routines/{id} {
       allow read, delete: if owner(uid);

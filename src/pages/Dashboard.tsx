@@ -1,3 +1,4 @@
+import NutritionSummary from "../components/nutrition/NutritionSummary";
 import { t, useLanguage, getLocale } from "../lib/i18n";
 import { nextRoutineDay, dayLabel } from "../lib/training";
 import { useState } from "react";
@@ -172,6 +173,7 @@ export default function Dashboard({
           </article>
         ))}
       </div>
+      <NutritionSummary onOpen={() => onNavigate("nutrition")} />
       <div className="dashboard-grid">
         <div className="main-column">
           <section className="panel chart-panel">
