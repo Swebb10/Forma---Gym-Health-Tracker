@@ -1,0 +1,352 @@
+.body-explorer {
+  overflow: hidden;
+}
+.body-header {
+  padding: 28px 30px 22px;
+  border-bottom: 1px solid var(--border);
+}
+.body-header .eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.body-header h2 {
+  margin: 12px 0 8px;
+}
+.body-header p {
+  margin: 0;
+}
+.body-layout {
+  display: grid;
+  grid-template-columns: minmax(270px, 0.85fr) minmax(0, 1.15fr);
+}
+.body-stage {
+  padding: 24px;
+  background:
+    radial-gradient(ellipse at 50% 40%, var(--blue-soft), transparent 65%),
+    var(--bg);
+  border-right: 1px solid var(--border);
+  text-align: center;
+}
+.body-view {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.body-view .btn {
+  padding: 9px 12px;
+  font-size: 0.8rem;
+}
+.body-map {
+  display: block;
+  width: 100%;
+  max-width: 335px;
+  height: 530px;
+  margin: 12px auto;
+  overflow: visible;
+}
+.body-outline {
+  stroke: var(--muted);
+  stroke-width: 1;
+}
+.body-muscle {
+  fill: var(--border);
+  stroke: var(--muted);
+  stroke-width: 0.7;
+  cursor: pointer;
+  transition:
+    fill 0.2s,
+    stroke 0.2s;
+}
+.body-muscle.has-data {
+  fill: color-mix(in srgb, var(--blue) 24%, var(--panel));
+  stroke: var(--blue);
+}
+.body-muscle.is-priority {
+  stroke: var(--blue);
+  stroke-width: 2;
+  stroke-dasharray: 4 2;
+}
+.body-muscle.is-selected {
+  fill: var(--blue);
+  stroke: var(--blue);
+  stroke-width: 1.5;
+  stroke-dasharray: none;
+}
+.body-muscle:hover,
+.body-muscle:focus-visible {
+  fill: var(--blue);
+  outline: none;
+  stroke: var(--text);
+  stroke-width: 2;
+}
+.body-muscle.is-selected > g {
+  animation: muscle-reveal 0.65s ease-out;
+}
+.body-fibres {
+  fill: none;
+  stroke: var(--panel);
+  stroke-width: 1.1;
+  opacity: 0.6;
+  pointer-events: none;
+}
+.body-shadow {
+  fill: var(--border);
+}
+.body-figure {
+  transform-origin: 50% 50%;
+  animation: body-turn 0.5s ease-out;
+}
+.body-legend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+.body-legend span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.body-legend i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--border);
+  border: 1px solid var(--muted);
+}
+.body-legend .recorded {
+  background: color-mix(in srgb, var(--blue) 24%, var(--panel));
+  border-color: var(--blue);
+}
+.body-legend .priority {
+  border: 2px dashed var(--blue);
+  background: var(--panel);
+}
+.body-detail {
+  padding: 28px;
+  min-width: 0;
+}
+.body-zone-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+.body-zone-heading h3 {
+  font-size: 1.6rem;
+  margin: 0 0 14px;
+}
+.body-readings {
+  display: grid;
+  gap: 8px;
+  margin: 20px 0;
+}
+.body-reading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 5px 12px;
+  padding: 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.body-reading > div > span {
+  font-size: 0.85rem;
+}
+.body-reading small,
+.body-evidence small {
+  display: block;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+.body-reading strong {
+  align-self: center;
+  font-size: 1.35rem;
+}
+.body-reading strong small {
+  display: inline;
+}
+.body-change {
+  font-size: 0.72rem;
+  color: var(--muted);
+  grid-column: 1/-1;
+}
+.body-training {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.body-training > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px;
+  background: var(--blue-soft);
+  border-radius: 8px;
+  font-size: 0.8rem;
+}
+.body-training strong {
+  color: var(--blue);
+}
+.body-guidance {
+  border-top: 1px solid var(--border);
+  padding: 28px;
+}
+.body-overview {
+  margin-bottom: 24px;
+}
+.body-overview summary {
+  color: var(--blue);
+  font-weight: 600;
+}
+.body-zone-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.body-zone-list button {
+  padding: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  border-radius: 10px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--text);
+}
+.body-zone-list button strong {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.body-zone-list button small {
+  color: var(--muted);
+}
+.body-signal {
+  margin-top: 22px;
+  border-left: 3px solid var(--blue);
+  padding: 4px 0 4px 20px;
+}
+.body-signal h3 {
+  margin: 10px 0;
+}
+.body-signal p,
+.body-food-plan p,
+.body-method p {
+  line-height: 1.65;
+}
+.body-evidence {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 18px 0;
+}
+.body-evidence > div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  border: 1px solid var(--border);
+  padding: 14px;
+  border-radius: 10px;
+}
+.body-evidence > div > span:first-child {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.body-evidence strong {
+  font-size: 1.2rem;
+}
+.body-food-plan {
+  margin-top: 24px;
+  padding: 22px;
+  border-radius: 14px;
+  background: var(--blue-soft);
+}
+.body-food-plan h3 {
+  margin-top: 0;
+}
+.body-protein {
+  font-weight: 600;
+  color: var(--blue);
+}
+.body-method {
+  margin-top: 24px;
+  font-size: 0.85rem;
+}
+.body-method summary,
+.body-segments summary {
+  color: var(--blue);
+  font-weight: 600;
+}
+.body-method a {
+  color: var(--blue);
+  text-decoration: underline;
+}
+@keyframes body-turn {
+  from {
+    opacity: 0.25;
+    transform: scaleX(0.75);
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+@keyframes muscle-reveal {
+  from {
+    opacity: 0.3;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (max-width: 900px) {
+  .body-layout {
+    grid-template-columns: 1fr;
+  }
+  .body-stage {
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .body-map {
+    height: 450px;
+  }
+}
+@media (max-width: 540px) {
+  .body-header,
+  .body-detail,
+  .body-guidance {
+    padding: 20px;
+  }
+  .body-stage {
+    padding: 18px;
+  }
+  .body-evidence {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .body-signal {
+    padding-left: 12px;
+  }
+  .body-evidence > div {
+    padding: 10px;
+  }
+  .body-food-plan {
+    padding: 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .body-figure,
+  .body-muscle.is-selected > g {
+    animation: none;
+  }
+  .body-muscle {
+    transition: none;
+  }
+}

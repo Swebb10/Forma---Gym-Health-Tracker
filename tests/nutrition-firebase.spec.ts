@@ -18,6 +18,8 @@ test("perfil nutricional persiste en Firestore, se recalcula y permanece aislado
   await page.getByLabel("Peso corporal · kg").fill("80");
   await page.getByLabel("Sexo utilizado en la fórmula").selectOption("male");
   await page.getByLabel("Actividad habitual").selectOption("moderate");
+  await page.getByLabel("Quiero desarrollar esta zona").check();
+  await page.getByLabel(/Mis registros usan el mismo equipo/).check();
   await page.getByRole("button", { name: "Guardar objetivo y metas" }).click();
   await expect(page.getByRole("status")).toContainText("guardados");
   const context = await browser.newContext();
@@ -30,6 +32,10 @@ test("perfil nutricional persiste en Firestore, se recalcula y permanece aislado
     .click();
   await second.getByRole("link", { name: "Nutrición", exact: true }).click();
   await expect(second.getByLabel("Peso corporal · kg")).toHaveValue("80");
+  await expect(second.getByLabel("Quiero desarrollar esta zona")).toBeChecked();
+  await expect(
+    second.getByLabel(/Mis registros usan el mismo equipo/),
+  ).toBeChecked();
   await page.getByRole("link", { name: "Bioimpedancia", exact: true }).click();
   await page.getByRole("button", { name: "Nueva evaluación" }).click();
   await page.getByLabel("Edad · años *", { exact: true }).fill("31");
@@ -62,4 +68,7 @@ test("perfil nutricional persiste en Firestore, se recalcula y permanece aislado
   await page.getByRole("link", { name: "Nutrición", exact: true }).click();
   await expect(page.getByLabel("Peso corporal · kg")).toHaveValue("");
   await expect(page.getByTestId("target-calories")).toHaveCount(0);
+  await expect(
+    page.getByLabel("Quiero desarrollar esta zona"),
+  ).not.toBeChecked();
 });

@@ -57,7 +57,7 @@ before(async () => {
     },
   });
   await env.withSecurityRulesDisabled(async (ctx) => {
-    for (const uid of ["owner", "other", "expired"])
+    for (const uid of ["owner", "other", "expired", "priorities"])
       await setDoc(doc(ctx.firestore(), "members", uid), {
         active: true,
         subscriptionStatus: "trial",
@@ -69,6 +69,36 @@ before(async () => {
 });
 after(async () => {
   await env?.cleanup();
+});
+test("las prioridades son opcionales, privadas y restringidas a zonas válidas", async () => {
+  const db = env.authenticatedContext("priorities").firestore();
+  const ref = doc(db, "users", "priorities");
+  const data = payload();
+  data.nutrition.preferences.bodyContext = {
+    priorities: ["arms", "back", "glutes"],
+    comparable: true,
+  };
+  await assertSucceeds(setDoc(ref, data));
+  for (const bodyContext of [
+    { priorities: ["arms", "arms"], comparable: true },
+    { priorities: ["brain"], comparable: true },
+    { priorities: "arms", comparable: true },
+    { priorities: ["arms"], comparable: "yes" },
+    { priorities: ["arms"], comparable: true, role: "admin" },
+    { priorities: [], comparable: false, diagnosis: "low muscle" },
+    null,
+  ])
+    await assertFails(
+      updateDoc(ref, {
+        "nutrition.preferences.bodyContext": bodyContext,
+        updatedAt: serverTimestamp(),
+      }),
+    );
+  await assertFails(
+    getDoc(
+      doc(env.authenticatedContext("other").firestore(), "users", "priorities"),
+    ),
+  );
 });
 test("el perfil nutricional es privado, incluso frente a otro administrador", async () => {
   const owner = env.authenticatedContext("owner").firestore();

@@ -19,6 +19,7 @@ import type { WeightUnit } from "../types";
 import { Field, ErrorMessage } from "../components/ui";
 import MacroTargets from "../components/nutrition/MacroTargets";
 import FoodGuide from "../components/nutrition/FoodGuide";
+import BodyExplorer from "../components/nutrition/BodyExplorer";
 export default function Nutrition() {
   useLanguage();
   const { loading, error, retry } = useNutrition();
@@ -108,6 +109,12 @@ function NutritionEditor() {
   }
   return (
     <>
+      <BodyExplorer
+        prefs={prefs}
+        inputs={inputs}
+        targets={result.targets}
+        onChange={set}
+      />
       <form onSubmit={submit} className="nutrition-layout">
         <div className="nutrition-settings">
           <section className="panel nutrition-section">

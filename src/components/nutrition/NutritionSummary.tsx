@@ -1,6 +1,7 @@
 import { ArrowUpRight, Utensils } from "lucide-react";
 import { useNutrition } from "../../context/NutritionContext";
 import { goals } from "../../lib/nutrition";
+import { regions } from "../../lib/bodyAnalysis";
 import { t, useLanguage } from "../../lib/i18n";
 import MacroTargets from "./MacroTargets";
 export default function NutritionSummary({ onOpen }: { onOpen: () => void }) {
@@ -38,6 +39,18 @@ export default function NutritionSummary({ onOpen }: { onOpen: () => void }) {
               ? "Revisa tus datos para obtener una estimación."
               : "Elige tu objetivo para estimar tus calorías y macronutrientes diarios.",
           )}
+        </p>
+      )}
+      {!!current?.preferences.bodyContext?.priorities.length && (
+        <p className="muted nutrition-summary-note">
+          {t("Prioridades elegidas: {0}.", {
+            0: regions
+              .filter((r) =>
+                current.preferences.bodyContext!.priorities.includes(r.id),
+              )
+              .map((r) => t(r.label))
+              .join(", "),
+          })}
         </p>
       )}
       {error && <p className="error nutrition-summary-note">{t(error)}</p>}

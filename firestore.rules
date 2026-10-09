@@ -119,8 +119,9 @@ service cloud.firestore {
       let s = n.sources;
       return n is map && n.keys().hasOnly(['version','preferences','inputs','targets','sources'])
         && n.version == 1 && p is map
-        && p.keys().hasOnly(['goal','activity','source','sex','manual','specialCase'])
+        && p.keys().hasOnly(['goal','activity','source','sex','manual','specialCase','bodyContext'])
         && p.keys().hasAll(['goal','activity','source','sex','manual','specialCase'])
+        && (!('bodyContext' in p) || validBodyContext(p.bodyContext))
         && p.goal in ['bulk','recomp','cut','maintain']
         && p.activity in ['sedentary','light','moderate','high']
         && p.source in ['bio','manual'] && p.sex in ['male','female',''] && p.specialCase is bool
@@ -133,6 +134,12 @@ service cloud.firestore {
         && nullableId(s.bioId) && nullableId(s.measurementId) && nullableDate(s.bioDate) && nullableDate(s.measurementDate);
     }
     function nullableId(v) { return v == null || (v is string && v.size() > 0 && v.size() <= 128); }
+    function validBodyContext(c) {
+      return c is map && c.keys().hasOnly(['priorities','comparable']) && c.keys().hasAll(['priorities','comparable'])
+        && c.comparable is bool && c.priorities is list && c.priorities.size() <= 10
+        && c.priorities.toSet().size() == c.priorities.size()
+        && c.priorities.hasOnly(['neck','shoulders','chest','back','arms','forearms','core','glutes','thighs','calves']);
+    }
     function nullableDate(v) { return v == null || (v is string && v.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')); }
     function nutritionTargets(d) {
       let energy = 4*d.protein + 4*d.carbs + 9*d.fat;

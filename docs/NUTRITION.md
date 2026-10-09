@@ -47,6 +47,7 @@ nutrition:
     sex: male | female
     manual: { age, height (cm), weight (kg) } | null
     specialCase: boolean
+    bodyContext?: { priorities: RegionId[], comparable: boolean }
   inputs: { age, height, weight, sex } | null
   targets: { calories, protein, carbs, fat, resting, maintenance } | null
   sources: { bioId, bioDate, measurementId, measurementDate }
@@ -57,6 +58,29 @@ nutrition:
 Solo el propietario puede leer el documento. Se requiere la misma autorización de suscripción que para los otros registros para escribir; el súper administrador puede gestionar su propio perfil, pero no leer el perfil de salud de otras cuentas. Las reglas validan campos, tipos, intervalos y coherencia energética básica. Las estimaciones se calculan en el cliente y no se usan para permisos, cobros o decisiones clínicas. Las transacciones detectan cambios simultáneos antes de reemplazar una instantánea.
 
 La demostración usa `sessionStorage` (`forma-demo-nutrition-v1`), separado del perfil real.
+
+## Explorador corporal y orientación por evolución
+
+El mapa SVG interactivo muestra diez zonas en vista frontal/posterior, con animación al girar o seleccionar. Funciona con ratón, toque, teclado y selector de zonas. Respeta `prefers-reduced-motion`. Es una figura ilustrativa, no una reconstrucción del usuario ni una comparación con proporciones ideales.
+
+Cada zona muestra las últimas medidas disponibles **por campo**, con fecha individual, cambio respecto al registro más reciente separado al menos 28 días (y no más de 180) y aviso cuando el dato tiene más de 90 días. Excluye fechas futuras. No mezcla brazos relajados/contraídos, muslos altos/medios ni lados. Las diferencias entre lados proceden de una misma sesión. Los registros antiguos sin lado conservan su etiqueta; no se convierten en izquierda/derecha. No hay una circunferencia específica para la espalda.
+
+El resumen de todas las zonas muestra series de los últimos 28 días según el grupo explícito de cada ejercicio, sin adjudicar trabajo indirecto. Los grupos antiguos General/Brazos/Piernas quedan señalados como no clasificados. Cero registros no significa ausencia de entrenamiento. Una medida sin aumento no prueba un músculo rezagado: puede reflejar grasa, agua, técnica o evolución normal. El usuario elige sus prioridades; no se diagnostican deficiencias por tamaños absolutos ni se prescribe comida para hacer crecer un músculo concreto.
+
+La lectura conjunta requiere confirmación del mismo equipo y condiciones, medidas recientes y dos evaluaciones separadas 28–180 días. Peso, grasa, músculo y agua deben compartir ambos informes de bioimpedancia; cintura debe estar a no más de 7 días de cada extremo. Sin datos suficientes muestra qué falta. Un cambio de agua de al menos 2 puntos porcentuales detiene las sugerencias de objetivo. Las comparaciones se calculan en el cliente con los registros actuales; no se guardan inferencias como diagnósticos.
+
+Reglas orientativas del producto, **no umbrales clínicos validados**:
+
+- En volumen, aumento simultáneo de peso ≥1%, grasa estimada ≥1 kg y cintura ≥1 cm: invita a revisar el superávit y permite previsualizar mantenimiento.
+- En déficit/recomposición, descenso de peso ≥1 kg, músculo estimado ≥1 kg y masa magra ≥1 kg: invita a revisar recuperación, fuerza y déficit, con la misma opción de previsualización. La masa magra debe pertenecer a ambos informes.
+- Grasa estimada ≤−1 kg, cintura con cambio absoluto <1 cm y músculo estimado ≥−0,5 kg: invita a seguir observando, sin afirmar ganancia muscular.
+- Cuando el índice visceral aumenta en los mismos informes y también suben cintura ≥1 cm y grasa estimada ≥1 kg, muestra una observación adicional para revisar con el nutricionista y los rangos del equipo. No clasifica el índice como sano/peligroso por su valor absoluto ni cambia metas por sí solo.
+
+Grasa y músculo esquelético estimados se calculan con peso × el porcentaje correspondiente en el mismo informe. La masa magra registrada se mantiene separada. La grasa segmentaria **nunca se interpreta como músculo**. Índice visceral, contenido óseo, metabolismo del informe y otras proporciones permanecen visibles en el desglose; no se inventan rangos universales de aparatos ni diagnósticos de densidad ósea o dosis de nutrientes. [Limitaciones de la medición de masa muscular](https://pubmed.ncbi.nlm.nih.gov/29349935/).
+
+La orientación alimentaria depende del objetivo y propone repartir la proteína ya calculada, sin añadir proteína adicional. La ecuación Mifflin no recibe coeficientes de circunferencias o de índices de báscula. La acción de previsualizar cambia el borrador; **solo Guardar objetivo y metas aplica el cambio**. Se mantienen los límites para menores, condiciones especiales y entradas no válidas. [Proteína y ejercicio, ISSN](https://pubmed.ncbi.nlm.nih.gov/28642676/).
+
+`bodyContext` es opcional para compatibilidad con perfiles existentes. Sus prioridades admiten exclusivamente `neck`, `shoulders`, `chest`, `back`, `arms`, `forearms`, `core`, `glutes`, `thighs`, `calves`, sin duplicados. Se guarda dentro del perfil nutricional privado y utiliza los mismos permisos por usuario. Para activar esta ampliación, publica el **archivo completo actualizado `firestore.rules`** antes de desplegar el frontend; no requiere colecciones, índices, Cloud Functions, claves ni migraciones nuevas.
 
 ## Verificación técnica
 

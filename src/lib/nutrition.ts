@@ -1,5 +1,6 @@
 import type { BioRecord, Measurement } from "../types";
 import { localDate } from "./metrics";
+import type { BodyContext } from "./bodyAnalysis";
 
 export const goals = [
   {
@@ -59,6 +60,7 @@ export type NutritionPreferences = {
   sex: "male" | "female" | "";
   manual: { age: number; height: number; weight: number } | null;
   specialCase: boolean;
+  bodyContext?: BodyContext;
 };
 export type NutritionTargets = {
   calories: number;
