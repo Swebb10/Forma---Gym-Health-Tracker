@@ -15,7 +15,6 @@
     "test:integration": "firebase emulators:exec --only auth,firestore --project demo-forma \"playwright test --config playwright.firebase.config.ts\""
   },
   "dependencies": {
-    "@mlc-ai/web-llm": "0.2.86",
     "firebase": "^12.0.0",
     "lucide-react": "^0.468.0",
     "react": "^19.1.0",

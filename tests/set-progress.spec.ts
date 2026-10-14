@@ -80,9 +80,34 @@ test("muestra 1→4 series al mismo máximo, convierte unidades y conserva las r
     "4 de 4 series",
   );
   await page.getByLabel("Serie del gráfico").selectOption("3");
-  await page.getByLabel("Métrica de la serie").selectOption("reps");
+  await expect(
+    page.getByRole("combobox", { name: "Métrica de la serie" }),
+  ).toHaveCount(0);
+  await expect(page.locator(".series-chart .recharts-line")).toHaveCount(2);
+  await expect(page.locator(".series-chart-legend")).toContainText("Peso (lb)");
+  await expect(page.locator(".series-chart-legend")).toContainText(
+    "Repeticiones",
+  );
   await page.getByText("Ver datos del gráfico", { exact: true }).click();
   await expect(page.locator(".series-history li")).toHaveCount(2);
+  await expect(page.locator(".series-history li").first()).toContainText(
+    "198,42 lb × 8 rep",
+  );
+  await expect(page.locator(".series-history li").last()).toContainText(
+    "220,46 lb × 8 rep",
+  );
+  await page
+    .locator(".series-chart .recharts-line-dots")
+    .first()
+    .locator("circle")
+    .first()
+    .hover();
+  await expect(page.locator(".recharts-tooltip-wrapper")).toContainText(
+    "198,42 lb",
+  );
+  await expect(page.locator(".recharts-tooltip-wrapper")).toContainText(
+    "8 rep",
+  );
   await page
     .getByRole("button", { name: "Registrar sesión", exact: true })
     .click();
@@ -95,22 +120,32 @@ test("muestra 1→4 series al mismo máximo, convierte unidades y conserva las r
   ).toHaveValue("90");
   await page.getByText(/Referencia anterior y notas/).click();
   await expect(
-    page.getByRole("dialog").getByText("Notas que se van a analizar"),
+    page.getByRole("dialog").getByText("Notas para revisar"),
   ).toBeVisible();
   await page
     .getByRole("dialog")
     .getByRole("button", { name: "Cancelar", exact: true })
     .click();
 });
-test("no descarga IA al navegar y ofrece alternativa si no hay WebGPU", async ({
+test("revisa notas sin conexión, descargas, workers ni acceso a la GPU", async ({
   page,
+  context,
 }) => {
-  await page.addInitScript(() =>
+  await page.addInitScript(() => {
     Object.defineProperty(navigator, "gpu", {
-      value: undefined,
+      get() {
+        throw new Error("Unexpected GPU access");
+      },
       configurable: true,
-    }),
-  );
+    });
+    window.Worker = class {
+      constructor() {
+        throw new Error("Unexpected worker");
+      }
+    } as unknown as typeof Worker;
+  });
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
   const remote: string[] = [];
   page.on("request", (r) => {
     if (/huggingface|mlc-ai.github.io/.test(r.url())) remote.push(r.url());
@@ -120,61 +155,12 @@ test("no descarga IA al navegar y ofrece alternativa si no hay WebGPU", async ({
     .getByRole("button", { name: "Progreso por series", exact: true })
     .click();
   expect(remote).toEqual([]);
+  await expect(
+    page.getByRole("button", { name: "Revisar mis notas", exact: true }),
+  ).toBeVisible();
+  await context.setOffline(true);
   await page
-    .getByRole("button", { name: "Analizar notas con IA local" })
-    .click();
-  await expect(page.getByRole("alert")).toContainText("no dispone de WebGPU");
-  expect(remote).toEqual([]);
-  await expect(page.locator(".set-comparison tbody tr")).toHaveCount(4);
-});
-test("muestra consejos con citas y cancela el worker al salir (modelo simulado)", async ({
-  page,
-}) => {
-  await page.addInitScript(() => {
-    Object.defineProperty(navigator, "gpu", {
-      value: { requestAdapter: async () => ({}) },
-      configurable: true,
-    });
-    const NativeWorker = window.Worker;
-    class TestWorker {
-      onmessage: ((event: { data: unknown }) => void) | null = null;
-      constructor(url: string | URL, options?: WorkerOptions) {
-        if (!String(url).includes("notes.worker"))
-          return new NativeWorker(url, options) as unknown as TestWorker;
-      }
-      postMessage(data: { sources: { id: string; notes: string }[] }) {
-        setTimeout(
-          () =>
-            this.onmessage?.({
-              data: {
-                type: "result",
-                raw: JSON.stringify({
-                  signals: [
-                    {
-                      topic: "fatigue",
-                      sourceId: data.sources[0].id,
-                      quote: "Me cansé en las últimas series",
-                    },
-                  ],
-                }),
-              },
-            }),
-          50,
-        );
-      }
-      terminate() {
-        (window as unknown as { terminated: number }).terminated =
-          ((window as unknown as { terminated: number }).terminated ?? 0) + 1;
-      }
-    }
-    window.Worker = TestWorker as unknown as typeof Worker;
-  });
-  await page.goto("/#workouts");
-  await page
-    .getByRole("button", { name: "Progreso por series", exact: true })
-    .click();
-  await page
-    .getByRole("button", { name: "Analizar notas con IA local" })
+    .getByRole("button", { name: "Revisar mis notas", exact: true })
     .click();
   await expect(page.locator(".coach-results")).toContainText(
     "Revisa las últimas series",
@@ -182,15 +168,47 @@ test("muestra consejos con citas y cancela el worker al salir (modelo simulado)"
   await expect(page.locator(".coach-results blockquote")).toContainText(
     "Me cansé en las últimas series",
   );
-  expect(
-    await page.evaluate(
-      () => (window as unknown as { terminated: number }).terminated,
-    ),
-  ).toBe(1);
+  await expect(page.locator(".notes-coach")).toContainText(
+    "basado en reglas, no en IA",
+  );
+  await expect(
+    page.getByRole("button", { name: "Analizar notas con IA local" }),
+  ).toHaveCount(0);
+  await expect(page.locator(".notes-coach progress")).toHaveCount(0);
+  expect(remote).toEqual([]);
+  expect(errors).toEqual([]);
+  await expect(page.locator(".set-comparison tbody tr")).toHaveCount(4);
+});
+test("descarta consejos al cambiar de sesión y no altera las notas guardadas", async ({
+  page,
+}) => {
+  await page.goto("/#workouts");
+  await page
+    .getByRole("button", { name: "Progreso por series", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Revisar mis notas", exact: true })
+    .click();
+  await expect(page.locator(".coach-results")).toContainText(
+    "Revisa las últimas series",
+  );
+  await expect(page.locator(".coach-results blockquote")).toContainText(
+    "Me cansé en las últimas series",
+  );
   await page
     .getByRole("combobox", { name: "Sesión seleccionada", exact: true })
     .selectOption({ index: 1 });
   await expect(page.locator(".coach-results")).toHaveCount(0);
+  await page
+    .getByRole("button", { name: "Revisar mis notas", exact: true })
+    .click();
+  await expect(page.locator(".coach-results")).toContainText(
+    "No encontramos frases",
+  );
+  const stored = await page.evaluate(() =>
+    JSON.parse(sessionStorage.getItem("forma-demo-v1")!),
+  );
+  expect(stored.workouts).toEqual(fixture.workouts);
 });
 test("traducciones y diseño móvil no alteran los datos del entrenamiento", async ({
   page,
@@ -207,6 +225,12 @@ test("traducciones y diseño móvil no alteran los datos del entrenamiento", asy
     await expect(
       page.getByRole("heading", {
         name: catalogs[language]["Tu progreso, serie por serie"],
+      }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", {
+        name: catalogs[language]["Revisar mis notas"],
+        exact: true,
       }),
     ).toBeVisible();
     expect(

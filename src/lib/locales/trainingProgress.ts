@@ -34,33 +34,13 @@ export const trainingCatalogs: Record<string, Record<string, string>> = {
     "Historial de una serie": "Single-set history",
     "Serie del gráfico": "Chart set",
     "Serie {0}": "Set {0}",
-    "Métrica de la serie": "Set metric",
     "Ver datos del gráfico": "View chart data",
     "Sin serie": "No set",
     "Volumen = peso × repeticiones. No mide por sí solo fuerza o crecimiento muscular; la técnica, el rango y el equipo también importan.":
       "Volume = weight × repetitions. It does not measure strength or muscle growth on its own; technique, range and equipment matter too.",
     "Preparar la próxima sesión": "Prepare your next session",
-    "IA local gratuita: interpreta hasta 3 notas del mismo entrenamiento y día de rutina (700 caracteres por nota). Tus notas no se envían a un proveedor de IA.":
-      "Free local AI: interprets up to 3 notes from the same workout and routine day (700 characters per note). Your notes are not sent to an AI provider.",
     "No hay notas de sesiones comparables. Al guardar, anota técnica, descansos y cómo te sentiste en las últimas series.":
       "No notes from comparable sessions. When saving, record technique, rest and how the final sets felt.",
-    "Notas que se van a analizar": "Notes to be analyzed",
-    "La primera vez descarga aproximadamente 1 GB de modelo y necesita memoria y WebGPU. Se reutiliza la caché del navegador; puedes cancelar. No hay claves ni pagos por consulta.":
-      "The first run downloads roughly 1 GB of model files and needs memory and WebGPU. Browser cache is reused; you can cancel. No keys or per-query fees.",
-    "Volver a analizar notas": "Analyze notes again",
-    "Analizar notas con IA local": "Analyze notes with local AI",
-    "Preparando IA local": "Preparing local AI",
-    "Preparando modelo: {0}%": "Preparing model: {0}%",
-    "Analizando tus notas en este dispositivo…":
-      "Analyzing your notes on this device…",
-    "La IA propone temas y Forma muestra consejos limitados a esos temas. Revisa las citas: un modelo pequeño puede interpretar mal una nota. No modifica tus series.":
-      "AI suggests topics and Forma shows advice limited to those topics. Check the quotes: a small model can misread a note. It does not change your sets.",
-    "No se encontraron observaciones con evidencia suficiente. Revisa tus notas y la comparación de series.":
-      "No observations with enough evidence were found. Review your notes and set comparison.",
-    "Este navegador o dispositivo no dispone de WebGPU compatible. Puedes seguir usando la comparación de series y consultar tus notas.":
-      "This browser or device has no compatible WebGPU. You can still compare sets and read your notes.",
-    "No se pudo completar el análisis local. Comprueba la conexión, la memoria disponible y vuelve a intentarlo. Tus registros están guardados.":
-      "Local analysis could not finish. Check your connection and available memory, then retry. Your records are saved.",
     "Comparación por serie": "Set-by-set comparison",
     "Vista de entrenamientos": "Workout view",
     "Mis sesiones": "My sessions",
@@ -106,6 +86,22 @@ export const trainingCatalogs: Record<string, Record<string, string>> = {
       "Record changes in machine, bar, grip or variation. Use distinct names for different variations: their weights are not always comparable.",
     Cambio: "Change",
     rep: "reps",
+    "Peso en el eje izquierdo y repeticiones en el derecho. Cada línea tiene su propia escala.":
+      "Weight on the left axis and repetitions on the right. Each line has its own scale.",
+    "Historial de peso y repeticiones de la serie {0}":
+      "Weight and repetition history for set {0}",
+    "Asistente ligero basado en reglas, no en IA. Revisa hasta 3 notas del mismo entrenamiento y día de rutina (700 caracteres por nota). Sin descargas, cuentas ni uso de GPU; tus notas se revisan en este dispositivo.":
+      "Lightweight rules-based assistant, not AI. Reviews up to 3 notes from the same workout and routine day (700 characters per note). No downloads, accounts or GPU use; your notes are reviewed on this device.",
+    "Notas para revisar": "Notes to review",
+    "Volver a revisar notas": "Review notes again",
+    "Revisar mis notas": "Review my notes",
+    "Estas sugerencias usan frases reconocibles de tus notas. Revisa cada cita: las reglas pueden omitir matices. No modifican tus series ni indican cuánto peso debes levantar.":
+      "These suggestions use recognizable phrases from your notes. Check each quote: rules can miss nuances. They do not change your sets or tell you how much weight to lift.",
+    "No encontramos frases que coincidan con las reglas. Eso no significa que no haya nada que mejorar; consulta tus notas y la comparación de series.":
+      "No phrases matched the rules. This does not mean there is nothing to improve; review your notes and set comparison.",
+    "Distingue las series con pausas": "Distinguish sets with pauses",
+    "Si necesitaste parar dentro de una serie, anótalo como serie con pausas. En la próxima sesión compara también cuántas repeticiones hiciste seguidas antes de aumentar la carga.":
+      "If you needed to stop within a set, record it as a set with pauses. Next session, also compare how many repetitions you completed consecutively before increasing the load.",
   },
   de: {
     "CADA SERIE CUENTA": "JEDER SATZ ZÄHLT",
@@ -142,33 +138,13 @@ export const trainingCatalogs: Record<string, Record<string, string>> = {
     "Historial de una serie": "Verlauf eines Satzes",
     "Serie del gráfico": "Satz im Diagramm",
     "Serie {0}": "Satz {0}",
-    "Métrica de la serie": "Satzmesswert",
     "Ver datos del gráfico": "Diagrammdaten anzeigen",
     "Sin serie": "Kein Satz",
     "Volumen = peso × repeticiones. No mide por sí solo fuerza o crecimiento muscular; la técnica, el rango y el equipo también importan.":
       "Volumen = Gewicht × Wiederholungen. Es misst allein weder Kraft noch Muskelwachstum; Technik, Bewegungsumfang und Gerät zählen ebenfalls.",
     "Preparar la próxima sesión": "Nächste Einheit vorbereiten",
-    "IA local gratuita: interpreta hasta 3 notas del mismo entrenamiento y día de rutina (700 caracteres por nota). Tus notas no se envían a un proveedor de IA.":
-      "Kostenlose lokale KI: wertet bis zu 3 Notizen desselben Trainings und Plantags aus (700 Zeichen je Notiz). Deine Notizen gehen nicht an einen KI-Anbieter.",
     "No hay notas de sesiones comparables. Al guardar, anota técnica, descansos y cómo te sentiste en las últimas series.":
       "Keine Notizen vergleichbarer Einheiten. Notiere beim Speichern Technik, Pausen und das Gefühl in den letzten Sätzen.",
-    "Notas que se van a analizar": "Zu analysierende Notizen",
-    "La primera vez descarga aproximadamente 1 GB de modelo y necesita memoria y WebGPU. Se reutiliza la caché del navegador; puedes cancelar. No hay claves ni pagos por consulta.":
-      "Beim ersten Mal werden etwa 1 GB Modelldaten geladen; Speicher und WebGPU sind nötig. Der Browsercache wird wiederverwendet; Abbrechen ist möglich. Keine Schlüssel oder Gebühren je Anfrage.",
-    "Volver a analizar notas": "Notizen erneut analysieren",
-    "Analizar notas con IA local": "Notizen mit lokaler KI analysieren",
-    "Preparando IA local": "Lokale KI wird vorbereitet",
-    "Preparando modelo: {0}%": "Modell wird vorbereitet: {0}%",
-    "Analizando tus notas en este dispositivo…":
-      "Deine Notizen werden auf diesem Gerät analysiert…",
-    "La IA propone temas y Forma muestra consejos limitados a esos temas. Revisa las citas: un modelo pequeño puede interpretar mal una nota. No modifica tus series.":
-      "Die KI schlägt Themen vor; Forma zeigt darauf begrenzte Tipps. Prüfe die Zitate: Ein kleines Modell kann Notizen falsch verstehen. Deine Sätze werden nicht geändert.",
-    "No se encontraron observaciones con evidencia suficiente. Revisa tus notas y la comparación de series.":
-      "Keine ausreichend belegten Beobachtungen gefunden. Prüfe deine Notizen und den Satzvergleich.",
-    "Este navegador o dispositivo no dispone de WebGPU compatible. Puedes seguir usando la comparación de series y consultar tus notas.":
-      "Dieser Browser oder dieses Gerät hat kein kompatibles WebGPU. Satzvergleich und Notizen bleiben verfügbar.",
-    "No se pudo completar el análisis local. Comprueba la conexión, la memoria disponible y vuelve a intentarlo. Tus registros están guardados.":
-      "Die lokale Analyse konnte nicht abgeschlossen werden. Prüfe Verbindung und freien Speicher und versuche es erneut. Deine Einträge sind gespeichert.",
     "Comparación por serie": "Satzvergleich",
     "Vista de entrenamientos": "Trainingsansicht",
     "Mis sesiones": "Meine Einheiten",
@@ -215,6 +191,22 @@ export const trainingCatalogs: Record<string, Record<string, string>> = {
       "Notiere Änderungen bei Maschine, Stange, Griff oder Variante. Nutze unterschiedliche Namen für Varianten: Die Gewichte sind nicht immer vergleichbar.",
     Cambio: "Änderung",
     rep: "Wdh.",
+    "Peso en el eje izquierdo y repeticiones en el derecho. Cada línea tiene su propia escala.":
+      "Gewicht auf der linken Achse, Wiederholungen auf der rechten. Jede Linie hat ihre eigene Skala.",
+    "Historial de peso y repeticiones de la serie {0}":
+      "Gewichts- und Wiederholungsverlauf für Satz {0}",
+    "Asistente ligero basado en reglas, no en IA. Revisa hasta 3 notas del mismo entrenamiento y día de rutina (700 caracteres por nota). Sin descargas, cuentas ni uso de GPU; tus notas se revisan en este dispositivo.":
+      "Ein einfacher regelbasierter Assistent, keine KI. Prüft bis zu 3 Notizen desselben Trainings und Trainingstags (700 Zeichen pro Notiz). Ohne Downloads, Konten oder GPU-Nutzung; deine Notizen werden auf diesem Gerät geprüft.",
+    "Notas para revisar": "Notizen zur Prüfung",
+    "Volver a revisar notas": "Notizen erneut prüfen",
+    "Revisar mis notas": "Meine Notizen prüfen",
+    "Estas sugerencias usan frases reconocibles de tus notas. Revisa cada cita: las reglas pueden omitir matices. No modifican tus series ni indican cuánto peso debes levantar.":
+      "Diese Hinweise beruhen auf erkennbaren Formulierungen in deinen Notizen. Prüfe jedes Zitat: Regeln können Nuancen übersehen. Sie ändern weder deine Sätze noch geben sie ein Trainingsgewicht vor.",
+    "No encontramos frases que coincidan con las reglas. Eso no significa que no haya nada que mejorar; consulta tus notas y la comparación de series.":
+      "Keine Formulierung entsprach den Regeln. Das bedeutet nicht, dass es nichts zu verbessern gibt; prüfe deine Notizen und den Satzvergleich.",
+    "Distingue las series con pausas": "Sätze mit Pausen unterscheiden",
+    "Si necesitaste parar dentro de una serie, anótalo como serie con pausas. En la próxima sesión compara también cuántas repeticiones hiciste seguidas antes de aumentar la carga.":
+      "Wenn du innerhalb eines Satzes anhalten musstest, vermerke ihn als Satz mit Pausen. Vergleiche beim nächsten Training auch die Wiederholungen ohne Unterbrechung, bevor du die Last erhöhst.",
   },
   ru: {
     "CADA SERIE CUENTA": "КАЖДЫЙ ПОДХОД ВАЖЕН",
@@ -251,33 +243,13 @@ export const trainingCatalogs: Record<string, Record<string, string>> = {
     "Historial de una serie": "История одного подхода",
     "Serie del gráfico": "Подход на графике",
     "Serie {0}": "Подход {0}",
-    "Métrica de la serie": "Показатель подхода",
     "Ver datos del gráfico": "Показать данные графика",
     "Sin serie": "Нет подхода",
     "Volumen = peso × repeticiones. No mide por sí solo fuerza o crecimiento muscular; la técnica, el rango y el equipo también importan.":
       "Объём = вес × повторения. Сам по себе он не измеряет силу или рост мышц; техника, амплитуда и оборудование тоже важны.",
     "Preparar la próxima sesión": "Подготовка к следующей тренировке",
-    "IA local gratuita: interpreta hasta 3 notas del mismo entrenamiento y día de rutina (700 caracteres por nota). Tus notas no se envían a un proveedor de IA.":
-      "Бесплатный локальный ИИ анализирует до 3 заметок того же типа тренировки и дня программы (700 символов на заметку). Заметки не отправляются провайдеру ИИ.",
     "No hay notas de sesiones comparables. Al guardar, anota técnica, descansos y cómo te sentiste en las últimas series.":
       "Нет заметок сопоставимых тренировок. При сохранении запиши технику, отдых и ощущения в последних подходах.",
-    "Notas que se van a analizar": "Заметки для анализа",
-    "La primera vez descarga aproximadamente 1 GB de modelo y necesita memoria y WebGPU. Se reutiliza la caché del navegador; puedes cancelar. No hay claves ni pagos por consulta.":
-      "Первый запуск загружает около 1 ГБ модели, требует памяти и WebGPU. Кэш браузера используется повторно; можно отменить. Нет ключей или платы за запросы.",
-    "Volver a analizar notas": "Повторить анализ заметок",
-    "Analizar notas con IA local": "Анализировать заметки локальным ИИ",
-    "Preparando IA local": "Подготовка локального ИИ",
-    "Preparando modelo: {0}%": "Подготовка модели: {0}%",
-    "Analizando tus notas en este dispositivo…":
-      "Анализ заметок на этом устройстве…",
-    "La IA propone temas y Forma muestra consejos limitados a esos temas. Revisa las citas: un modelo pequeño puede interpretar mal una nota. No modifica tus series.":
-      "ИИ предлагает темы, а Forma показывает советы по ним. Проверяй цитаты: небольшая модель может неверно понять заметку. Она не меняет подходы.",
-    "No se encontraron observaciones con evidencia suficiente. Revisa tus notas y la comparación de series.":
-      "Наблюдений с достаточным подтверждением не найдено. Просмотри заметки и сравнение подходов.",
-    "Este navegador o dispositivo no dispone de WebGPU compatible. Puedes seguir usando la comparación de series y consultar tus notas.":
-      "В этом браузере или устройстве нет совместимого WebGPU. Сравнение подходов и просмотр заметок доступны.",
-    "No se pudo completar el análisis local. Comprueba la conexión, la memoria disponible y vuelve a intentarlo. Tus registros están guardados.":
-      "Локальный анализ не завершён. Проверь соединение и свободную память и повтори. Твои записи сохранены.",
     "Comparación por serie": "Сравнение по подходам",
     "Vista de entrenamientos": "Вид тренировок",
     "Mis sesiones": "Мои тренировки",
@@ -324,6 +296,22 @@ export const trainingCatalogs: Record<string, Record<string, string>> = {
       "Записывай смену тренажёра, грифа, хвата или варианта. Различай названия вариантов: их веса не всегда сопоставимы.",
     Cambio: "Изменение",
     rep: "повт.",
+    "Peso en el eje izquierdo y repeticiones en el derecho. Cada línea tiene su propia escala.":
+      "Вес на левой оси, повторения на правой. У каждой линии своя шкала.",
+    "Historial de peso y repeticiones de la serie {0}":
+      "История веса и повторений в подходе {0}",
+    "Asistente ligero basado en reglas, no en IA. Revisa hasta 3 notas del mismo entrenamiento y día de rutina (700 caracteres por nota). Sin descargas, cuentas ni uso de GPU; tus notas se revisan en este dispositivo.":
+      "Лёгкий помощник на основе правил, а не ИИ. Проверяет до 3 заметок об одной тренировке и дне программы (700 символов на заметку). Без загрузок, аккаунтов и использования GPU; заметки проверяются на этом устройстве.",
+    "Notas para revisar": "Заметки для проверки",
+    "Volver a revisar notas": "Проверить заметки снова",
+    "Revisar mis notas": "Проверить мои заметки",
+    "Estas sugerencias usan frases reconocibles de tus notas. Revisa cada cita: las reglas pueden omitir matices. No modifican tus series ni indican cuánto peso debes levantar.":
+      "Эти рекомендации основаны на распознаваемых фразах из заметок. Проверяйте каждую цитату: правила могут упускать нюансы. Они не изменяют подходы и не указывают, какой вес поднимать.",
+    "No encontramos frases que coincidan con las reglas. Eso no significa que no haya nada que mejorar; consulta tus notas y la comparación de series.":
+      "Фразы, соответствующие правилам, не найдены. Это не значит, что улучшать нечего; просмотрите заметки и сравнение подходов.",
+    "Distingue las series con pausas": "Отмечайте подходы с паузами",
+    "Si necesitaste parar dentro de una serie, anótalo como serie con pausas. En la próxima sesión compara también cuántas repeticiones hiciste seguidas antes de aumentar la carga.":
+      "Если пришлось остановиться внутри подхода, отметьте его как подход с паузами. На следующей тренировке сравните также число повторений подряд, прежде чем повышать нагрузку.",
   },
   pt: {
     "CADA SERIE CUENTA": "CADA SÉRIE CONTA",
@@ -360,33 +348,13 @@ export const trainingCatalogs: Record<string, Record<string, string>> = {
     "Historial de una serie": "Histórico de uma série",
     "Serie del gráfico": "Série do gráfico",
     "Serie {0}": "Série {0}",
-    "Métrica de la serie": "Métrica da série",
     "Ver datos del gráfico": "Ver dados do gráfico",
     "Sin serie": "Sem série",
     "Volumen = peso × repeticiones. No mide por sí solo fuerza o crecimiento muscular; la técnica, el rango y el equipo también importan.":
       "Volume = peso × repetições. Sozinho não mede força ou crescimento muscular; técnica, amplitude e equipamento também importam.",
     "Preparar la próxima sesión": "Preparar a próxima sessão",
-    "IA local gratuita: interpreta hasta 3 notas del mismo entrenamiento y día de rutina (700 caracteres por nota). Tus notas no se envían a un proveedor de IA.":
-      "IA local gratuita: interpreta até 3 notas do mesmo treino e dia da rotina (700 caracteres por nota). Suas notas não são enviadas a um provedor de IA.",
     "No hay notas de sesiones comparables. Al guardar, anota técnica, descansos y cómo te sentiste en las últimas series.":
       "Não há notas de sessões comparáveis. Ao salvar, anote técnica, descansos e como se sentiu nas últimas séries.",
-    "Notas que se van a analizar": "Notas que serão analisadas",
-    "La primera vez descarga aproximadamente 1 GB de modelo y necesita memoria y WebGPU. Se reutiliza la caché del navegador; puedes cancelar. No hay claves ni pagos por consulta.":
-      "Na primeira vez, baixa cerca de 1 GB de modelo e precisa de memória e WebGPU. O cache do navegador é reutilizado; você pode cancelar. Sem chaves ou cobrança por consulta.",
-    "Volver a analizar notas": "Analisar notas novamente",
-    "Analizar notas con IA local": "Analisar notas com IA local",
-    "Preparando IA local": "Preparando IA local",
-    "Preparando modelo: {0}%": "Preparando modelo: {0}%",
-    "Analizando tus notas en este dispositivo…":
-      "Analisando suas notas neste dispositivo…",
-    "La IA propone temas y Forma muestra consejos limitados a esos temas. Revisa las citas: un modelo pequeño puede interpretar mal una nota. No modifica tus series.":
-      "A IA sugere temas e o Forma mostra dicas limitadas a eles. Confira as citações: um modelo pequeno pode interpretar mal uma nota. Ele não altera suas séries.",
-    "No se encontraron observaciones con evidencia suficiente. Revisa tus notas y la comparación de series.":
-      "Não foram encontradas observações com evidência suficiente. Revise suas notas e a comparação de séries.",
-    "Este navegador o dispositivo no dispone de WebGPU compatible. Puedes seguir usando la comparación de series y consultar tus notas.":
-      "Este navegador ou dispositivo não tem WebGPU compatível. Você pode continuar comparando séries e consultando notas.",
-    "No se pudo completar el análisis local. Comprueba la conexión, la memoria disponible y vuelve a intentarlo. Tus registros están guardados.":
-      "Não foi possível concluir a análise local. Confira a conexão e a memória disponível e tente novamente. Seus registros estão salvos.",
     "Comparación por serie": "Comparação por série",
     "Vista de entrenamientos": "Visualização de treinos",
     "Mis sesiones": "Minhas sessões",
@@ -432,6 +400,22 @@ export const trainingCatalogs: Record<string, Record<string, string>> = {
       "Registre mudanças de máquina, barra, pegada ou variação. Use nomes diferentes para variações: seus pesos nem sempre são comparáveis.",
     Cambio: "Mudança",
     rep: "rep",
+    "Peso en el eje izquierdo y repeticiones en el derecho. Cada línea tiene su propia escala.":
+      "Peso no eixo esquerdo e repetições no direito. Cada linha tem sua própria escala.",
+    "Historial de peso y repeticiones de la serie {0}":
+      "Histórico de peso e repetições da série {0}",
+    "Asistente ligero basado en reglas, no en IA. Revisa hasta 3 notas del mismo entrenamiento y día de rutina (700 caracteres por nota). Sin descargas, cuentas ni uso de GPU; tus notas se revisan en este dispositivo.":
+      "Assistente leve baseado em regras, não em IA. Revisa até 3 notas do mesmo treino e dia da rotina (700 caracteres por nota). Sem downloads, contas ou uso de GPU; as notas são revisadas neste dispositivo.",
+    "Notas para revisar": "Notas para revisar",
+    "Volver a revisar notas": "Revisar notas novamente",
+    "Revisar mis notas": "Revisar minhas notas",
+    "Estas sugerencias usan frases reconocibles de tus notas. Revisa cada cita: las reglas pueden omitir matices. No modifican tus series ni indican cuánto peso debes levantar.":
+      "Estas sugestões usam frases reconhecíveis das suas notas. Confira cada citação: as regras podem perder nuances. Elas não alteram suas séries nem indicam quanto peso levantar.",
+    "No encontramos frases que coincidan con las reglas. Eso no significa que no haya nada que mejorar; consulta tus notas y la comparación de series.":
+      "Nenhuma frase correspondeu às regras. Isso não significa que não haja nada a melhorar; consulte suas notas e a comparação de séries.",
+    "Distingue las series con pausas": "Diferencie séries com pausas",
+    "Si necesitaste parar dentro de una serie, anótalo como serie con pausas. En la próxima sesión compara también cuántas repeticiones hiciste seguidas antes de aumentar la carga.":
+      "Se precisou parar dentro de uma série, registre-a como série com pausas. Na próxima sessão, compare também quantas repetições fez seguidas antes de aumentar a carga.",
   },
   fr: {
     "CADA SERIE CUENTA": "CHAQUE SÉRIE COMPTE",
@@ -468,33 +452,13 @@ export const trainingCatalogs: Record<string, Record<string, string>> = {
     "Historial de una serie": "Historique d’une série",
     "Serie del gráfico": "Série du graphique",
     "Serie {0}": "Série {0}",
-    "Métrica de la serie": "Mesure de la série",
     "Ver datos del gráfico": "Voir les données du graphique",
     "Sin serie": "Série absente",
     "Volumen = peso × repeticiones. No mide por sí solo fuerza o crecimiento muscular; la técnica, el rango y el equipo también importan.":
       "Volume = poids × répétitions. Il ne mesure pas à lui seul force ou croissance musculaire ; technique, amplitude et matériel comptent aussi.",
     "Preparar la próxima sesión": "Préparer la prochaine séance",
-    "IA local gratuita: interpreta hasta 3 notas del mismo entrenamiento y día de rutina (700 caracteres por nota). Tus notas no se envían a un proveedor de IA.":
-      "IA locale gratuite : interprète jusqu’à 3 notes du même entraînement et jour du programme (700 caractères par note). Vos notes ne sont pas envoyées à un fournisseur d’IA.",
     "No hay notas de sesiones comparables. Al guardar, anota técnica, descansos y cómo te sentiste en las últimas series.":
       "Aucune note de séances comparables. Enregistrez la technique, les repos et vos sensations sur les dernières séries.",
-    "Notas que se van a analizar": "Notes à analyser",
-    "La primera vez descarga aproximadamente 1 GB de modelo y necesita memoria y WebGPU. Se reutiliza la caché del navegador; puedes cancelar. No hay claves ni pagos por consulta.":
-      "Le premier lancement télécharge environ 1 Go de modèle et nécessite mémoire et WebGPU. Le cache est réutilisé ; vous pouvez annuler. Aucune clé ni facturation par requête.",
-    "Volver a analizar notas": "Analyser les notes à nouveau",
-    "Analizar notas con IA local": "Analyser les notes avec l’IA locale",
-    "Preparando IA local": "Préparation de l’IA locale",
-    "Preparando modelo: {0}%": "Préparation du modèle : {0}%",
-    "Analizando tus notas en este dispositivo…":
-      "Analyse de vos notes sur cet appareil…",
-    "La IA propone temas y Forma muestra consejos limitados a esos temas. Revisa las citas: un modelo pequeño puede interpretar mal una nota. No modifica tus series.":
-      "L’IA propose des thèmes et Forma affiche des conseils limités à ceux-ci. Vérifiez les citations : un petit modèle peut mal comprendre une note. Il ne modifie pas vos séries.",
-    "No se encontraron observaciones con evidencia suficiente. Revisa tus notas y la comparación de series.":
-      "Aucune observation suffisamment étayée. Relisez vos notes et la comparaison des séries.",
-    "Este navegador o dispositivo no dispone de WebGPU compatible. Puedes seguir usando la comparación de series y consultar tus notas.":
-      "Ce navigateur ou appareil n’a pas de WebGPU compatible. Vous pouvez toujours comparer les séries et consulter vos notes.",
-    "No se pudo completar el análisis local. Comprueba la conexión, la memoria disponible y vuelve a intentarlo. Tus registros están guardados.":
-      "L’analyse locale n’a pas abouti. Vérifiez la connexion et la mémoire disponible, puis réessayez. Vos données sont enregistrées.",
     "Comparación por serie": "Comparaison par série",
     "Vista de entrenamientos": "Vue des entraînements",
     "Mis sesiones": "Mes séances",
@@ -541,5 +505,21 @@ export const trainingCatalogs: Record<string, Record<string, string>> = {
       "Notez les changements de machine, barre, prise ou variante. Nommez les variantes différemment : leurs poids ne sont pas toujours comparables.",
     Cambio: "Changement",
     rep: "rép.",
+    "Peso en el eje izquierdo y repeticiones en el derecho. Cada línea tiene su propia escala.":
+      "Poids sur l’axe gauche et répétitions sur l’axe droit. Chaque courbe a sa propre échelle.",
+    "Historial de peso y repeticiones de la serie {0}":
+      "Historique du poids et des répétitions de la série {0}",
+    "Asistente ligero basado en reglas, no en IA. Revisa hasta 3 notas del mismo entrenamiento y día de rutina (700 caracteres por nota). Sin descargas, cuentas ni uso de GPU; tus notas se revisan en este dispositivo.":
+      "Assistant léger fondé sur des règles, sans IA. Examine jusqu’à 3 notes de la même séance et du même jour de programme (700 caractères par note). Sans téléchargement, compte ni utilisation du GPU ; vos notes sont examinées sur cet appareil.",
+    "Notas para revisar": "Notes à examiner",
+    "Volver a revisar notas": "Réexaminer les notes",
+    "Revisar mis notas": "Examiner mes notes",
+    "Estas sugerencias usan frases reconocibles de tus notas. Revisa cada cita: las reglas pueden omitir matices. No modifican tus series ni indican cuánto peso debes levantar.":
+      "Ces suggestions reposent sur des expressions reconnues dans vos notes. Vérifiez chaque citation : les règles peuvent manquer certaines nuances. Elles ne modifient pas vos séries et ne prescrivent pas de charge.",
+    "No encontramos frases que coincidan con las reglas. Eso no significa que no haya nada que mejorar; consulta tus notas y la comparación de series.":
+      "Aucune expression ne correspond aux règles. Cela ne signifie pas qu’il n’y a rien à améliorer ; consultez vos notes et la comparaison des séries.",
+    "Distingue las series con pausas": "Distinguez les séries avec pauses",
+    "Si necesitaste parar dentro de una serie, anótalo como serie con pausas. En la próxima sesión compara también cuántas repeticiones hiciste seguidas antes de aumentar la carga.":
+      "Si vous avez dû vous arrêter au milieu d’une série, notez qu’elle comportait des pauses. À la prochaine séance, comparez aussi le nombre de répétitions consécutives avant d’augmenter la charge.",
   },
 };

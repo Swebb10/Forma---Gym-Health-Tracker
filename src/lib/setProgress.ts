@@ -192,7 +192,6 @@ export function exerciseTotals(
 export function seriesPoints(
   history: ExerciseSession[],
   index: number,
-  metric: "weight" | "reps",
   unit: WeightUnit,
 ) {
   return [...history].reverse().map((entry, order) => {
@@ -202,11 +201,8 @@ export function seriesPoints(
       key: entry.key,
       date: entry.workout.date,
       name: entry.workout.name,
-      value: set
-        ? metric === "weight"
-          ? fromKg(set.weight, unit)
-          : set.reps
-        : null,
+      weight: set ? fromKg(set.weight, unit) : null,
+      reps: set ? set.reps : null,
     };
   });
 }

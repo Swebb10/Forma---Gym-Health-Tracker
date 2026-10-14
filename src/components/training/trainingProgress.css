@@ -10,6 +10,7 @@
   color: var(--blue);
 }
 .training-progress {
+  --series-reps: #087e80;
   padding: 28px;
   display: flex;
   flex-direction: column;
@@ -128,6 +129,33 @@
   min-width: 0;
   width: 100%;
 }
+.dark .training-progress {
+  --series-reps: #57d3cb;
+}
+.series-chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.series-chart-legend span {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.series-chart-legend i {
+  width: 24px;
+  border-top: 3px solid var(--blue);
+}
+.series-chart-legend .reps-line {
+  border-color: var(--series-reps);
+  border-top-style: dashed;
+}
+.series-history strong {
+  white-space: nowrap;
+}
 .series-history summary,
 .notes-coach summary,
 .workout-preparation > summary {
@@ -185,16 +213,6 @@
   display: flex;
   gap: 14px;
   flex-wrap: wrap;
-}
-.coach-progress {
-  display: grid;
-  gap: 10px;
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-.coach-progress progress {
-  width: 100%;
-  accent-color: var(--blue);
 }
 .coach-results {
   display: grid;

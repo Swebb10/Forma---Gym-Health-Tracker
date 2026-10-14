@@ -161,8 +161,7 @@ function SessionAnalysis({
     previousKey === null
       ? automatic
       : candidates.find((h) => h.key === previousKey);
-  const [series, setSeries] = useState(0),
-    [metric, setMetric] = useState<"weight" | "reps">("weight");
+  const [series, setSeries] = useState(0);
   const [targetKg, setTargetKg] = useState(
       exerciseTotals(current.exercise).max,
     ),
@@ -187,7 +186,7 @@ function SessionAnalysis({
     1,
   );
   const chosenSeries = Math.min(series, seriesCount - 1);
-  const points = seriesPoints(history, chosenSeries, metric, unit);
+  const points = seriesPoints(history, chosenSeries, unit);
   return (
     <>
       <div className="form-grid">
@@ -331,26 +330,34 @@ function SessionAnalysis({
               ))}
             </select>
           </Field>
-          <Field label={t("Métrica de la serie")}>
-            <select
-              value={metric}
-              onChange={(e) => setMetric(e.target.value as "weight" | "reps")}
-            >
-              <option value="weight">{t("Peso")}</option>
-              <option value="reps">{t("Repeticiones")}</option>
-            </select>
-          </Field>
         </div>
       </div>
+      <div className="series-chart-legend">
+        <span>
+          <i className="weight-line" />
+          {t("Peso")} ({unit})
+        </span>
+        <span>
+          <i className="reps-line" />
+          {t("Repeticiones")}
+        </span>
+      </div>
+      <p className="small muted">
+        {t(
+          "Peso en el eje izquierdo y repeticiones en el derecho. Cada línea tiene su propia escala.",
+        )}
+      </p>
       <div
         className="series-chart"
         role="img"
-        aria-label={t("Historial de una serie")}
+        aria-label={t("Historial de peso y repeticiones de la serie {0}", {
+          0: chosenSeries + 1,
+        })}
       >
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={points}
-            margin={{ top: 15, right: 20, left: 0, bottom: 5 }}
+            margin={{ top: 15, right: 0, left: 0, bottom: 5 }}
           >
             <CartesianGrid
               strokeDasharray="4 5"
@@ -366,10 +373,20 @@ function SessionAnalysis({
               minTickGap={25}
             />
             <YAxis
-              width={55}
+              yAxisId="weight"
+              width={45}
               domain={[0, "auto"]}
               tickFormatter={(n) => numberLabel(Number(n))}
-              tick={{ fill: "var(--muted)", fontSize: 11 }}
+              tick={{ fill: "var(--blue)", fontSize: 11 }}
+            />
+            <YAxis
+              yAxisId="reps"
+              orientation="right"
+              width={35}
+              domain={[0, "auto"]}
+              allowDecimals={false}
+              tickFormatter={(n) => numberLabel(Number(n), 0)}
+              tick={{ fill: "var(--series-reps)", fontSize: 11 }}
             />
             <Tooltip
               labelFormatter={(n) =>
@@ -377,9 +394,9 @@ function SessionAnalysis({
                   ? `${date(points[Number(n)].date)} · ${points[Number(n)].name}`
                   : ""
               }
-              formatter={(v) => [
-                `${numberLabel(Number(v), 2)} ${metric === "weight" ? unit : t("rep")}`,
-                t("Valor"),
+              formatter={(v, name) => [
+                `${numberLabel(Number(v), name === "weight" ? 2 : 0)} ${name === "weight" ? unit : t("rep")}`,
+                name === "weight" ? t("Peso") : t("Repeticiones"),
               ]}
               contentStyle={{
                 background: "var(--panel)",
@@ -388,10 +405,24 @@ function SessionAnalysis({
               }}
             />
             <Line
-              dataKey="value"
+              yAxisId="weight"
+              dataKey="weight"
+              name="weight"
               type="linear"
               stroke="var(--blue)"
               strokeWidth={3}
+              dot={{ r: 4 }}
+              connectNulls={false}
+              isAnimationActive={false}
+            />
+            <Line
+              yAxisId="reps"
+              dataKey="reps"
+              name="reps"
+              type="linear"
+              stroke="var(--series-reps)"
+              strokeWidth={3}
+              strokeDasharray="6 4"
               dot={{ r: 4 }}
               connectNulls={false}
               isAnimationActive={false}
@@ -408,9 +439,9 @@ function SessionAnalysis({
                 {date(p.date)} · {p.name}
               </span>
               <strong>
-                {p.value === null
+                {p.weight === null || p.reps === null
                   ? t("Sin serie")
-                  : `${numberLabel(p.value, 2)} ${metric === "weight" ? unit : t("rep")}`}
+                  : `${numberLabel(p.weight, 2)} ${unit} × ${numberLabel(p.reps, 0)} ${t("rep")}`}
               </strong>
             </li>
           ))}
