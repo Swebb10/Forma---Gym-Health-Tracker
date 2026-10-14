@@ -7,6 +7,7 @@ export default defineConfig({
     "i18n.spec.ts",
     "nutrition.spec.ts",
     "training-update.spec.ts",
+    "set-progress.spec.ts",
     "subscription-demo.spec.ts",
   ],
   fullyParallel: false,

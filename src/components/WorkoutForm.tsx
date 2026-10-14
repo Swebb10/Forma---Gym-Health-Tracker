@@ -4,6 +4,10 @@ import { useData } from "../context/DataContext";
 import type { Workout, Routine, RoutineDay } from "../types";
 import { Modal, Field, FormFooter, ErrorMessage } from "./ui";
 import { ExerciseEditor } from "./ExerciseEditor";
+import { priorWorkouts } from "../lib/setProgress";
+import { noteSources } from "../lib/noteCoach";
+import NotesCoach from "./training/NotesCoach";
+import "./training/trainingProgress.css";
 import { localDate, validateExercises } from "../lib/metrics";
 import {
   routineDays,
@@ -37,6 +41,7 @@ export function WorkoutForm({
   const routine = data.routines.find((r) => r.id === value.routineId);
   const sessions = routine ? routineDays(routine) : [];
   const selectedExists = sessions.some((d) => d.id === value.routineDayId);
+  const previousSession = priorWorkouts(data.workouts, value, 1)[0];
   async function submit(event: FormEvent) {
     event.preventDefault();
     if (!value.name.trim() || !validateExercises(value.exercises)) {
@@ -149,8 +154,17 @@ export function WorkoutForm({
           </div>
           <ExerciseEditor
             exercises={value.exercises}
+            previousExercises={previousSession?.exercises}
             onChange={(exercises) => setValue({ ...value, exercises })}
           />
+          {previousSession && (
+            <details className="workout-preparation">
+              <summary>
+                {t("Referencia anterior y notas")} · {previousSession.date}
+              </summary>
+              <NotesCoach sources={noteSources(data.workouts, value, false)} />
+            </details>
+          )}
           <Field label={t("Notas de la sesión")}>
             <textarea
               maxLength={1000}

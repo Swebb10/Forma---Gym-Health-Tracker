@@ -382,6 +382,13 @@ export default function Dashboard({
             "Mayor peso registrado por día para el ejercicio seleccionado. Los registros en kg y lb se convierten a la unidad elegida para compararlos.",
           )}
         </p>
+        <button
+          className="text-button strength-detail-link"
+          onClick={() => onNavigate("workouts")}
+        >
+          {t("Comparar cada serie en Entrenamientos")}{" "}
+          <ArrowUpRight size={16} />
+        </button>
       </section>
     </>
   );

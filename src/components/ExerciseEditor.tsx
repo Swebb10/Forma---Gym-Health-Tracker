@@ -2,6 +2,9 @@ import { t, useLanguage } from "../lib/i18n";
 import { useId } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import type { Exercise, WeightUnit } from "../types";
+import { exerciseOccurrences, exerciseIdentity } from "../lib/setProgress";
+import { toKg } from "../lib/training";
+import { numberLabel } from "../lib/metrics";
 import { Field } from "./ui";
 import {
   muscleGroups,
@@ -13,9 +16,11 @@ export { freshExercise } from "../lib/training";
 export function ExerciseEditor({
   exercises,
   onChange,
+  previousExercises,
 }: {
   exercises: Exercise[];
   onChange: (value: Exercise[]) => void;
+  previousExercises?: Exercise[];
 }) {
   useLanguage();
   const listId = useId();
@@ -114,63 +119,90 @@ export function ExerciseEditor({
             </span>
             <span />
           </div>
-          {e.sets.map((s, j) => (
-            <div className="set-row" key={j}>
-              <span>{j + 1}</span>
-              <input
-                aria-label={t("Repeticiones ejercicio {0} serie {1}", {
-                  "0": i + 1,
-                  "1": j + 1,
-                })}
-                required
-                type="number"
-                min="1"
-                max="1000"
-                step="1"
-                value={s.reps || ""}
-                onChange={(ev) =>
-                  update(i, {
-                    sets: e.sets.map((v, n) =>
-                      n === j ? { ...v, reps: Number(ev.target.value) } : v,
-                    ),
-                  })
-                }
-              />
-              <input
-                aria-label={t("Peso ejercicio {0} serie {1}", {
-                  "0": i + 1,
-                  "1": j + 1,
-                })}
-                required
-                type="number"
-                min="0"
-                max={fromKg(1500, exerciseUnit(e))}
-                step="any"
-                value={s.weight}
-                onChange={(ev) =>
-                  update(i, {
-                    sets: e.sets.map((v, n) =>
-                      n === j ? { ...v, weight: Number(ev.target.value) } : v,
-                    ),
-                  })
-                }
-              />
-              <button
-                type="button"
-                className="icon-btn"
-                aria-label={t("Quitar serie {0} del ejercicio {1}", {
-                  "0": j + 1,
-                  "1": i + 1,
-                })}
-                disabled={e.sets.length === 1}
-                onClick={() =>
-                  update(i, { sets: e.sets.filter((_, n) => n !== j) })
-                }
-              >
-                <Trash2 size={14} />
-              </button>
-            </div>
-          ))}
+          {e.sets.map((s, j) => {
+            const occurrence = exerciseOccurrences(exercises)[i].occurrence;
+            const previous = previousExercises?.filter(
+              (p) => exerciseIdentity(p) === exerciseIdentity(e),
+            )[occurrence];
+            const prior = previous?.sets[j];
+            return (
+              <div key={j}>
+                <div className="set-row">
+                  <span>{j + 1}</span>
+                  <input
+                    aria-label={t("Repeticiones ejercicio {0} serie {1}", {
+                      "0": i + 1,
+                      "1": j + 1,
+                    })}
+                    required
+                    type="number"
+                    min="1"
+                    max="1000"
+                    step="1"
+                    value={s.reps || ""}
+                    onChange={(ev) =>
+                      update(i, {
+                        sets: e.sets.map((v, n) =>
+                          n === j ? { ...v, reps: Number(ev.target.value) } : v,
+                        ),
+                      })
+                    }
+                  />
+                  <input
+                    aria-label={t("Peso ejercicio {0} serie {1}", {
+                      "0": i + 1,
+                      "1": j + 1,
+                    })}
+                    required
+                    type="number"
+                    min="0"
+                    max={fromKg(1500, exerciseUnit(e))}
+                    step="any"
+                    value={s.weight}
+                    onChange={(ev) =>
+                      update(i, {
+                        sets: e.sets.map((v, n) =>
+                          n === j
+                            ? { ...v, weight: Number(ev.target.value) }
+                            : v,
+                        ),
+                      })
+                    }
+                  />
+                  <button
+                    type="button"
+                    className="icon-btn"
+                    aria-label={t("Quitar serie {0} del ejercicio {1}", {
+                      "0": j + 1,
+                      "1": i + 1,
+                    })}
+                    disabled={e.sets.length === 1}
+                    onClick={() =>
+                      update(i, { sets: e.sets.filter((_, n) => n !== j) })
+                    }
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+                {prior && previous && (
+                  <p className="set-reference">
+                    {t("Anterior · serie {0}: {1} {2} × {3} rep", {
+                      0: j + 1,
+                      1: numberLabel(
+                        fromKg(
+                          toKg(prior.weight, exerciseUnit(previous)),
+                          exerciseUnit(e),
+                        ),
+                        2,
+                      ),
+                      2: exerciseUnit(e),
+                      3: prior.reps,
+                    })}
+                  </p>
+                )}
+              </div>
+            );
+          })}
           <button
             type="button"
             className="text-button"

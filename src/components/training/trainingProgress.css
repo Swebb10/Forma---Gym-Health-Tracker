@@ -1,0 +1,249 @@
+.workout-view-switch {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+}
+.workout-view-switch [aria-pressed="true"] {
+  border-color: var(--blue);
+  background: var(--blue-soft);
+  color: var(--blue);
+}
+.training-progress {
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+}
+.training-progress-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+.training-progress-heading h2 {
+  margin: 9px 0;
+}
+.training-progress p {
+  margin: 0;
+  line-height: 1.65;
+}
+.series-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.series-kpis > div {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+.series-kpis span,
+.series-kpis small {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.series-kpis strong {
+  font-size: 1.8rem;
+}
+.series-target {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
+  padding: 20px;
+  background: var(--blue-soft);
+  border-radius: 14px;
+}
+.series-target h3 {
+  margin: 0 0 8px;
+}
+.series-target-result {
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--blue);
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+.series-target-result small {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 400;
+}
+.set-comparison-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.set-comparison {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.85rem;
+  min-width: 530px;
+  text-align: left;
+}
+.set-comparison th,
+.set-comparison td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.set-comparison thead {
+  background: var(--bg);
+  color: var(--muted);
+}
+.set-comparison tr:last-child th,
+.set-comparison tr:last-child td {
+  border-bottom: 0;
+}
+.set-comparison small {
+  display: block;
+  color: var(--muted);
+  margin-top: 5px;
+}
+.series-status.up {
+  color: var(--blue);
+  font-weight: 600;
+}
+.series-status.down,
+.series-status.mixed {
+  font-weight: 600;
+}
+.series-chart-head {
+  display: flex;
+  gap: 18px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.series-chart-head > div {
+  display: flex;
+  gap: 12px;
+}
+.series-chart {
+  height: 260px;
+  min-width: 0;
+  width: 100%;
+}
+.series-history summary,
+.notes-coach summary,
+.workout-preparation > summary {
+  color: var(--blue);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+.series-history ul {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.series-history li {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  border-bottom: 1px solid var(--border);
+  padding: 8px 0;
+  font-size: 0.8rem;
+}
+.notes-coach {
+  border-top: 1px solid var(--border);
+  padding-top: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.notes-coach h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+.notes-coach blockquote {
+  margin: 12px 0;
+  border-left: 3px solid var(--blue);
+  padding: 8px 14px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 0.85rem;
+  background: var(--bg);
+}
+.notes-coach blockquote small {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted);
+}
+.notes-coach blockquote p {
+  margin: 8px 0 0;
+}
+.coach-actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.coach-progress {
+  display: grid;
+  gap: 10px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.coach-progress progress {
+  width: 100%;
+  accent-color: var(--blue);
+}
+.coach-results {
+  display: grid;
+  gap: 14px;
+}
+.coach-results article {
+  padding: 18px;
+  background: var(--blue-soft);
+  border-radius: 12px;
+}
+.coach-results h4 {
+  margin: 0 0 8px;
+}
+.set-reference {
+  margin: -3px 0 14px 56px;
+  color: var(--blue);
+  font-size: 0.75rem;
+}
+.strength-detail-link {
+  margin: 0 26px 22px;
+}
+@media (max-width: 640px) {
+  .training-progress {
+    padding: 18px;
+  }
+  .series-kpis {
+    grid-template-columns: 1fr;
+  }
+  .series-kpis > div {
+    padding: 15px;
+  }
+  .series-target {
+    grid-template-columns: 1fr;
+    padding: 16px;
+  }
+  .series-target-result {
+    flex-wrap: wrap;
+  }
+  .series-chart-head > div {
+    width: 100%;
+  }
+  .series-chart-head .field {
+    flex: 1;
+    min-width: 0;
+  }
+  .series-chart {
+    height: 220px;
+  }
+  .set-reference {
+    margin-left: 41px;
+  }
+}
