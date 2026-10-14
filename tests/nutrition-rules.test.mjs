@@ -9,6 +9,7 @@ import {
   doc,
   setDoc,
   getDoc,
+  deleteDoc,
   getDocs,
   collection,
   updateDoc,
@@ -57,7 +58,13 @@ before(async () => {
     },
   });
   await env.withSecurityRulesDisabled(async (ctx) => {
-    for (const uid of ["owner", "other", "expired", "priorities"])
+    for (const uid of [
+      "owner",
+      "other",
+      "expired",
+      "priorities",
+      "profile-first",
+    ])
       await setDoc(doc(ctx.firestore(), "members", uid), {
         active: true,
         subscriptionStatus: "trial",
@@ -180,5 +187,109 @@ test("no permite metas para menores ni condiciones especiales, pero conserva el 
   updated.targets = null;
   await assertSucceeds(
     updateDoc(ref, { nutrition: updated, updatedAt: serverTimestamp() }),
+  );
+});
+
+test("perfil corporal y rutina activa son privados y compatibles con nutrición", async () => {
+  const db = env.authenticatedContext("owner").firestore(),
+    ref = doc(db, "users/owner");
+  await assertSucceeds(
+    setDoc(
+      ref,
+      {
+        bodyProfile: { age: 30, height: 180, sex: "male", date: "2026-10-13" },
+        activeRoutineId: "ppl",
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true },
+    ),
+  );
+  await assertSucceeds(getDoc(ref));
+  await assertFails(
+    getDoc(doc(env.authenticatedContext("other").firestore(), "users/owner")),
+  );
+  await assertFails(
+    updateDoc(ref, { role: "admin", updatedAt: serverTimestamp() }),
+  );
+  await assertFails(
+    updateDoc(ref, {
+      bodyProfile: { age: 130, height: 180, sex: "male", date: "2026-10-13" },
+      updatedAt: serverTimestamp(),
+    }),
+  );
+  await assertFails(
+    updateDoc(ref, { activeRoutineId: 42, updatedAt: serverTimestamp() }),
+  );
+});
+test("el perfil puede existir antes de configurar nutrición", async () => {
+  const db = env.authenticatedContext("profile-first").firestore(),
+    ref = doc(db, "users/profile-first");
+  await assertSucceeds(
+    setDoc(ref, {
+      bodyProfile: { age: 32, height: 175, sex: "female", date: "2026-10-13" },
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    }),
+  );
+});
+test("peso fechado valida límites, privacidad y edición", async () => {
+  const db = env.authenticatedContext("owner").firestore(),
+    ref = doc(db, "users/owner/weights/new");
+  const value = {
+    date: "2026-10-13",
+    time: "10:15",
+    weight: 80,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  };
+  await assertSucceeds(setDoc(ref, value));
+  await assertSucceeds(
+    updateDoc(ref, { weight: 81.2, updatedAt: serverTimestamp() }),
+  );
+  await assertFails(
+    getDoc(
+      doc(
+        env.authenticatedContext("other").firestore(),
+        "users/owner/weights/new",
+      ),
+    ),
+  );
+  await assertFails(
+    updateDoc(ref, { weight: 0, updatedAt: serverTimestamp() }),
+  );
+  await assertFails(
+    updateDoc(ref, { weight: 501, updatedAt: serverTimestamp() }),
+  );
+  await assertFails(
+    updateDoc(ref, { time: "25:70", updatedAt: serverTimestamp() }),
+  );
+  await assertSucceeds(deleteDoc(ref));
+});
+test("cuenta vencida lee su peso y perfil pero no crea, modifica ni elimina", async () => {
+  await env.withSecurityRulesDisabled(async (ctx) => {
+    await setDoc(doc(ctx.firestore(), "users/expired/weights/old"), {
+      date: "2026-10-01",
+      time: "09:00",
+      weight: 80,
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
+    });
+  });
+  const db = env.authenticatedContext("expired").firestore(),
+    ref = doc(db, "users/expired/weights/old");
+  await assertSucceeds(getDoc(ref));
+  await assertSucceeds(getDoc(doc(db, "users/expired")));
+  await assertFails(
+    updateDoc(ref, { weight: 81, updatedAt: serverTimestamp() }),
+  );
+  await assertFails(deleteDoc(ref));
+  await assertFails(
+    setDoc(doc(db, "users/expired/weights/new"), {
+      date: "2026-10-13",
+      time: "09:00",
+      weight: 81,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    }),
   );
 });

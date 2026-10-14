@@ -6,7 +6,7 @@ import { buildNutrition, defaultPreferences } from "../src/lib/nutrition";
 test("mapa corporal accesible, prioridades persistentes e idiomas en móvil", async ({
   page,
 }) => {
-  await page.goto("/#nutrition");
+  await page.goto("/#measurements");
   const map = page.getByLabel("Mapa muscular interactivo");
   await expect(map).toBeVisible();
   await map.getByRole("button", { name: "Hombros", exact: true }).focus();
@@ -23,8 +23,10 @@ test("mapa corporal accesible, prioridades persistentes e idiomas en móvil", as
     .first()
     .click();
   await page.getByLabel("Quiero desarrollar esta zona").check();
-  await page.getByRole("button", { name: "Guardar objetivo y metas" }).click();
-  await expect(page.getByRole("status")).toContainText("guardados");
+  await page.getByRole("button", { name: "Guardar contexto corporal" }).click();
+  await expect(
+    page.getByRole("button", { name: "Guardar contexto corporal" }),
+  ).toBeDisabled();
   await page.reload();
   await page.getByLabel("Zona corporal").selectOption("glutes");
   await expect(page.getByLabel("Quiero desarrollar esta zona")).toBeChecked();
@@ -125,7 +127,7 @@ test("cruza composición y cintura, propone un borrador y no cambia la meta guar
     },
     { data, nutrition },
   );
-  await page.goto("/#nutrition");
+  await page.goto("/#measurements");
   await expect(page.getByTestId("body-signal")).toContainText(
     "Revisa el superávit",
   );
@@ -136,9 +138,12 @@ test("cruza composición y cintura, propone un borrador y no cambia la meta guar
     "Estos valores son grasa",
   );
   await expect(page.locator(".body-segments")).toContainText("1,1");
+  await page
+    .getByRole("link", { name: "Revisar objetivo en Nutrición" })
+    .click();
   const before = await page.getByTestId("target-calories").textContent();
   await page
-    .getByRole("button", { name: "Previsualizar mantenimiento" })
+    .getByRole("button", { name: "Mantener peso", exact: false })
     .click();
   await expect(page.getByTestId("target-calories")).not.toHaveText(before!);
   expect(
@@ -158,26 +163,33 @@ test("cruza composición y cintura, propone un borrador y no cambia la meta guar
     ),
   ).toBe("maintain");
 });
-test("nutrición guarda metas, usa kg/lb y mantiene traducciones y datos", async ({
+test("nutrición usa el perfil y peso compartidos, conserva traducciones y guía", async ({
   page,
 }) => {
-  await page.goto("/#nutrition");
-  await page.getByLabel("Origen de los datos").selectOption("manual");
+  await page.goto("/#measurements");
+  await page
+    .getByRole("button", { name: "Confirmar datos personales" })
+    .click();
   await page.getByLabel("Edad · años", { exact: true }).fill("30");
   await page.getByLabel("Altura · cm", { exact: true }).fill("180");
-  await page.getByLabel("Peso corporal · kg", { exact: true }).fill("80");
   await page.getByLabel("Sexo utilizado en la fórmula").selectOption("male");
+  await page.getByRole("button", { name: "Guardar datos personales" }).click();
+  await page
+    .getByRole("button", { name: "Registrar peso", exact: true })
+    .click();
+  await page.getByLabel("Hora", { exact: true }).fill("23:59");
+  await page.getByLabel("Peso corporal · kg", { exact: true }).fill("80");
+  await page.getByLabel("Unidad del peso").selectOption("lb");
+  await expect(page.getByLabel("Peso corporal · lb")).toHaveValue("176.3698");
+  await page.getByRole("button", { name: "Guardar peso", exact: true }).click();
+  await page.getByRole("link", { name: "Nutrición", exact: true }).click();
   await page.getByLabel("Actividad habitual").selectOption("moderate");
   await expect(page.getByTestId("target-calories")).toContainText(/2\s?760/);
   await page.getByRole("button", { name: /Ganar masa muscular/ }).click();
   await expect(page.getByTestId("target-calories")).toContainText(/3\s?030/);
-  await page.getByLabel("Unidad del peso").selectOption("lb");
-  await expect(page.getByLabel("Peso corporal · lb")).toHaveValue("176.37");
-  await expect(page.getByTestId("target-calories")).toContainText(/3\s?030/);
   await page.getByRole("button", { name: "Guardar objetivo y metas" }).click();
   await expect(page.getByRole("status")).toContainText("guardados");
   await page.reload();
-  await expect(page.getByLabel("Peso corporal · kg")).toHaveValue("80");
   await expect(page.getByTestId("target-calories")).toContainText(/3\s?030/);
   for (const language of ["en", "de", "ru", "pt", "fr"] as const) {
     await page
@@ -200,6 +212,7 @@ test("nutrición guarda metas, usa kg/lb y mantiene traducciones y datos", async
   await expect(page.locator(".food-card")).toHaveCount(2);
   await page.getByRole("link", { name: "Resumen", exact: true }).click();
   await expect(page.locator(".nutrition-summary")).toContainText(/3\s?030/);
+  await expect(page.locator(".stat-card").first()).toContainText("176,4");
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole("button", { name: "Ver nutrición" }).click();
   expect(
@@ -207,18 +220,28 @@ test("nutrición guarda metas, usa kg/lb y mantiene traducciones y datos", async
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBe(true);
+  await page.getByRole("link", { name: "Actualizar en Mi cuerpo" }).click();
+  await page
+    .getByRole("button", { name: "Actualizar datos personales" })
+    .click();
   await page.getByLabel("Edad · años", { exact: true }).fill("17");
+  await page.getByRole("button", { name: "Guardar datos personales" }).click();
+  await page.getByRole("link", { name: "Ir a Nutrición" }).click();
   await expect(page.getByTestId("target-calories")).toHaveCount(0);
   await expect(page.getByText(/Este cálculo general/)).toBeVisible();
 });
-test("bioimpedancia recalcula metas guardadas y muestra medidas de contexto", async ({
+
+test("bioimpedancia recalcula metas y mantiene medidas en Mi cuerpo", async ({
   page,
 }) => {
   await page.goto("/#nutrition");
   await page.getByRole("button", { name: "Guardar objetivo y metas" }).click();
   await expect(page.getByRole("status")).toContainText("guardados");
   const before = await page.getByTestId("target-calories").textContent();
-  await page.getByRole("link", { name: "Bioimpedancia", exact: true }).click();
+  await page.getByRole("link", { name: "Mi cuerpo", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Bioimpedancia", exact: true })
+    .click();
   await page.getByRole("button", { name: "Nueva evaluación" }).click();
   await page.getByLabel("Edad · años *", { exact: true }).fill("30");
   await page.getByLabel("Altura · cm *", { exact: true }).fill("180");
@@ -227,7 +250,7 @@ test("bioimpedancia recalcula metas guardadas y muestra medidas de contexto", as
   await page.getByLabel("Hora *", { exact: true }).fill("23:59");
   await page.getByRole("button", { name: "Guardar registro" }).click();
   await page.getByRole("link", { name: "Nutrición", exact: true }).click();
-  await expect(page.getByLabel("Peso corporal · kg")).toHaveValue("95");
+  await expect(page.locator(".nutrition-context")).toContainText("95 kg");
   await expect(page.getByTestId("target-calories")).not.toHaveText(before!);
   await expect
     .poll(() =>
@@ -238,11 +261,11 @@ test("bioimpedancia recalcula metas guardadas y muestra medidas de contexto", as
       ),
     )
     .toBe(95);
-  await page.getByText(/Medidas corporales del/).click();
+  await page.getByRole("link", { name: "Mi cuerpo", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Medidas corporales", exact: true })
+    .click();
   await expect(
-    page
-      .locator("details")
-      .filter({ has: page.getByText(/Medidas corporales del/) })
-      .locator(".nutrition-measures"),
-  ).toContainText("cm");
+    page.getByRole("heading", { name: "Historial de medidas" }),
+  ).toBeVisible();
 });

@@ -1,3 +1,4 @@
+import { useSubscription } from "../context/SubscriptionContext";
 import { t, useLanguage } from "../lib/i18n";
 import { useState, type FormEvent } from "react";
 import { Plus, Pencil, Ruler, Eye } from "lucide-react";
@@ -22,6 +23,7 @@ import {
 import type { Measurement } from "../types";
 export default function Measurements() {
   useLanguage();
+  const { canWrite } = useSubscription();
   const { data, save, remove } = useData();
   const [zone, setZone] = useState("Zona Media"),
     [selected, setSelected] = useState<MeasurementField["key"]>("waist"),
@@ -113,7 +115,11 @@ export default function Measurements() {
             {t("Observa tus cambios por zona y por lado del cuerpo.")}
           </p>
         </div>
-        <button className="btn primary" onClick={() => open()}>
+        <button
+          className="btn primary"
+          disabled={!canWrite}
+          onClick={() => open()}
+        >
           <Plus size={18} /> {t("Añadir medidas")}
         </button>
       </div>
@@ -191,7 +197,7 @@ export default function Measurements() {
           <Empty
             title={t("Tu punto de partida")}
             description={t("Registra al menos una medida para empezar.")}
-            onAction={() => open()}
+            onAction={canWrite ? () => open() : undefined}
           />
         ) : (
           <div className="table-scroll">
@@ -234,6 +240,7 @@ export default function Measurements() {
                           aria-label={t("Editar medidas del {0}", {
                             "0": record.date,
                           })}
+                          disabled={!canWrite}
                           onClick={() => open(record)}
                         >
                           <Pencil size={16} />
@@ -250,7 +257,7 @@ export default function Measurements() {
           </div>
         )}
       </section>
-      {editing && (
+      {editing && canWrite && (
         <Modal
           title={t("Medidas corporales")}
           onClose={() => {

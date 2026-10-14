@@ -1,3 +1,4 @@
+import { coherenceCatalogs } from "./coherence";
 import { trainingCatalogs } from "./trainingProgress";
 import { bodyCatalogs } from "./bodyAnalysis";
 import { nutritionCatalogs } from "./nutrition";
@@ -12,29 +13,34 @@ export const catalogs = {
     ...nutritionCatalogs.en,
     ...bodyCatalogs.en,
     ...trainingCatalogs.en,
+    ...coherenceCatalogs.en,
   },
   de: {
     ...de,
     ...nutritionCatalogs.de,
     ...bodyCatalogs.de,
     ...trainingCatalogs.de,
+    ...coherenceCatalogs.de,
   },
   ru: {
     ...ru,
     ...nutritionCatalogs.ru,
     ...bodyCatalogs.ru,
     ...trainingCatalogs.ru,
+    ...coherenceCatalogs.ru,
   },
   pt: {
     ...pt,
     ...nutritionCatalogs.pt,
     ...bodyCatalogs.pt,
     ...trainingCatalogs.pt,
+    ...coherenceCatalogs.pt,
   },
   fr: {
     ...fr,
     ...nutritionCatalogs.fr,
     ...bodyCatalogs.fr,
     ...trainingCatalogs.fr,
+    ...coherenceCatalogs.fr,
   },
 };

@@ -1,9 +1,15 @@
 export type WeightUnit = "kg" | "lb";
-export type SetEntry = { reps: number; weight: number };
+export type SetEntry = {
+  reps: number;
+  weight: number;
+  completed?: boolean;
+  position?: number;
+};
 export type Exercise = {
   id: string;
   name: string;
   group: string;
+  movementId?: string;
   /** Missing on legacy records means kilograms. */
   unit?: WeightUnit;
   sets: SetEntry[];
@@ -104,8 +110,25 @@ export type Collections = {
   workouts: Workout;
   measurements: Measurement;
   bioimpedance: BioRecord;
+  weights: WeightRecord;
 };
-export type Store = { [K in keyof Collections]: Collections[K][] };
+export type WeightRecord = {
+  id: string;
+  date: string;
+  time: string;
+  weight: number;
+  createdAt?: unknown;
+  updatedAt?: unknown;
+};
+export type BodyProfile = {
+  age: number;
+  height: number;
+  sex: "male" | "female" | "";
+  date: string;
+};
+export type Store = {
+  [K in Exclude<keyof Collections, "weights">]: Collections[K][];
+} & { weights?: WeightRecord[] };
 export type Page =
   | "nutrition"
   | "dashboard"

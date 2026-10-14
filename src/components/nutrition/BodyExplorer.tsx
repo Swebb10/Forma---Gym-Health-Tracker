@@ -1,5 +1,8 @@
 import { useState } from "react";
+import { bioSections } from "../../lib/fields";
+import type { BioRecord } from "../../types";
 import { Activity, RotateCw, Target, ArrowRight } from "lucide-react";
+import { useSubscription } from "../../context/SubscriptionContext";
 import { useData } from "../../context/DataContext";
 import {
   bodyAnalysis,
@@ -9,7 +12,6 @@ import {
   type RegionId,
   type Trend,
 } from "../../lib/bodyAnalysis";
-import { bioSections } from "../../lib/fields";
 import { allMeasurementFields } from "../../lib/measurements";
 import {
   latestRecords,
@@ -19,7 +21,6 @@ import {
 } from "../../lib/nutrition";
 import { dateLabel, numberLabel } from "../../lib/metrics";
 import { t, useLanguage } from "../../lib/i18n";
-import type { BioRecord } from "../../types";
 import BodyMap from "./BodyMap";
 import "./bodyExplorer.css";
 
@@ -59,6 +60,7 @@ export default function BodyExplorer({
   onChange: (patch: Partial<NutritionPreferences>) => void;
 }) {
   useLanguage();
+  const { canWrite } = useSubscription();
   const { data, loading, error } = useData();
   const [selected, setSelected] = useState<RegionId>("arms");
   const [view, setView] = useState<"front" | "back">("front");
@@ -163,6 +165,7 @@ export default function BodyExplorer({
           <label className="nutrition-check">
             <input
               type="checkbox"
+              disabled={!canWrite}
               checked={zone.priority}
               onChange={() =>
                 onChange({
@@ -179,7 +182,7 @@ export default function BodyExplorer({
           </label>
           <p className="small muted">
             {t(
-              "Tus prioridades se guardan con el botón «Guardar objetivo y metas».",
+              "Guarda tus prioridades con el botón «Guardar contexto corporal».",
             )}
           </p>
           <div className="body-readings" aria-live="polite">
@@ -346,6 +349,7 @@ export default function BodyExplorer({
         <label className="nutrition-check">
           <input
             type="checkbox"
+            disabled={!canWrite}
             checked={context.comparable}
             onChange={(e) =>
               onChange({
@@ -373,7 +377,7 @@ export default function BodyExplorer({
           <div className="body-evidence">
             {(
               [
-                ["weight", "Peso corporal", "kg"],
+                ["weight", "Peso en bioimpedancia", "kg"],
                 ["fat", "Grasa estimada · peso × %", "kg"],
                 ["muscle", "Músculo estimado · peso × %", "kg"],
                 ["lean", "Masa corporal magra", "kg"],
@@ -407,19 +411,10 @@ export default function BodyExplorer({
             </div>
           </div>
           {analysis.suggestedGoal && (
-            <button
-              type="button"
-              className="btn secondary"
-              onClick={() => {
-                onChange({ goal: analysis.suggestedGoal! });
-                document
-                  .querySelector(".nutrition-estimate")
-                  ?.scrollIntoView({ behavior: "auto", block: "center" });
-              }}
-            >
-              {t("Previsualizar mantenimiento")}
+            <a className="btn secondary" href="#nutrition">
+              {t("Revisar objetivo en Nutrición")}
               <ArrowRight size={16} />
-            </button>
+            </a>
           )}
         </div>
         {targets && analysis.eligible ? (
@@ -496,41 +491,9 @@ export default function BodyExplorer({
             </a>
           </p>
         </details>
-        <details className="body-method">
-          <summary>
-            {t("Todas las métricas de tu última bioimpedancia")}
-          </summary>
-          {bio ? (
-            <>
-              <p>{fullDate(bio.date)}</p>
-              {bioSections.map((s) => (
-                <section key={s.title}>
-                  <h4>{t(s.title)}</h4>
-                  <dl className="nutrition-measures">
-                    {s.fields
-                      .filter(
-                        (f) =>
-                          typeof bio[f.key as keyof BioRecord] === "number",
-                      )
-                      .map((f) => (
-                        <div key={f.key}>
-                          <dt>{t(f.label)}</dt>
-                          <dd>
-                            {numberLabel(
-                              bio[f.key as keyof BioRecord] as number,
-                            )}{" "}
-                            {t(f.unit)}
-                          </dd>
-                        </div>
-                      ))}
-                  </dl>
-                </section>
-              ))}
-            </>
-          ) : (
-            <p>{t("Sin bioimpedancia registrada")}</p>
-          )}
-        </details>
+        <a className="text-button" href="#measurements?view=bio">
+          {t("Ver evaluación completa")} <ArrowRight size={16} />
+        </a>
       </div>
     </section>
   );

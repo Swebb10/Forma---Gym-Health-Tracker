@@ -111,6 +111,7 @@ test("muestra 1→4 series al mismo máximo, convierte unidades y conserva las r
   await page
     .getByRole("button", { name: "Registrar sesión", exact: true })
     .click();
+  page.once("dialog", (d) => d.accept());
   await page.getByLabel("Usar una rutina").selectOption("ppl");
   await expect(page.locator(".set-reference").nth(1)).toContainText(
     "100 kg × 8 rep",

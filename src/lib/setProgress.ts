@@ -1,19 +1,10 @@
 import type { Exercise, SetEntry, WeightUnit, Workout } from "../types";
 import { exerciseUnit, fromKg, toKg } from "./training";
 import { localDate } from "./metrics";
+import { movementIdentity, normalizeName } from "./exerciseCatalog";
 
-export const normalizeExercise = (name: string) =>
-  name
-    .normalize("NFKD")
-    .replace(/\p{M}/gu, "")
-    .trim()
-    .replace(/\s+/g, " ")
-    .toLowerCase();
-export const exerciseIdentity = (exercise: Exercise) =>
-  JSON.stringify([
-    normalizeExercise(exercise.name),
-    normalizeExercise(exercise.group),
-  ]);
+export const normalizeExercise = normalizeName;
+export const exerciseIdentity = movementIdentity;
 export type ExerciseOccurrence = {
   key: string;
   identity: string;
@@ -130,13 +121,21 @@ export function validSet(set?: SetEntry): set is SetEntry {
 export function normalizedSets(
   exercise: Exercise | undefined,
 ): (SetEntry | undefined)[] {
-  return (
-    exercise?.sets.map((s) =>
-      validSet(s)
+  if (!exercise) return [];
+  const result: (SetEntry | undefined)[] = [];
+  exercise.sets.forEach((s, i) => {
+    const position =
+      Number.isInteger(s.position) && s.position! > 0 && s.position! <= 100
+        ? s.position! - 1
+        : i;
+    // Preserve skipped set positions when only completed sets were saved.
+    while (result.length <= position) result.push(undefined);
+    result[position] =
+      validSet(s) && s.completed !== false
         ? { reps: s.reps, weight: toKg(s.weight, exerciseUnit(exercise)) }
-        : undefined,
-    ) ?? []
-  );
+        : undefined;
+  });
+  return result;
 }
 export function setComparison(current: Exercise, previous?: Exercise) {
   const now = normalizedSets(current),

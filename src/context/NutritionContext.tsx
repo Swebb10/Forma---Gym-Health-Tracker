@@ -15,6 +15,8 @@ import {
 } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { useAuth } from "./AuthContext";
+import { useProfile } from "./ProfileContext";
+import { resolveBody } from "../lib/bodyProfile";
 import { useData } from "./DataContext";
 import { useSubscription } from "./SubscriptionContext";
 import {
@@ -26,6 +28,7 @@ import {
 import { localDate } from "../lib/metrics";
 const DEMO_KEY = "forma-demo-nutrition-v1";
 type State = {
+  body: ReturnType<typeof resolveBody>;
   saved: NutritionSnapshot | null;
   current: NutritionSnapshot | null;
   loading: boolean;
@@ -39,6 +42,7 @@ export function NutritionProvider({ children }: { children: ReactNode }) {
   const { user, demo } = useAuth(),
     { data, loading: dataLoading, error: dataError } = useData(),
     { canWrite } = useSubscription();
+  const { profile, loading: profileLoading, error: bodyError } = useProfile();
   const uid = user?.uid;
   const [saved, setSaved] = useState<NutritionSnapshot | null>(null),
     [loading, setLoading] = useState(true),
@@ -86,9 +90,20 @@ export function NutritionProvider({ children }: { children: ReactNode }) {
             data.bioimpedance,
             data.measurements,
             today,
+            {
+              profile: profile.bodyProfile ?? null,
+              weights: data.weights ?? [],
+            },
           )
         : null,
-    [saved, data.bioimpedance, data.measurements, today],
+    [
+      saved,
+      data.bioimpedance,
+      data.measurements,
+      data.weights,
+      profile.bodyProfile,
+      today,
+    ],
   );
   const persist = useCallback(
     async (next: NutritionSnapshot, expected: NutritionSnapshot | null) => {
@@ -127,6 +142,8 @@ export function NutritionProvider({ children }: { children: ReactNode }) {
     if (
       loading ||
       dataLoading ||
+      profileLoading ||
+      bodyError ||
       dataError ||
       error ||
       !canWrite ||
@@ -155,6 +172,8 @@ export function NutritionProvider({ children }: { children: ReactNode }) {
     savedSignature,
     loading,
     dataLoading,
+    profileLoading,
+    bodyError,
     dataError,
     canWrite,
     error,
@@ -165,13 +184,21 @@ export function NutritionProvider({ children }: { children: ReactNode }) {
       throw new Error(
         "Tu suscripción no permite guardar registros. Revisa Mi suscripción.",
       );
-    if (loading || dataLoading || dataError || syncing)
+    if (
+      loading ||
+      dataLoading ||
+      dataError ||
+      profileLoading ||
+      bodyError ||
+      syncing
+    )
       throw new Error("Espera a que termine la sincronización de tus datos.");
     const next = buildNutrition(
       preferences,
       data.bioimpedance,
       data.measurements,
       today,
+      { profile: profile.bodyProfile ?? null, weights: data.weights ?? [] },
     );
     await persist(next, saved);
     setError("");
@@ -179,11 +206,18 @@ export function NutritionProvider({ children }: { children: ReactNode }) {
   return (
     <Context.Provider
       value={{
+        body: resolveBody(
+          profile.bodyProfile ?? null,
+          data.bioimpedance,
+          data.weights,
+          saved?.preferences,
+          today,
+        ),
         saved,
         current,
-        loading,
+        loading: loading || profileLoading,
         syncing,
-        error,
+        error: error || bodyError,
         save,
         retry: () => setAttempt((n) => n + 1),
       }}

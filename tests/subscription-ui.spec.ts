@@ -30,6 +30,16 @@ test("suscripciones, verificación de dueño, pagos, cambios de modo y suspensi�
   expect(ownerCreate.ok()).toBeTruthy();
   const owner = await ownerCreate.json();
   await login(page, email);
+  await page.getByRole("link", { name: "Mi cuerpo", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Registrar peso", exact: true })
+    .click();
+  await page.getByLabel("Peso corporal · kg").fill("74.9");
+  await page.getByRole("button", { name: "Guardar peso", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "Registrar peso", exact: true }),
+  ).toBeVisible();
+
   await page.getByRole("link", { name: "Mi suscripción", exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "Mi suscripción", exact: true }),
@@ -169,11 +179,21 @@ test("suscripciones, verificación de dueño, pagos, cambios de modo y suspensi�
   await expect(page.getByText("Vencida", { exact: true })).toBeVisible();
   await page.getByRole("link", { name: "Mis rutinas", exact: true }).click();
   await expect(
-    page.getByRole("heading", { name: "Mi suscripción", exact: true }),
+    page.getByRole("heading", { name: "Tu plan, a tu manera", exact: true }),
   ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Nueva rutina", exact: true }),
-  ).toHaveCount(0);
+  ).toBeDisabled();
+  await page.getByRole("link", { name: "Mi cuerpo", exact: true }).click();
+  await expect(page.locator(".body-current-weight")).toContainText("74,9 kg");
+  await expect(
+    page.getByRole("button", { name: "Registrar peso", exact: true }),
+  ).toBeDisabled();
+  await page.getByText("Historial de peso", { exact: false }).click();
+  await expect(
+    page.getByRole("button", { name: "Eliminar registro" }),
+  ).toBeDisabled();
+
   // Two simultaneous confirmations with the same bank reference cannot double-renew.
   const results = await admin.evaluate(
     async ({ memberId }) => {
@@ -248,8 +268,9 @@ test("suscripciones, verificación de dueño, pagos, cambios de modo y suspensi�
   await admin.setViewportSize({ width: 1440, height: 1050 });
   await admin.getByRole("button", { name: "Cambiar de modo" }).click();
   await admin.getByRole("button", { name: "Entrar como usuario" }).click();
+  await admin.getByRole("link", { name: "Mi cuerpo", exact: true }).click();
   await admin
-    .getByRole("link", { name: "Medidas corporales", exact: true })
+    .getByRole("button", { name: "Medidas corporales", exact: true })
     .click();
   await admin.getByRole("button", { name: "Añadir medidas" }).click();
   await admin
@@ -269,8 +290,9 @@ test("suscripciones, verificación de dueño, pagos, cambios de modo y suspensi�
     admin.getByRole("dialog", { name: "¿Cómo quieres entrar?" }),
   ).toBeVisible();
   await admin.getByRole("button", { name: "Entrar como usuario" }).click();
+  await admin.getByRole("link", { name: "Mi cuerpo", exact: true }).click();
   await admin
-    .getByRole("link", { name: "Medidas corporales", exact: true })
+    .getByRole("button", { name: "Medidas corporales", exact: true })
     .click();
   await expect(
     admin.getByRole("cell", { name: "81", exact: true }),

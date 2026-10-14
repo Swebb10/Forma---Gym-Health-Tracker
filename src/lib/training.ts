@@ -39,7 +39,7 @@ export const weekdays = [
 export const freshExercise = (): Exercise => ({
   id: crypto.randomUUID(),
   name: "",
-  group: "Pecho",
+  group: "",
   unit: "kg",
   sets: [{ reps: 10, weight: 0 }],
 });

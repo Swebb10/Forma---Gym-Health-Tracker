@@ -15,14 +15,20 @@ test("registro, persistencia Firestore, eliminación de campos y aislamiento de 
   await expect(
     page.getByRole("heading", { name: /Un poco más fuerte/ }),
   ).toBeVisible();
+  await page.getByRole("link", { name: "Mi cuerpo", exact: true }).click();
   await page
-    .getByRole("link", { name: "Medidas corporales", exact: true })
+    .getByRole("button", { name: "Medidas corporales", exact: true })
     .click();
   await page.getByRole("button", { name: "Añadir medidas" }).click();
   await page
     .getByLabel("Cintura (A la altura del ombligo) · cm", { exact: true })
     .fill("83");
   await page.getByLabel("Pecho · cm", { exact: true }).fill("101");
+  if (await page.getByLabel("Duración · minutos").count()) {
+    await page.getByLabel("Duración · minutos").fill("60");
+    for (const check of await page.locator(".set-completed input").all())
+      await check.check();
+  }
   await page.getByRole("button", { name: "Guardar registro" }).click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await page.getByRole("button", { name: /Editar medidas/ }).click();
@@ -30,6 +36,11 @@ test("registro, persistencia Firestore, eliminación de campos y aislamiento de 
   await page
     .getByLabel("Cintura (A la altura del ombligo) · cm", { exact: true })
     .fill("82");
+  if (await page.getByLabel("Duración · minutos").count()) {
+    await page.getByLabel("Duración · minutos").fill("60");
+    for (const check of await page.locator(".set-completed input").all())
+      await check.check();
+  }
   await page.getByRole("button", { name: "Guardar registro" }).click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await page.reload();
@@ -46,13 +57,28 @@ test("registro, persistencia Firestore, eliminación de campos y aislamiento de 
   await page.getByRole("button", { name: "Nueva rutina", exact: true }).click();
   await page.getByLabel("Nombre de la rutina").fill("Rutina original");
   await page.getByLabel("Nombre del ejercicio").fill("Press de banca");
+  if (await page.getByLabel("Duración · minutos").count()) {
+    await page.getByLabel("Duración · minutos").fill("60");
+    for (const check of await page.locator(".set-completed input").all())
+      await check.check();
+  }
   await page.getByRole("button", { name: "Guardar registro" }).click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await page.getByRole("button", { name: "Entrenar", exact: true }).click();
+  if (await page.getByLabel("Duración · minutos").count()) {
+    await page.getByLabel("Duración · minutos").fill("60");
+    for (const check of await page.locator(".set-completed input").all())
+      await check.check();
+  }
   await page.getByRole("button", { name: "Guardar registro" }).click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await page.getByRole("button", { name: "Editar Rutina original" }).click();
   await page.getByLabel("Nombre de la rutina").fill("Rutina editada");
+  if (await page.getByLabel("Duración · minutos").count()) {
+    await page.getByLabel("Duración · minutos").fill("60");
+    for (const check of await page.locator(".set-completed input").all())
+      await check.check();
+  }
   await page.getByRole("button", { name: "Guardar registro" }).click();
   await expect(
     page.getByRole("heading", { name: "Rutina editada" }),
@@ -116,6 +142,7 @@ test("sincroniza días, libras y las 17 medidas en Firebase emulado", async ({
   await page.getByLabel("Día de la semana").selectOption("Lunes");
   await page.getByLabel("Nombre de la sesión", { exact: true }).fill("Push");
   await page.getByLabel("Nombre del ejercicio").fill("Press");
+  await page.getByLabel("Grupo muscular").selectOption("Pecho");
   await page.getByLabel("Unidad del peso").selectOption("lb");
   await page
     .getByLabel("Peso ejercicio 1 serie 1", { exact: true })
@@ -125,6 +152,11 @@ test("sincroniza días, libras y las 17 medidas en Firebase emulado", async ({
   await page.getByLabel("Nombre de la sesión", { exact: true }).fill("Pull");
   await page.getByLabel("Nombre del ejercicio").fill("Remo");
   await page.getByLabel("Grupo muscular").selectOption("Antebrazos");
+  if (await page.getByLabel("Duración · minutos").count()) {
+    await page.getByLabel("Duración · minutos").fill("60");
+    for (const check of await page.locator(".set-completed input").all())
+      await check.check();
+  }
   await page.getByRole("button", { name: "Guardar registro" }).click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await page.reload();
@@ -132,18 +164,29 @@ test("sincroniza días, libras y las 17 medidas en Firebase emulado", async ({
     .getByRole("button", { name: "Entrenar Lunes · Push", exact: true })
     .click();
   await expect(page.getByLabel("Unidad del peso")).toHaveValue("lb");
+  if (await page.getByLabel("Duración · minutos").count()) {
+    await page.getByLabel("Duración · minutos").fill("60");
+    for (const check of await page.locator(".set-completed input").all())
+      await check.check();
+  }
   await page.getByRole("button", { name: "Guardar registro" }).click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await page.getByRole("link", { name: "Entrenamientos", exact: true }).click();
   await page.locator(".workout-card summary").click();
   await expect(page.locator(".workout-card")).toContainText("100 lb");
+  await page.getByRole("link", { name: "Mi cuerpo", exact: true }).click();
   await page
-    .getByRole("link", { name: "Medidas corporales", exact: true })
+    .getByRole("button", { name: "Medidas corporales", exact: true })
     .click();
   await page.getByRole("button", { name: "Añadir medidas" }).click();
   const fields = page.getByRole("dialog").locator('input[type="number"]');
   await expect(fields).toHaveCount(17);
   for (const field of await fields.all()) await field.fill("40");
+  if (await page.getByLabel("Duración · minutos").count()) {
+    await page.getByLabel("Duración · minutos").fill("60");
+    for (const check of await page.locator(".set-completed input").all())
+      await check.check();
+  }
   await page.getByRole("button", { name: "Guardar registro" }).click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await page.reload();
@@ -157,6 +200,11 @@ test("sincroniza días, libras y las 17 medidas en Firebase emulado", async ({
   await page
     .getByLabel("Pantorrilla Derecha · cm", { exact: true })
     .fill("38.5");
+  if (await page.getByLabel("Duración · minutos").count()) {
+    await page.getByLabel("Duración · minutos").fill("60");
+    for (const check of await page.locator(".set-completed input").all())
+      await check.check();
+  }
   await page.getByRole("button", { name: "Guardar registro" }).click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await page.reload();

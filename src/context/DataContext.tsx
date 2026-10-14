@@ -23,6 +23,7 @@ const empty: Store = {
   workouts: [],
   measurements: [],
   bioimpedance: [],
+  weights: [],
 };
 const keys = Object.keys(empty) as (keyof Store)[];
 type DataState = {
@@ -49,7 +50,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
     if (demo) {
       try {
         const saved = sessionStorage.getItem("forma-demo-v1");
-        setData(saved ? JSON.parse(saved) : demoData());
+        setData(
+          saved
+            ? { ...empty, ...JSON.parse(saved) }
+            : { ...empty, ...demoData() },
+        );
       } catch {
         setData(demoData());
       }
@@ -95,13 +100,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
     if (demo) {
       updateDemo({
         ...data,
-        [key]: [...data[key].filter((v) => v.id !== value.id), clean],
+        [key]: [...(data[key] ?? []).filter((v) => v.id !== value.id), clean],
       });
       return;
     }
     if (!db || !user) throw new Error("Debes iniciar sesión.");
     const { id, createdAt, updatedAt, ...payload } = clean;
-    const existing = data[key].find((record) => record.id === id);
+    const existing = data[key]?.find((record) => record.id === id);
     await setDoc(doc(db, "users", user.uid, key, id), {
       ...payload,
       createdAt: existing?.createdAt ?? serverTimestamp(),
@@ -109,8 +114,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
     });
   };
   const remove: DataState["remove"] = async (key, id) => {
+    if (!canWrite) throw new Error("Tu cuenta está en modo lectura.");
     if (demo) {
-      updateDemo({ ...data, [key]: data[key].filter((v) => v.id !== id) });
+      updateDemo({
+        ...data,
+        [key]: (data[key] ?? []).filter((v) => v.id !== id),
+      });
       return;
     }
     if (!db || !user) throw new Error("Debes iniciar sesión.");

@@ -9,6 +9,8 @@ import {
   ArrowUp,
   ArrowDown,
 } from "lucide-react";
+import { useProfile } from "../context/ProfileContext";
+import { useSubscription } from "../context/SubscriptionContext";
 import { useData } from "../context/DataContext";
 import type { Routine, RoutineDay } from "../types";
 import {
@@ -35,11 +37,14 @@ export default function Routines({
 }) {
   useLanguage();
   const { data, save, remove } = useData();
+  const { canWrite } = useSubscription(),
+    { profile, saveProfile } = useProfile();
   const [editing, setEditing] = useState<Routine | null>(null),
     [active, setActive] = useState(""),
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
   const edit = (routine?: Routine) => {
+    if (!canWrite) return;
     const day = freshDay();
     const value = routine
       ? {
@@ -127,15 +132,55 @@ export default function Routines({
             {t("Organiza tus rutinas por días y entrena una sesión a la vez.")}
           </p>
         </div>
-        <button className="btn primary" onClick={() => edit()}>
+        <button
+          className="btn primary"
+          disabled={!canWrite}
+          onClick={() => edit()}
+        >
           <Plus size={18} /> {t("Nueva rutina")}
         </button>
       </div>
+      <ErrorMessage message={error} />
+      {!!data.routines.length && (
+        <div className="notice">
+          <Field label={t("Rutina activa")}>
+            <select
+              disabled={!canWrite}
+              value={
+                profile.activeRoutineId ??
+                (data.routines.length === 1 ? data.routines[0].id : "")
+              }
+              onChange={async (e) => {
+                try {
+                  await saveProfile({
+                    activeRoutineId: e.target.value || null,
+                  });
+                  setError("");
+                } catch {
+                  setError("No se pudo guardar la rutina activa.");
+                }
+              }}
+            >
+              <option value="">{t("Seleccionar rutina activa")}</option>
+              {data.routines.map((r) => (
+                <option key={r.id} value={r.id}>
+                  {r.name}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <p className="small muted">
+            {t(
+              "La próxima sesión del Resumen sigue esta rutina y tu historial.",
+            )}
+          </p>
+        </div>
+      )}
       {!data.routines.length ? (
         <Empty
           title={t("Todo empieza con un plan")}
           description={t("Crea una rutina y organiza sus ejercicios por días.")}
-          onAction={() => edit()}
+          onAction={canWrite ? () => edit() : undefined}
         />
       ) : (
         <div className="routine-grid">
@@ -181,6 +226,7 @@ export default function Routines({
                               ? t("Entrenar")
                               : t("Entrenar {0}", { "0": dayLabel(day) })
                           }
+                          disabled={!canWrite}
                           onClick={() => onStart(routine, day)}
                         >
                           {t("Entrenar")} <ArrowUpRight size={16} />
@@ -221,6 +267,7 @@ export default function Routines({
                   <button
                     className="text-button"
                     aria-label={t("Editar {0}", { "0": routine.name })}
+                    disabled={!canWrite}
                     onClick={() => edit(routine)}
                   >
                     <Pencil size={16} /> {t("Editar rutina")}
@@ -234,7 +281,7 @@ export default function Routines({
           })}
         </div>
       )}
-      {editing && (
+      {editing && canWrite && (
         <Modal
           title={
             data.routines.some((r) => r.id === editing.id)

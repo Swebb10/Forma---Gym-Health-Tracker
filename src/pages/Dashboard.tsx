@@ -1,6 +1,16 @@
+import { useProfile } from "../context/ProfileContext";
+import { useNutrition } from "../context/NutritionContext";
+import { useSubscription } from "../context/SubscriptionContext";
+import { nextSession } from "../lib/schedule";
+import {
+  availableExercises,
+  exerciseHistory,
+  exerciseTotals,
+} from "../lib/setProgress";
+import type { Navigate } from "../lib/navigation";
 import NutritionSummary from "../components/nutrition/NutritionSummary";
 import { t, useLanguage, getLocale } from "../lib/i18n";
-import { nextRoutineDay, dayLabel } from "../lib/training";
+import { dayLabel, fromKg } from "../lib/training";
 import { useState } from "react";
 import {
   ArrowUpRight,
@@ -16,63 +26,89 @@ import {
 import { useData } from "../context/DataContext";
 import { useAuth } from "../context/AuthContext";
 import { ProgressChart } from "../components/ProgressChart";
-import {
-  dateLabel,
-  numberLabel,
-  localDate,
-  exerciseProgress,
-  muscleMass,
-} from "../lib/metrics";
-import type { Page, Routine, RoutineDay, WeightUnit } from "../types";
+import { dateLabel, numberLabel, localDate, muscleMass } from "../lib/metrics";
+import type { Routine, RoutineDay, WeightUnit } from "../types";
 export default function Dashboard({
   onNavigate,
   onNew,
   onStart,
 }: {
-  onNavigate: (page: Page) => void;
+  onNavigate: Navigate;
   onNew: () => void;
   onStart: (r: Routine, day?: RoutineDay) => void;
 }) {
   useLanguage();
   const { data } = useData(),
     { demo } = useAuth();
+  const { profile, unit } = useProfile(),
+    { body } = useNutrition(),
+    { canWrite } = useSubscription();
+  const [strengthRange, setStrengthRange] = useState("90");
   const [metric, setMetric] = useState("weight"),
     [range, setRange] = useState("90"),
     [exercise, setExercise] = useState(""),
     [strengthUnit, setStrengthUnit] = useState<WeightUnit>("kg");
-  const nextDay = data.routines[0]
-    ? nextRoutineDay(data.routines[0])
+  const activeRoutine =
+    data.routines.find((r) => r.id === profile.activeRoutineId) ??
+    (data.routines.length === 1 ? data.routines[0] : undefined);
+  const next = activeRoutine
+    ? nextSession(activeRoutine, data.workouts)
     : undefined;
-  const bio = [...data.bioimpedance].sort((a, b) =>
-    (a.date + a.time).localeCompare(b.date + b.time),
-  );
+  const nextDay = next?.day;
+  const bio = data.bioimpedance
+    .filter((b) => b.date <= localDate())
+    .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
   const last = bio.at(-1);
   const previous = bio.at(-2);
   const since = new Date();
   since.setDate(since.getDate() - Number(range));
   const cutoff = range === "all" ? "0000-00-00" : localDate(since);
   const filtered = bio.filter((b) => b.date >= cutoff);
-  const points = filtered.flatMap((r) => {
-    const value =
-      metric === "weight"
-        ? r.weight
-        : metric === "fat"
-          ? r.bodyFat
-          : muscleMass(r);
-    return value === undefined ? [] : [{ date: r.date, value }];
-  });
+  const points =
+    metric === "weight"
+      ? body.history
+          .filter((w) => w.date >= cutoff)
+          .map((w) => ({ date: w.date, value: fromKg(w.weight, unit) }))
+      : filtered.flatMap((r) => {
+          const value =
+            metric === "weight"
+              ? r.weight
+              : metric === "fat"
+                ? r.bodyFat
+                : muscleMass(r);
+          return value === undefined
+            ? []
+            : [
+                {
+                  date: r.date,
+                  value: metric === "fat" ? value : fromKg(value, unit),
+                },
+              ];
+        });
   const workouts = [...data.workouts].sort((a, b) =>
     b.date.localeCompare(a.date),
   );
-  const names = [
-    ...new Set(data.workouts.flatMap((w) => w.exercises.map((e) => e.name))),
-  ].sort();
-  const chosen = names.includes(exercise) ? exercise : (names[0] ?? "");
-  const exerciseData = exerciseProgress(
-    data.workouts,
-    chosen,
-    strengthUnit,
-  ).filter((p) => p.date >= cutoff);
+  const names = availableExercises(data.workouts);
+  const chosen = names.some((n) => n.key === exercise)
+    ? exercise
+    : (names[0]?.key ?? "");
+  const strengthSince = new Date();
+  strengthSince.setDate(strengthSince.getDate() - Number(strengthRange));
+  const strengthCutoff =
+    strengthRange === "all" ? "0000-00-00" : localDate(strengthSince);
+  const strengthDays = new Map<string, number>();
+  exerciseHistory(data.workouts, chosen).forEach((h) => {
+    const max = exerciseTotals(h.exercise).max;
+    if (max !== undefined)
+      strengthDays.set(
+        h.workout.date,
+        Math.max(strengthDays.get(h.workout.date) ?? 0, max),
+      );
+  });
+  const exerciseData = [...strengthDays]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .filter(([date]) => date >= strengthCutoff)
+    .map(([date, value]) => ({ date, value: fromKg(value, strengthUnit) }));
   const monday = new Date();
   monday.setHours(0, 0, 0, 0);
   monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
@@ -93,10 +129,16 @@ export default function Dashboard({
   const cards = [
     {
       label: "Peso corporal",
-      value: last?.weight,
-      unit: "kg",
+      value: body.weight === undefined ? undefined : fromKg(body.weight, unit),
+      unit,
       icon: Scale,
-      delta: last && previous ? last.weight - previous.weight : undefined,
+      delta:
+        !body.legacyWeight && body.history.length > 1
+          ? fromKg(
+              body.history.at(-1)!.weight - body.history.at(-2)!.weight,
+              unit,
+            )
+          : undefined,
       note: "respecto al registro anterior",
     },
     {
@@ -109,8 +151,11 @@ export default function Dashboard({
     },
     {
       label: "Músculo esquelético",
-      value: last ? muscleMass(last) : undefined,
-      unit: "kg",
+      value:
+        last && muscleMass(last) !== undefined
+          ? fromKg(muscleMass(last)!, unit)
+          : undefined,
+      unit,
       icon: Activity,
       note: "estimado a partir de peso × %",
     },
@@ -135,7 +180,7 @@ export default function Dashboard({
             {t("Así se ve el esfuerzo que estás poniendo en ti.")}
           </p>
         </div>
-        <button className="btn primary" onClick={onNew}>
+        <button className="btn primary" disabled={!canWrite} onClick={onNew}>
           <Plus size={18} /> {t("Registrar entrenamiento")}
         </button>
       </div>
@@ -161,6 +206,21 @@ export default function Dashboard({
               {numberLabel(c.value)}
               <span>{t(c.unit)}</span>
             </div>
+            {c.label === "Peso corporal" && (
+              <small className="muted">
+                {body.weightDate
+                  ? dateLabel(body.weightDate) +
+                    " · " +
+                    body.weightDate.slice(0, 4)
+                  : t("Sin fecha de peso confirmada")}
+              </small>
+            )}
+            {["Grasa corporal", "Músculo esquelético"].includes(c.label) &&
+              last && (
+                <small className="muted">
+                  {dateLabel(last.date)} · {last.date.slice(0, 4)}
+                </small>
+              )}
             <p className="stat-note">
               {c.delta !== undefined && (
                 <span className="delta">
@@ -212,7 +272,7 @@ export default function Dashboard({
                 </button>
               ))}
             </div>
-            <ProgressChart data={points} unit={metric === "fat" ? "%" : "kg"} />
+            <ProgressChart data={points} unit={metric === "fat" ? "%" : unit} />
             {metric === "muscle" && (
               <p className="chart-footnote">
                 {t(
@@ -239,7 +299,7 @@ export default function Dashboard({
                 <button
                   className="recent-workout"
                   key={w.id}
-                  onClick={() => onNavigate("workouts")}
+                  onClick={() => onNavigate("workouts", { session: w.id })}
                 >
                   <span className="recent-icon">
                     <Dumbbell size={21} />
@@ -310,26 +370,38 @@ export default function Dashboard({
           </section>
           <section className="panel routine-pick">
             <span className="eyebrow">{t("TU PRÓXIMA SESIÓN")}</span>
-            {data.routines[0] ? (
+            {activeRoutine ? (
               <>
                 <div className="routine-pick-icon">
                   <Dumbbell size={34} />
                 </div>
-                <h3>{data.routines[0].name}</h3>
+                <h3>{activeRoutine.name}</h3>
+                {next?.date && (
+                  <p className="small muted">
+                    {dateLabel(next.date)} · {next.date.slice(0, 4)}
+                  </p>
+                )}
                 <p className="muted">
                   {nextDay && dayLabel(nextDay)} · {nextDay?.exercises.length}{" "}
                   {t("ejercicios")}
                 </p>
                 <button
                   className="btn secondary w-full"
-                  onClick={() => onStart(data.routines[0], nextDay)}
+                  disabled={!canWrite}
+                  onClick={() => onStart(activeRoutine, nextDay)}
                 >
                   {t("Empezar sesión")} <ArrowUpRight size={17} />
                 </button>
               </>
             ) : (
               <>
-                <h3>{t("Diseña tu rutina")}</h3>
+                <h3>
+                  {t(
+                    data.routines.length
+                      ? "Seleccionar rutina activa"
+                      : "Diseña tu rutina",
+                  )}
+                </h3>
                 <p className="muted">
                   {t("Prepara los ejercicios de tu próxima sesión.")}
                 </p>
@@ -337,7 +409,8 @@ export default function Dashboard({
                   className="btn secondary"
                   onClick={() => onNavigate("routines")}
                 >
-                  {t("Crear rutina")} <Plus size={16} />
+                  {t(data.routines.length ? "Mis rutinas" : "Crear rutina")}{" "}
+                  <Plus size={16} />
                 </button>
               </>
             )}
@@ -359,11 +432,28 @@ export default function Dashboard({
               <option value="">{t("Sin ejercicios registrados")}</option>
             )}
             {names.map((n) => (
-              <option key={n}>{n}</option>
+              <option key={n.key} value={n.key}>
+                {n.name} · {t(n.group)}
+                {n.occurrence > 0
+                  ? ` · ${t("Bloque {0}", { 0: n.occurrence + 1 })}`
+                  : ""}
+              </option>
             ))}
           </select>
         </div>
         <div className="strength-unit">
+          <label>
+            {t("Período de fuerza")}{" "}
+            <select
+              aria-label={t("Período de fuerza")}
+              value={strengthRange}
+              onChange={(e) => setStrengthRange(e.target.value)}
+            >
+              <option value="30">{t("30 días")}</option>
+              <option value="90">{t("90 días")}</option>
+              <option value="all">{t("Todo")}</option>
+            </select>
+          </label>
           <label>
             {t("Mostrar pesos en")}{" "}
             <select
@@ -384,7 +474,9 @@ export default function Dashboard({
         </p>
         <button
           className="text-button strength-detail-link"
-          onClick={() => onNavigate("workouts")}
+          onClick={() =>
+            onNavigate("workouts", { view: "progress", exercise: chosen })
+          }
         >
           {t("Comparar cada serie en Entrenamientos")}{" "}
           <ArrowUpRight size={16} />

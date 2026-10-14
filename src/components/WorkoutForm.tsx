@@ -1,5 +1,7 @@
 import { t, useLanguage } from "../lib/i18n";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
+import { useWorkoutDraft } from "../context/WorkoutDraftContext";
+import { prepareWorkout, completedWorkout } from "../lib/workoutDraft";
 import { useData } from "../context/DataContext";
 import type { Workout, Routine, RoutineDay } from "../types";
 import { Modal, Field, FormFooter, ErrorMessage } from "./ui";
@@ -23,7 +25,10 @@ export function routineSession(
     routineId: routine.id,
     routineDayId: day.id,
     name: `${routine.name} · ${day.name}`.slice(0, 100),
-    exercises: structuredClone(day.exercises),
+    exercises: structuredClone(day.exercises).map((e) => ({
+      ...e,
+      sets: e.sets.map((s, i) => ({ ...s, position: i + 1, completed: false })),
+    })),
   };
 }
 export function WorkoutForm({
@@ -35,22 +40,31 @@ export function WorkoutForm({
 }) {
   useLanguage();
   const { data, save } = useData();
-  const [value, setValue] = useState(initial),
+  const { remember, clear, error: draftError } = useWorkoutDraft();
+  const [value, setValue] = useState(() =>
+      prepareWorkout(
+        initial,
+        data.workouts.some((w) => w.id === initial.id),
+      ),
+    ),
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
+  useEffect(() => remember(value), [value, remember]);
   const routine = data.routines.find((r) => r.id === value.routineId);
   const sessions = routine ? routineDays(routine) : [];
   const selectedExists = sessions.some((d) => d.id === value.routineDayId);
   const previousSession = priorWorkouts(data.workouts, value, 1)[0];
   async function submit(event: FormEvent) {
     event.preventDefault();
-    if (!value.name.trim() || !validateExercises(value.exercises)) {
-      setError("Añade un nombre y al menos un ejercicio con series válidas.");
+    const actual = completedWorkout(value);
+    if (!actual.name.trim() || !validateExercises(actual.exercises)) {
+      setError("Confirma al menos una serie realizada con datos válidos.");
       return;
     }
     setBusy(true);
     try {
-      await save("workouts", value);
+      await save("workouts", actual);
+      clear(value.id);
       onClose();
     } catch {
       setError(
@@ -69,10 +83,31 @@ export function WorkoutForm({
     >
       <form onSubmit={submit}>
         <div className="form-content">
+          <p className="notice">
+            {t(
+              "Confirma las series que realizaste. Solo esas series se guardan en tu historial.",
+            )}
+          </p>
+          {!draftError && (
+            <p className="small muted">
+              {t(
+                "Borrador guardado en este navegador. Puedes cerrar y retomarlo.",
+              )}
+            </p>
+          )}
+          <ErrorMessage message={draftError} />
           <Field label={t("Usar una rutina")}>
             <select
               value={value.routineId ?? ""}
               onChange={(event) => {
+                if (
+                  !window.confirm(
+                    t(
+                      "Cambiar de plan reemplaza las series de este borrador. ¿Continuar?",
+                    ),
+                  )
+                )
+                  return;
                 const r = data.routines.find(
                   (r) => r.id === event.target.value,
                 );
@@ -102,6 +137,14 @@ export function WorkoutForm({
               <select
                 value={selectedExists ? (value.routineDayId ?? "") : ""}
                 onChange={(event) => {
+                  if (
+                    !window.confirm(
+                      t(
+                        "Cambiar de plan reemplaza las series de este borrador. ¿Continuar?",
+                      ),
+                    )
+                  )
+                    return;
                   const day = sessions.find((d) => d.id === event.target.value);
                   if (day)
                     setValue({ ...value, ...routineSession(routine, day) });
@@ -153,6 +196,7 @@ export function WorkoutForm({
             </Field>
           </div>
           <ExerciseEditor
+            workout
             exercises={value.exercises}
             previousExercises={previousSession?.exercises}
             onChange={(exercises) => setValue({ ...value, exercises })}
@@ -185,7 +229,7 @@ export const newWorkout = (routine?: Routine, day?: RoutineDay): Workout => ({
   date: localDate(),
   routineId: null,
   name: t("Entrenamiento libre"),
-  duration: 45,
+  duration: 0,
   notes: "",
   exercises: [freshExercise()],
   ...(routine ? routineSession(routine, day) : {}),

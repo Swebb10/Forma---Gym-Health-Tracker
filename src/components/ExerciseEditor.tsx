@@ -5,6 +5,7 @@ import type { Exercise, WeightUnit } from "../types";
 import { exerciseOccurrences, exerciseIdentity } from "../lib/setProgress";
 import { toKg } from "../lib/training";
 import { numberLabel } from "../lib/metrics";
+import { exerciseCatalog, catalogByName } from "../lib/exerciseCatalog";
 import { Field } from "./ui";
 import {
   muscleGroups,
@@ -17,10 +18,12 @@ export function ExerciseEditor({
   exercises,
   onChange,
   previousExercises,
+  workout = false,
 }: {
   exercises: Exercise[];
   onChange: (value: Exercise[]) => void;
   previousExercises?: Exercise[];
+  workout?: boolean;
 }) {
   useLanguage();
   const listId = useId();
@@ -29,20 +32,11 @@ export function ExerciseEditor({
   return (
     <div className="exercise-editor">
       <datalist id={listId}>
-        {[
-          t("Press de banca"),
-          t("Sentadilla"),
-          t("Peso muerto"),
-          t("Peso muerto rumano"),
-          t("Remo con barra"),
-          t("Press militar"),
-          t("Dominadas"),
-          t("Curl de bíceps"),
-          t("Extensión de tríceps"),
-          t("Prensa de piernas"),
-        ].map((n) => (
-          <option key={n} value={n} />
-        ))}
+        {exerciseCatalog
+          .map((c) => t(c.name))
+          .map((n) => (
+            <option key={n} value={n} />
+          ))}
       </datalist>
       {exercises.map((e, i) => (
         <section className="exercise-box" key={e.id}>
@@ -66,21 +60,36 @@ export function ExerciseEditor({
                 list={listId}
                 value={e.name}
                 placeholder={t("Ej. Press de banca")}
-                onChange={(ev) => update(i, { name: ev.target.value })}
+                onChange={(ev) => {
+                  const name = ev.target.value;
+                  const entry =
+                    catalogByName(name) ??
+                    exerciseCatalog.find((c) => t(c.name) === name);
+                  update(i, {
+                    name,
+                    movementId: entry?.id,
+                    ...(entry ? { group: entry.group } : {}),
+                  });
+                }}
               />
             </Field>
             <Field label={t("Grupo muscular")}>
               <select
+                required
                 value={e.group}
-                onChange={(ev) => update(i, { group: ev.target.value })}
+                onChange={(ev) =>
+                  update(i, { group: ev.target.value, movementId: undefined })
+                }
               >
-                {!muscleGroups.some((section) =>
-                  section.groups.includes(e.group),
-                ) && (
-                  <option value={e.group}>
-                    {t(e.group)} {t("(anterior)")}
-                  </option>
-                )}
+                <option value="">{t("Seleccionar grupo muscular")}</option>
+                {!!e.group &&
+                  !muscleGroups.some((section) =>
+                    section.groups.includes(e.group),
+                  ) && (
+                    <option value={e.group}>
+                      {t(e.group)} {t("(anterior)")}
+                    </option>
+                  )}
                 {muscleGroups.map((section) => (
                   <optgroup key={section.label} label={t(section.label)}>
                     {section.groups.map((group) => (
@@ -124,17 +133,19 @@ export function ExerciseEditor({
             const previous = previousExercises?.filter(
               (p) => exerciseIdentity(p) === exerciseIdentity(e),
             )[occurrence];
-            const prior = previous?.sets[j];
+            const prior = previous?.sets.find(
+              (p, k) => (p.position ?? k + 1) === (s.position ?? j + 1),
+            );
             return (
               <div key={j}>
                 <div className="set-row">
-                  <span>{j + 1}</span>
+                  <span>{s.position ?? j + 1}</span>
                   <input
                     aria-label={t("Repeticiones ejercicio {0} serie {1}", {
                       "0": i + 1,
-                      "1": j + 1,
+                      "1": s.position ?? j + 1,
                     })}
-                    required
+                    required={!workout || s.completed}
                     type="number"
                     min="1"
                     max="1000"
@@ -151,9 +162,9 @@ export function ExerciseEditor({
                   <input
                     aria-label={t("Peso ejercicio {0} serie {1}", {
                       "0": i + 1,
-                      "1": j + 1,
+                      "1": s.position ?? j + 1,
                     })}
-                    required
+                    required={!workout || s.completed}
                     type="number"
                     min="0"
                     max={fromKg(1500, exerciseUnit(e))}
@@ -173,7 +184,7 @@ export function ExerciseEditor({
                     type="button"
                     className="icon-btn"
                     aria-label={t("Quitar serie {0} del ejercicio {1}", {
-                      "0": j + 1,
+                      "0": s.position ?? j + 1,
                       "1": i + 1,
                     })}
                     disabled={e.sets.length === 1}
@@ -184,10 +195,28 @@ export function ExerciseEditor({
                     <Trash2 size={14} />
                   </button>
                 </div>
+                {workout && (
+                  <label className="set-completed">
+                    <input
+                      type="checkbox"
+                      checked={s.completed === true}
+                      onChange={(ev) =>
+                        update(i, {
+                          sets: e.sets.map((v, n) =>
+                            n === j
+                              ? { ...v, completed: ev.target.checked }
+                              : v,
+                          ),
+                        })
+                      }
+                    />
+                    {t("Serie {0} realizada", { 0: s.position ?? j + 1 })}
+                  </label>
+                )}
                 {prior && previous && (
                   <p className="set-reference">
                     {t("Anterior · serie {0}: {1} {2} × {3} rep", {
-                      0: j + 1,
+                      0: s.position ?? j + 1,
                       1: numberLabel(
                         fromKg(
                           toKg(prior.weight, exerciseUnit(previous)),
@@ -206,8 +235,28 @@ export function ExerciseEditor({
           <button
             type="button"
             className="text-button"
+            disabled={
+              e.sets.length >= 100 ||
+              Math.max(...e.sets.map((s, k) => s.position ?? k + 1)) >= 100
+            }
             onClick={() =>
-              update(i, { sets: [...e.sets, { ...e.sets.at(-1)! }] })
+              update(i, {
+                sets: [
+                  ...e.sets,
+                  {
+                    ...e.sets.at(-1)!,
+                    ...(workout
+                      ? {
+                          completed: false,
+                          position:
+                            Math.max(
+                              ...e.sets.map((s, k) => s.position ?? k + 1),
+                            ) + 1,
+                        }
+                      : {}),
+                  },
+                ],
+              })
             }
           >
             <Plus size={15} /> {t("Añadir serie")}

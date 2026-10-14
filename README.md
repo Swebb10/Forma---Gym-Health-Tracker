@@ -1,8 +1,10 @@
 # Forma — Gym & Health Tracker
 
+Actualización actual: [flujos unificados, Mi cuerpo y pasos para publicar](docs/COHERENCE.md). **Publica las nuevas reglas antes del frontend.**
+
 Actualización de entrenamiento: [rutinas por días, kg/lb y medidas detalladas](docs/TRAINING-UPDATE.md).
 
-Aplicación en español con React 19, TypeScript, Vite, Tailwind CSS 4, Firebase Authentication, Firestore y Recharts. Preparada para Vercel.
+Aplicación en español, inglés, alemán, ruso, portugués y francés con React 19, TypeScript, Vite, Tailwind CSS 4, Firebase Authentication, Firestore y Recharts. Preparada para Vercel.
 
 ## Ejecutar
 
@@ -28,6 +30,9 @@ src/
   context/
     AuthContext.tsx        # Sesión Firebase y demostración
     DataContext.tsx        # Suscripciones Firestore, CRUD y adaptador de demo
+    ProfileContext.tsx     # Datos corporales compartidos y rutina activa
+    NutritionContext.tsx   # Preferencias y estimaciones sincronizadas
+    WorkoutDraftContext.tsx # Borrador local por cuenta
   lib/
     firebase.ts            # Inicialización y emuladores opcionales
     demo.ts                # Datos ficticios
@@ -39,6 +44,8 @@ src/
     Dashboard.tsx
     Routines.tsx
     Workouts.tsx
+    Body.tsx               # Perfil, peso, figura, medidas y bioimpedancia
+    Nutrition.tsx          # Objetivo, macros y guía de alimentos
     Measurements.tsx
     Bioimpedance.tsx
   App.tsx                  # Navegación por hash, tema y shell responsivo

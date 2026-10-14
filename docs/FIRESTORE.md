@@ -2,6 +2,8 @@
 
 > Para rutinas por días, unidades kg/lb y las 17 medidas corporales, consulta [la actualización del modelo](TRAINING-UPDATE.md). Los ejemplos siguientes describen el formato anterior, que sigue siendo compatible.
 
+> Esquema añadido en la actualización actual: [perfil compartido, peso fechado y series realizadas](COHERENCE.md).
+
 ## Colecciones
 
 ```text
@@ -10,9 +12,10 @@ users/{uid}/
   workouts/{workoutId}
   measurements/{measurementId}
   bioimpedance/{evaluationId}
+  weights/{weightId}
 ```
 
-uid es el identificador de Firebase Authentication. No se necesita un documento padre users/{uid}; no se almacena correo ni contraseña en Firestore. IDs generados con crypto.randomUUID. El ID se agrega a los objetos de UI al leer y no se duplica dentro del documento.
+uid es el identificador de Firebase Authentication. El documento padre users/{uid} contiene opcionalmente bodyProfile, activeRoutineId y nutrition. No almacena contraseñas; el correo de facturación pertenece a members/{uid}. IDs generados con crypto.randomUUID. El ID se agrega a los objetos de UI al leer y no se duplica dentro del documento.
 
 Cada documento incluye createdAt y updatedAt (Timestamp de servidor). Las actualizaciones preservan createdAt. Un usuario solo puede consultar y escribir sus propias subcolecciones. Las demás rutas se deniegan.
 
@@ -46,7 +49,7 @@ Cada documento incluye createdAt y updatedAt (Timestamp de servidor). Las actual
 }
 ```
 
-No se hace join con la rutina para reconstruir sesiones. Eliminar o editar una rutina no modifica entrenamientos guardados. La evolución del ejercicio se agrupa por nombre normalizado (espacios externos y mayúsculas), tomando el mayor peso por fecha; conviene mantener nombres consistentes.
+No se hace join con la rutina para reconstruir sesiones. Eliminar o editar una rutina no modifica entrenamientos guardados. La evolución usa el catálogo por identidad de ejercicio o nombre y grupo normalizados para los personalizados. El máximo diario y la comparación por series usan la misma identidad y separan bloques repetidos.
 
 ## measurements/{id}
 

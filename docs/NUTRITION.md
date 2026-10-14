@@ -6,15 +6,15 @@
 2. Entra en **Firestore Database → Reglas**.
 3. Copia **todo** el archivo `firestore.rules` de este proyecto y reemplaza el contenido del editor. Pulsa **Publicar**. Conserva las reglas de las funcionalidades anteriores; el archivo incluye el bloque nuevo para el perfil nutricional privado.
 4. Despliega la versión actual del frontend mediante tu flujo habitual de Vercel.
-5. En Forma, abre **Nutrición**, revisa tus datos, elige tu objetivo y actividad, y pulsa **Guardar objetivo y metas**. Recarga y comprueba el resumen de nutrición en **Resumen**.
+5. En Forma, confirma el perfil y peso en **Mi cuerpo**, luego abre **Nutrición**, elige tu objetivo y actividad, y pulsa **Guardar objetivo y metas**. Recarga y comprueba el resumen de nutrición en **Resumen**.
 
 No necesitas crear documentos a mano, nuevos índices, credenciales, variables de entorno, funciones de Firebase ni servicios de IA. El perfil se crea al guardar por primera vez. Si no publicas las reglas nuevas, la app mostrará un error de acceso al perfil nutricional; no presenta un guardado fallido como exitoso.
 
 ## Uso
 
-Cuatro objetivos: volumen, recomposición, definición y mantenimiento. Los números se calculan al cambiar los campos; el botón aplica la preferencia al perfil. Puedes usar datos manuales o la última bioimpedancia por fecha y hora (los registros futuros se excluyen). El peso acepta kg o lb y se guarda normalizado a kg. La edad de una evaluación es la que se registró ese día: no se inventa una fecha de nacimiento. Se avisa si la evaluación tiene más de 90 días.
+Cuatro objetivos: volumen, recomposición, definición y mantenimiento. Los números se calculan al cambiar los campos; el botón aplica la preferencia al perfil. El cálculo usa el perfil compartido y el peso más reciente de Mi cuerpo, con los datos anteriores como alternativa compatible. Consulta [la selección de datos compartidos](COHERENCE.md). El peso acepta kg o lb y se guarda normalizado a kg. La edad de una evaluación es la que se registró ese día: no se inventa una fecha de nacimiento. Se muestran las fechas de origen; el contexto corporal avisa cuando una medición tiene más de 90 días.
 
-Al usar bioimpedancia, crear, editar o eliminar una evaluación actualiza la estimación derivada del perfil guardado. Mientras la app está abierta y conectada, la nueva estimación se sincroniza a Firestore. Si cambian los datos mientras la app está cerrada, se recalcula al abrirla; no hay una tarea de servidor en segundo plano. Un fallo de sincronización se muestra con opción de reintentar. Los campos de un borrador no se guardan automáticamente.
+Crear, editar o eliminar un registro de peso o una evaluación actualiza la estimación derivada del perfil guardado. Mientras la app está abierta y conectada, la nueva estimación se sincroniza a Firestore. Si cambian los datos mientras la app está cerrada, se recalcula al abrirla; no hay una tarea de servidor en segundo plano. Un fallo de sincronización se muestra con opción de reintentar. Las preferencias de Nutrición se aplican al pulsar Guardar; los borradores de entrenamiento se recuperan localmente.
 
 Las circunferencias de la última medición y los valores registrados de grasa, músculo esquelético y masa magra se muestran como contexto de progreso. No son variables de la fórmula elegida. No se reinterpretan medidas antiguas sin lado anatómico ni se mezclan mediciones de diferentes fechas como si fueran una sola evaluación.
 
@@ -71,16 +71,16 @@ La lectura conjunta requiere confirmación del mismo equipo y condiciones, medid
 
 Reglas orientativas del producto, **no umbrales clínicos validados**:
 
-- En volumen, aumento simultáneo de peso ≥1%, grasa estimada ≥1 kg y cintura ≥1 cm: invita a revisar el superávit y permite previsualizar mantenimiento.
-- En déficit/recomposición, descenso de peso ≥1 kg, músculo estimado ≥1 kg y masa magra ≥1 kg: invita a revisar recuperación, fuerza y déficit, con la misma opción de previsualización. La masa magra debe pertenecer a ambos informes.
+- En volumen, aumento simultáneo de peso ≥1%, grasa estimada ≥1 kg y cintura ≥1 cm: invita a revisar el superávit y enlaza a Nutrición para revisar mantenimiento.
+- En déficit/recomposición, descenso de peso ≥1 kg, músculo estimado ≥1 kg y masa magra ≥1 kg: invita a revisar recuperación, fuerza y déficit, con el mismo enlace a Nutrición. La masa magra debe pertenecer a ambos informes.
 - Grasa estimada ≤−1 kg, cintura con cambio absoluto <1 cm y músculo estimado ≥−0,5 kg: invita a seguir observando, sin afirmar ganancia muscular.
 - Cuando el índice visceral aumenta en los mismos informes y también suben cintura ≥1 cm y grasa estimada ≥1 kg, muestra una observación adicional para revisar con el nutricionista y los rangos del equipo. No clasifica el índice como sano/peligroso por su valor absoluto ni cambia metas por sí solo.
 
 Grasa y músculo esquelético estimados se calculan con peso × el porcentaje correspondiente en el mismo informe. La masa magra registrada se mantiene separada. La grasa segmentaria **nunca se interpreta como músculo**. Índice visceral, contenido óseo, metabolismo del informe y otras proporciones permanecen visibles en el desglose; no se inventan rangos universales de aparatos ni diagnósticos de densidad ósea o dosis de nutrientes. [Limitaciones de la medición de masa muscular](https://pubmed.ncbi.nlm.nih.gov/29349935/).
 
-La orientación alimentaria depende del objetivo y propone repartir la proteína ya calculada, sin añadir proteína adicional. La ecuación Mifflin no recibe coeficientes de circunferencias o de índices de báscula. La acción de previsualizar cambia el borrador; **solo Guardar objetivo y metas aplica el cambio**. Se mantienen los límites para menores, condiciones especiales y entradas no válidas. [Proteína y ejercicio, ISSN](https://pubmed.ncbi.nlm.nih.gov/28642676/).
+La orientación alimentaria depende del objetivo y propone repartir la proteína ya calculada, sin añadir proteína adicional. La ecuación Mifflin no recibe coeficientes de circunferencias o de índices de báscula. El contexto corporal se consulta en **Mi cuerpo** y sus prioridades se guardan con **Guardar contexto corporal**. La revisión del objetivo se hace en **Nutrición**; **solo Guardar objetivo y metas aplica el cambio**. Se mantienen los límites para menores, condiciones especiales y entradas no válidas. [Proteína y ejercicio, ISSN](https://pubmed.ncbi.nlm.nih.gov/28642676/).
 
-`bodyContext` es opcional para compatibilidad con perfiles existentes. Sus prioridades admiten exclusivamente `neck`, `shoulders`, `chest`, `back`, `arms`, `forearms`, `core`, `glutes`, `thighs`, `calves`, sin duplicados. Se guarda dentro del perfil nutricional privado y utiliza los mismos permisos por usuario. Para activar esta ampliación, publica el **archivo completo actualizado `firestore.rules`** antes de desplegar el frontend; no requiere colecciones, índices, Cloud Functions, claves ni migraciones nuevas.
+`bodyContext` es opcional para compatibilidad con perfiles existentes. Sus prioridades admiten exclusivamente `neck`, `shoulders`, `chest`, `back`, `arms`, `forearms`, `core`, `glutes`, `thighs`, `calves`, sin duplicados. Se guarda dentro del perfil nutricional privado y utiliza los mismos permisos por usuario. Para activar esta ampliación, publica el **archivo completo actualizado `firestore.rules`** antes de desplegar el frontend; la versión actual añade registros de peso y perfil compartido, descritos en [COHERENCE.md](COHERENCE.md), sin índices, Cloud Functions, claves ni migraciones manuales.
 
 ## Verificación técnica
 

@@ -30,11 +30,15 @@ import SetComparison from "./SetComparison";
 import NotesCoach from "./NotesCoach";
 import "./trainingProgress.css";
 const date = (d: string) => dateLabel(d) + " · " + d.slice(0, 4);
-export default function WorkoutProgress() {
+export default function WorkoutProgress({
+  initialExercise = "",
+}: {
+  initialExercise?: string;
+}) {
   useLanguage();
   const { data, loading, error } = useData();
   const options = availableExercises(data.workouts);
-  const [selection, setSelection] = useState("");
+  const [selection, setSelection] = useState(initialExercise);
   const choice = options.find((o) => o.key === selection) ?? options[0];
   const history = choice ? exerciseHistory(data.workouts, choice.key) : [];
   return (
@@ -80,7 +84,7 @@ export default function WorkoutProgress() {
           </Field>
           <p className="small muted">
             {t(
-              "Agrupamos por nombre y grupo muscular. Mantén nombres distintos para variantes; los bloques repetidos se comparan por su orden.",
+              "El catálogo conecta los nombres del mismo ejercicio entre idiomas. Las variantes y los bloques repetidos se comparan por separado.",
             )}
           </p>
           <ExerciseHistory key={choice.key} history={history} />
@@ -182,7 +186,7 @@ function SessionAnalysis({
       ? exerciseTotals(previous.exercise, targetKg, targetReps)
       : undefined;
   const seriesCount = Math.max(
-    ...history.map((h) => h.exercise.sets.length),
+    ...history.map((h) => normalizedSets(h.exercise).length),
     1,
   );
   const chosenSeries = Math.min(series, seriesCount - 1);

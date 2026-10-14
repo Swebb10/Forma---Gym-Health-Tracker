@@ -1,3 +1,4 @@
+import { useSubscription } from "../context/SubscriptionContext";
 import LanguageSelector from "./LanguageSelector";
 import { t, useLanguage } from "../lib/i18n";
 import { useEffect, useRef, type ReactNode } from "react";
@@ -120,10 +121,12 @@ export function FormFooter({
 }
 export function DeleteButton({ onDelete }: { onDelete: () => Promise<void> }) {
   useLanguage();
+  const { canWrite } = useSubscription();
   return (
     <button
       className="icon-btn danger"
       aria-label={t("Eliminar registro")}
+      disabled={!canWrite}
       onClick={async () => {
         if (
           window.confirm(

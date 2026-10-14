@@ -67,7 +67,20 @@ test("navegación, formularios y acceso traducidos sin desbordamiento móvil", a
       await page
         .getByRole("button", { name: tr("Abrir menú"), exact: true })
         .click();
-      await page.locator(`nav a[href="#${route}"]`).click();
+      await page
+        .locator(
+          `nav a[href="#${route === "bioimpedance" ? "measurements" : route}"]`,
+        )
+        .click();
+      if (route === "bioimpedance" || route === "measurements")
+        await page
+          .getByRole("button", {
+            name: tr(
+              route === "bioimpedance" ? "Bioimpedancia" : "Medidas corporales",
+            ),
+            exact: true,
+          })
+          .click();
       await expect(page.locator("main")).toBeVisible();
       if (action) {
         await page

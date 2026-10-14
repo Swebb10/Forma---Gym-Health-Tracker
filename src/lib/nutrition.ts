@@ -1,4 +1,10 @@
-import type { BioRecord, Measurement } from "../types";
+import type {
+  BioRecord,
+  Measurement,
+  BodyProfile,
+  WeightRecord,
+} from "../types";
+import { resolveBody } from "./bodyProfile";
 import { localDate } from "./metrics";
 import type { BodyContext } from "./bodyAnalysis";
 
@@ -201,9 +207,13 @@ export function buildNutrition(
   bio: BioRecord[],
   measurements: Measurement[],
   today = localDate(),
+  shared?: { profile: BodyProfile | null; weights: WeightRecord[] },
 ): NutritionSnapshot {
   const latest = latestRecords(bio, measurements, today),
-    rawInputs = resolveInputs(preferences, latest.bio);
+    rawInputs = shared
+      ? resolveBody(shared.profile, bio, shared.weights, preferences, today)
+          .inputs
+      : resolveInputs(preferences, latest.bio);
   const inputs =
     rawInputs &&
     Number.isInteger(rawInputs.age) &&
@@ -214,7 +224,16 @@ export function buildNutrition(
       : null;
   return {
     version: 1,
-    preferences,
+    preferences: shared
+      ? {
+          ...preferences,
+          sex: inputs?.sex ?? preferences.sex,
+          source:
+            preferences.source === "manual" && !preferences.manual
+              ? "bio"
+              : preferences.source,
+        }
+      : preferences,
     inputs,
     targets: calculateNutrition(inputs, preferences).targets,
     sources: {

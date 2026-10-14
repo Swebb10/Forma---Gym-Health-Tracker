@@ -155,9 +155,7 @@ test("el vencimiento y suspensión se aplican en Firestore, la historia permanec
   };
   await assertFails(setDoc(doc(db, "users/expired/measurements/new"), data));
   await assertSucceeds(getDoc(doc(db, "users/expired/measurements/history")));
-  await assertSucceeds(
-    deleteDoc(doc(db, "users/expired/measurements/history")),
-  );
+  await assertFails(deleteDoc(doc(db, "users/expired/measurements/history")));
   await assertFails(
     setDoc(doc(member("normal"), "users/normal/measurements/new"), data),
   );

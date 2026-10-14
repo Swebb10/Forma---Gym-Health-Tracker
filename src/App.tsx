@@ -1,3 +1,9 @@
+import { ProfileProvider } from "./context/ProfileContext";
+import {
+  WorkoutDraftProvider,
+  useWorkoutDraft,
+} from "./context/WorkoutDraftContext";
+import { readRoute, routeHash, type Navigate } from "./lib/navigation";
 import { NutritionProvider } from "./context/NutritionContext";
 import LanguageSelector from "./components/LanguageSelector";
 import { t, useLanguage, getLocale } from "./lib/i18n";
@@ -30,13 +36,12 @@ import ModeChooser from "./components/ModeChooser";
 import OwnerVerification from "./components/OwnerVerification";
 import { membership } from "./lib/subscription";
 import { ErrorMessage } from "./components/ui";
-import type { Page, Routine, RoutineDay, Workout } from "./types";
+import type { Routine, RoutineDay, Workout } from "./types";
 const Nutrition = lazy(() => import("./pages/Nutrition"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Routines = lazy(() => import("./pages/Routines"));
 const Workouts = lazy(() => import("./pages/Workouts"));
-const Measurements = lazy(() => import("./pages/Measurements"));
-const Bioimpedance = lazy(() => import("./pages/Bioimpedance"));
+const Body = lazy(() => import("./pages/Body"));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
 const Subscription = lazy(() => import("./pages/Subscription"));
 const Admin = lazy(() => import("./pages/Admin"));
@@ -44,8 +49,7 @@ const personalNav = [
   { id: "dashboard", label: "Resumen", icon: LayoutDashboard },
   { id: "workouts", label: "Entrenamientos", icon: Dumbbell },
   { id: "routines", label: "Mis rutinas", icon: ClipboardList },
-  { id: "measurements", label: "Medidas corporales", icon: Ruler },
-  { id: "bioimpedance", label: "Bioimpedancia", icon: Activity },
+  { id: "measurements", label: "Mi cuerpo", icon: Ruler },
   { id: "nutrition", label: "Nutrición", icon: Utensils },
   { id: "subscription", label: "Mi suscripción", icon: CreditCard },
 ] as const;
@@ -60,12 +64,11 @@ function Workspace() {
     mode === "admin" && isAdmin
       ? [{ id: "admin" as const, label: "Administración", icon: ShieldCheck }]
       : personalNav;
-  const [page, setPage] = useState<Page>(() =>
-      nav.some((n) => n.id === location.hash.slice(1))
-        ? (location.hash.slice(1) as Page)
-        : "dashboard",
-    ),
-    [menu, setMenu] = useState(false),
+  const { draft, clear: clearDraft } = useWorkoutDraft();
+  const [route, setRoute] = useState(readRoute);
+  const page = route.page;
+  const navPage = page === "bioimpedance" ? "measurements" : page;
+  const [menu, setMenu] = useState(false),
     [workout, setWorkout] = useState<Workout | null>(null),
     [sessionError, setSessionError] = useState("");
   const [dark, setDark] = useState(() => {
@@ -87,15 +90,14 @@ function Workspace() {
   }, [dark]);
   useEffect(() => {
     const update = () => {
-      const p = location.hash.slice(1);
-      if (nav.some((n) => n.id === p)) setPage(p as Page);
+      setRoute(readRoute());
     };
     window.addEventListener("hashchange", update);
     return () => window.removeEventListener("hashchange", update);
   }, [mode, isAdmin]);
-  const navigate = (next: Page) => {
-    location.hash = next;
-    setPage(next);
+  const navigate: Navigate = (next, options = {}) => {
+    location.hash = routeHash(next, options);
+    setRoute({ page: next, ...options });
     setMenu(false);
     window.scrollTo({ top: 0 });
   };
@@ -112,9 +114,28 @@ function Workspace() {
     }
   }, [isAdmin, page]);
   const start = (r?: Routine, day?: RoutineDay) => {
-    if (canWrite) setWorkout(newWorkout(r, day));
+    if (!canWrite) return;
+    if (draft) {
+      if (
+        !r ||
+        (draft.routineId === r.id && (!day || draft.routineDayId === day.id))
+      ) {
+        setWorkout(draft);
+        return;
+      }
+      if (
+        !window.confirm(
+          t(
+            "Hay un borrador pendiente. ¿Descartarlo para iniciar esta sesión?",
+          ),
+        )
+      )
+        return;
+      clearDraft();
+    }
+    setWorkout(newWorkout(r, day));
   };
-  const visiblePage = !canWrite && page !== "admin" ? "subscription" : page;
+  const visiblePage = page;
   const subscriptionState = membership(member, now);
   return (
     <div className="app-shell">
@@ -152,8 +173,8 @@ function Workspace() {
               <a
                 href={"#" + n.id}
                 key={n.id}
-                className={page === n.id ? "active" : ""}
-                aria-current={page === n.id ? "page" : undefined}
+                className={navPage === n.id ? "active" : ""}
+                aria-current={navPage === n.id ? "page" : undefined}
                 onClick={(e) => {
                   e.preventDefault();
                   navigate(n.id);
@@ -161,7 +182,7 @@ function Workspace() {
               >
                 <n.icon size={20} />
                 {t(n.label)}
-                {page === n.id && <span className="nav-dot" />}
+                {navPage === n.id && <span className="nav-dot" />}
               </a>
             ))}
           </nav>
@@ -234,7 +255,9 @@ function Workspace() {
             <span className="topbar-breadcrumb">
               {mode === "admin" ? t("Administración") : t("Mi espacio")}{" "}
               <span>/</span>{" "}
-              <strong>{t(nav.find((n) => n.id === page)?.label ?? "")}</strong>
+              <strong>
+                {t(nav.find((n) => n.id === navPage)?.label ?? "")}
+              </strong>
             </span>
           </div>
           <div className="flex items-center gap-4">
@@ -271,7 +294,13 @@ function Workspace() {
                 : t(
                     "Tu cuenta está suspendida. Contacta al administrador.",
                   )}{" "}
-              {t("Tus registros se conservan.")}
+              {t("Tu historial sigue disponible en modo lectura.")}{" "}
+              <button
+                className="text-button"
+                onClick={() => navigate("subscription")}
+              >
+                {t("Ver mi suscripción")}
+              </button>
             </p>
           )}
           {canWrite &&
@@ -291,6 +320,30 @@ function Workspace() {
                 </button>
               </div>
             )}
+          {draft && !workout && mode === "user" && (
+            <div className="notice draft-banner">
+              <span>
+                {t("Entrenamiento sin guardar")}: <strong>{draft.name}</strong>{" "}
+                · {draft.date}
+              </span>
+              <button
+                className="btn secondary"
+                disabled={!canWrite}
+                onClick={() => setWorkout(draft)}
+              >
+                {t("Retomar borrador")}
+              </button>
+              <button
+                className="text-button danger"
+                onClick={() => {
+                  if (window.confirm(t("¿Descartar este borrador?")))
+                    clearDraft();
+                }}
+              >
+                {t("Descartar borrador")}
+              </button>
+            </div>
+          )}
           {loading ? (
             <div className="loading">{t("Cargando tu progreso…")}</div>
           ) : (
@@ -310,13 +363,18 @@ function Workspace() {
               ) : visiblePage === "routines" ? (
                 <Routines onStart={start} />
               ) : visiblePage === "workouts" ? (
-                <Workouts onNew={() => start()} />
+                <Workouts
+                  onNew={() => start()}
+                  route={route}
+                  onNavigate={navigate}
+                />
               ) : visiblePage === "nutrition" ? (
                 <Nutrition />
-              ) : visiblePage === "measurements" ? (
-                <Measurements />
               ) : (
-                <Bioimpedance />
+                <Body
+                  view={visiblePage === "bioimpedance" ? "bio" : route.view}
+                  onNavigate={navigate}
+                />
               )}
             </Suspense>
           )}
@@ -366,9 +424,13 @@ function Gate() {
   }
   return user || demo ? (
     <DataProvider key={demo ? "demo" : user!.uid}>
-      <NutritionProvider>
-        <Workspace />
-      </NutritionProvider>
+      <ProfileProvider>
+        <NutritionProvider>
+          <WorkoutDraftProvider>
+            <Workspace />
+          </WorkoutDraftProvider>
+        </NutritionProvider>
+      </ProfileProvider>
     </DataProvider>
   ) : (
     <Suspense fallback={<div className="loading">{t("Cargando…")}</div>}>

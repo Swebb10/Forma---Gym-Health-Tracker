@@ -1,0 +1,69 @@
+.body-page > .panel,
+.body-page > .body-explorer {
+  margin-top: 1.5rem;
+}
+.body-actions,
+.draft-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+.draft-banner {
+  margin-bottom: 1.5rem;
+}
+.draft-banner > span {
+  flex: 1 1 18rem;
+  overflow-wrap: anywhere;
+}
+.body-current-weight {
+  font-size: 2rem;
+}
+.weight-history {
+  margin-top: 1.5rem;
+}
+.weight-record {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.weight-record > span {
+  flex: 1 1 10rem;
+}
+.weight-records {
+  max-height: 26rem;
+  overflow-y: auto;
+}
+.set-completed {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  margin: 0.5rem 0 1rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.set-completed input {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: #2563eb;
+}
+.body-actions {
+  margin-top: 1rem;
+}
+.form-section > summary {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  cursor: pointer;
+}
+.workout-view-switch {
+  flex-wrap: wrap;
+}
+.strength-unit {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}

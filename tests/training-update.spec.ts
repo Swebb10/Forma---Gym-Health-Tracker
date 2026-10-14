@@ -46,6 +46,11 @@ test("plan de tres días, unidades por ejercicio y sesiones independientes", asy
       .getByLabel("Peso ejercicio 1 serie 1", { exact: true })
       .fill(s.weight);
   }
+  if (await page.getByLabel("Duración · minutos").count()) {
+    await page.getByLabel("Duración · minutos").fill("60");
+    for (const check of await page.locator(".set-completed input").all())
+      await check.check();
+  }
   await page.getByRole("button", { name: "Guardar registro" }).click();
   const card = page.locator(".routine-card").filter({
     has: page.getByRole("heading", {
@@ -70,6 +75,7 @@ test("plan de tres días, unidades por ejercicio y sesiones independientes", asy
   );
   await expect(page.getByLabel("Unidad del peso")).toHaveValue("kg");
   await expect(page.locator(".exercise-box")).toHaveCount(1);
+  page.once("dialog", (d) => d.accept());
   await page
     .getByLabel("Día de la rutina")
     .selectOption({ label: "Viernes · Legs" });
@@ -77,6 +83,11 @@ test("plan de tres días, unidades por ejercicio y sesiones independientes", asy
     "Sentadilla de prueba",
   );
   await expect(page.getByLabel("Unidad del peso")).toHaveValue("lb");
+  if (await page.getByLabel("Duración · minutos").count()) {
+    await page.getByLabel("Duración · minutos").fill("60");
+    for (const check of await page.locator(".set-completed input").all())
+      await check.check();
+  }
   await page.getByRole("button", { name: "Guardar registro" }).click();
   await card.getByRole("button", { name: "Editar Push, Pull & Legs" }).click();
   await expect(
@@ -84,6 +95,11 @@ test("plan de tres días, unidades por ejercicio y sesiones independientes", asy
   ).toBeVisible();
   await page.getByRole("button", { name: "03 Viernes · Legs" }).click();
   await page.getByLabel("Nombre del ejercicio").fill("Sentadilla modificada");
+  if (await page.getByLabel("Duración · minutos").count()) {
+    await page.getByLabel("Duración · minutos").fill("60");
+    for (const check of await page.locator(".set-completed input").all())
+      await check.check();
+  }
   await page.getByRole("button", { name: "Guardar registro" }).click();
   await page.getByRole("link", { name: "Entrenamientos", exact: true }).click();
   const session = page.locator(".workout-card").filter({
@@ -105,7 +121,7 @@ test("plan de tres días, unidades por ejercicio y sesiones independientes", asy
   await page.getByRole("link", { name: "Resumen", exact: true }).click();
   await page
     .getByLabel("Ejercicio del gráfico")
-    .selectOption("Sentadilla de prueba");
+    .selectOption({ label: "Sentadilla de prueba · Cuádriceps" });
   await page.getByLabel("Unidad del gráfico de fuerza").selectOption("lb");
   await expect(page.locator(".strength-panel .chart")).toHaveAttribute(
     "aria-label",
@@ -116,7 +132,7 @@ test("17 medidas diferenciadas, edición e historial anterior sin pérdida", asy
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/#measurements");
+  await page.goto("/#measurements?view=measures");
   await page.getByRole("button", { name: "Añadir medidas" }).click();
   const fields = page.getByRole("dialog").locator('input[type="number"]');
   await expect(fields).toHaveCount(17);
@@ -132,6 +148,11 @@ test("17 medidas diferenciadas, edición e historial anterior sin pérdida", asy
   await page
     .getByLabel("Pantorrilla Derecha · cm", { exact: true })
     .fill("38.1");
+  if (await page.getByLabel("Duración · minutos").count()) {
+    await page.getByLabel("Duración · minutos").fill("60");
+    for (const check of await page.locator(".set-completed input").all())
+      await check.check();
+  }
   await page.getByRole("button", { name: "Guardar registro" }).click();
   await page
     .getByRole("button", { name: "Tren Superior", exact: true })
@@ -169,6 +190,11 @@ test("17 medidas diferenciadas, edición e historial anterior sin pérdida", asy
     }),
   ).toHaveValue("34");
   await page.getByLabel("Antebrazo Derecho · cm", { exact: true }).fill("27.5");
+  if (await page.getByLabel("Duración · minutos").count()) {
+    await page.getByLabel("Duración · minutos").fill("60");
+    for (const check of await page.locator(".set-completed input").all())
+      await check.check();
+  }
   await page.getByRole("button", { name: "Guardar registro" }).click();
   await page.reload();
   await page

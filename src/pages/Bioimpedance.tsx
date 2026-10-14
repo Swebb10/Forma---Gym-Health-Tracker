@@ -1,3 +1,4 @@
+import { useSubscription } from "../context/SubscriptionContext";
 import { t, useLanguage } from "../lib/i18n";
 import { useState, type FormEvent } from "react";
 import { Plus, Pencil, Activity, ChevronDown } from "lucide-react";
@@ -16,6 +17,7 @@ import type { BioRecord } from "../types";
 type Draft = Record<string, string>;
 export default function Bioimpedance() {
   useLanguage();
+  const { canWrite } = useSubscription();
   const { data, save, remove } = useData();
   const [draft, setDraft] = useState<Draft | null>(null),
     [busy, setBusy] = useState(false),
@@ -79,7 +81,11 @@ export default function Bioimpedance() {
             {t("Tus evaluaciones de composición corporal, en un solo lugar.")}
           </p>
         </div>
-        <button className="btn primary" onClick={() => edit()}>
+        <button
+          className="btn primary"
+          disabled={!canWrite}
+          onClick={() => edit()}
+        >
           <Plus size={18} /> {t("Nueva evaluación")}
         </button>
       </div>
@@ -97,7 +103,7 @@ export default function Bioimpedance() {
           description={t(
             "Ten a mano el informe de tu nutricionista o báscula de bioimpedancia.",
           )}
-          onAction={() => edit()}
+          onAction={canWrite ? () => edit() : undefined}
         />
       ) : (
         <div className="bio-list">
@@ -115,6 +121,7 @@ export default function Bioimpedance() {
                   <button
                     className="icon-btn"
                     aria-label={t("Editar evaluación del {0}", { "0": r.date })}
+                    disabled={!canWrite}
                     onClick={() => edit(r)}
                   >
                     <Pencil size={17} />
@@ -155,32 +162,42 @@ export default function Bioimpedance() {
                       unspecified: t("Sin especificar"),
                     }[r.gender] ?? r.gender}
                   </p>
-                  {bioSections.map((section) => (
-                    <section key={section.title}>
-                      <h4>{t(section.title)}</h4>
-                      <dl>
-                        {section.fields.map((f) => (
-                          <div key={f.key}>
-                            <dt>{t(f.label)}</dt>
-                            <dd>
-                              {numberLabel(
-                                r[f.key as keyof BioRecord] as
-                                  number | undefined,
-                              )}{" "}
-                              {t(f.unit)}
-                            </dd>
-                          </div>
-                        ))}
-                      </dl>
-                    </section>
-                  ))}
+                  {bioSections
+                    .filter((section) =>
+                      section.fields.some(
+                        (f) => r[f.key as keyof BioRecord] !== undefined,
+                      ),
+                    )
+                    .map((section) => (
+                      <section key={section.title}>
+                        <h4>{t(section.title)}</h4>
+                        <dl>
+                          {section.fields
+                            .filter(
+                              (f) => r[f.key as keyof BioRecord] !== undefined,
+                            )
+                            .map((f) => (
+                              <div key={f.key}>
+                                <dt>{t(f.label)}</dt>
+                                <dd>
+                                  {numberLabel(
+                                    r[f.key as keyof BioRecord] as
+                                      number | undefined,
+                                  )}{" "}
+                                  {t(f.unit)}
+                                </dd>
+                              </div>
+                            ))}
+                        </dl>
+                      </section>
+                    ))}
                 </div>
               </details>
             </article>
           ))}
         </div>
       )}
-      {draft && (
+      {draft && canWrite && (
         <Modal
           title={t("Evaluación de bioimpedancia")}
           onClose={() => {
@@ -225,13 +242,17 @@ export default function Bioimpedance() {
                 </Field>
               </div>
               {bioSections.map((section, i) => (
-                <section className="form-section" key={section.title}>
-                  <h3>
+                <details
+                  className="form-section"
+                  key={section.title}
+                  open={i < 2 ? true : undefined}
+                >
+                  <summary>
                     <span className="index">
                       {String(i + 1).padStart(2, "0")}
                     </span>
                     {t(section.title)}
-                  </h3>
+                  </summary>
                   {section.description && (
                     <p className="small muted">{t(section.description)}</p>
                   )}
@@ -275,7 +296,7 @@ export default function Bioimpedance() {
                       )}
                     </p>
                   )}
-                </section>
+                </details>
               ))}
               <ErrorMessage message={t(error)} />
             </div>

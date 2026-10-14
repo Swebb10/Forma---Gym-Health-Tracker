@@ -1,5 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Utensils, Check, Save, Info } from "lucide-react";
+import { useProfile } from "../context/ProfileContext";
+import { useSubscription } from "../context/SubscriptionContext";
 import { useData } from "../context/DataContext";
 import { useNutrition } from "../context/NutritionContext";
 import { t, useLanguage } from "../lib/i18n";
@@ -7,19 +9,15 @@ import {
   activities,
   goals,
   defaultPreferences,
-  resolveInputs,
   calculateNutrition,
   latestRecords,
   type NutritionPreferences,
 } from "../lib/nutrition";
-import { localDate, dateLabel, numberLabel } from "../lib/metrics";
-import { allMeasurementFields } from "../lib/measurements";
-import { fromKg, toKg } from "../lib/training";
-import type { WeightUnit } from "../types";
+import { dateLabel, numberLabel } from "../lib/metrics";
+import { fromKg } from "../lib/training";
 import { Field, ErrorMessage } from "../components/ui";
 import MacroTargets from "../components/nutrition/MacroTargets";
 import FoodGuide from "../components/nutrition/FoodGuide";
-import BodyExplorer from "../components/nutrition/BodyExplorer";
 export default function Nutrition() {
   useLanguage();
   const { loading, error, retry } = useNutrition();
@@ -52,13 +50,14 @@ export default function Nutrition() {
 function NutritionEditor() {
   useLanguage();
   const { data } = useData(),
-    { saved, save, syncing, error: profileError } = useNutrition();
+    { saved, body, save, syncing, error: profileError } = useNutrition();
   const latest = latestRecords(data.bioimpedance, data.measurements);
   const [prefs, setPrefs] = useState<NutritionPreferences>(
     () => saved?.preferences ?? defaultPreferences(latest.bio),
   );
-  const [unit, setUnit] = useState<WeightUnit>("kg"),
-    [busy, setBusy] = useState(false),
+  const { unit } = useProfile(),
+    { canWrite } = useSubscription();
+  const [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [message, setMessage] = useState("");
   const set = (patch: Partial<NutritionPreferences>) => {
@@ -66,31 +65,10 @@ function NutritionEditor() {
     setMessage("");
     setError("");
   };
-  const inputs = resolveInputs(prefs, latest.bio),
+  const inputs = body.inputs,
     result = calculateNutrition(inputs, prefs);
-  const values = prefs.source === "bio" ? latest.bio : prefs.manual;
-  const setNumber = (key: "age" | "height" | "weight", value: string) =>
-    set({
-      manual: {
-        age: prefs.manual?.age ?? 0,
-        height: prefs.manual?.height ?? 0,
-        weight: prefs.manual?.weight ?? 0,
-        [key]:
-          value === ""
-            ? 0
-            : key === "weight"
-              ? Math.round(toKg(Number(value), unit) * 1000000) / 1000000
-              : Number(value),
-      },
-    });
   const selectedGoal = goals.find((g) => g.id === prefs.goal)!;
   const selectedActivity = activities.find((a) => a.id === prefs.activity)!;
-  const oldBio =
-    latest.bio &&
-    (Date.parse(localDate() + "T12:00:00") -
-      Date.parse(latest.bio.date + "T12:00:00")) /
-      86400000 >
-      90;
   async function submit(e: FormEvent) {
     e.preventDefault();
     setBusy(true);
@@ -109,12 +87,6 @@ function NutritionEditor() {
   }
   return (
     <>
-      <BodyExplorer
-        prefs={prefs}
-        inputs={inputs}
-        targets={result.targets}
-        onChange={set}
-      />
       <form onSubmit={submit} className="nutrition-layout">
         <div className="nutrition-settings">
           <section className="panel nutrition-section">
@@ -147,123 +119,34 @@ function NutritionEditor() {
           </section>
           <section className="panel nutrition-section">
             <h2>{t("Datos para el cálculo")}</h2>
-            <Field label={t("Origen de los datos")}>
-              <select
-                value={prefs.source}
-                onChange={(e) =>
-                  set({
-                    source: e.target.value as NutritionPreferences["source"],
-                    manual:
-                      prefs.manual ??
-                      (latest.bio
-                        ? {
-                            age: latest.bio.age,
-                            height: latest.bio.height,
-                            weight: latest.bio.weight,
-                          }
-                        : null),
-                  })
-                }
-              >
-                <option value="bio">
-                  {t("Última bioimpedancia · actualización automática")}
-                </option>
-                <option value="manual">{t("Datos manuales")}</option>
-              </select>
-            </Field>
-            {prefs.source === "bio" && (
-              <p className="small muted">
-                {latest.bio
-                  ? t(
-                      "Evaluación del {0}. La edad es la registrada en esa fecha.",
-                      {
-                        0:
-                          dateLabel(latest.bio.date) +
-                          " " +
-                          latest.bio.date.slice(0, 4),
-                      },
-                    )
-                  : t(
-                      "Aún no tienes bioimpedancia. Usa datos manuales para empezar.",
-                    )}
-              </p>
-            )}
-            {prefs.source === "bio" && oldBio && (
-              <p className="notice">
-                {t(
-                  "Esta evaluación tiene más de 90 días. Revisa que represente tu situación actual.",
-                )}
-              </p>
-            )}
-            <div className="form-grid">
-              <Field label={t("Edad · años")}>
-                <input
-                  type="number"
-                  min="1"
-                  max="120"
-                  step="1"
-                  required
-                  readOnly={prefs.source === "bio"}
-                  value={values?.age || ""}
-                  onChange={(e) => setNumber("age", e.target.value)}
-                />
-              </Field>
-              <Field label={t("Altura · cm")}>
-                <input
-                  type="number"
-                  min="100"
-                  max="250"
-                  step=".1"
-                  required
-                  readOnly={prefs.source === "bio"}
-                  value={values?.height || ""}
-                  onChange={(e) => setNumber("height", e.target.value)}
-                />
-              </Field>
-              <Field label={t("Peso corporal") + " · " + unit}>
-                <input
-                  type="number"
-                  min={fromKg(30, unit)}
-                  max={fromKg(300, unit)}
-                  step="any"
-                  required
-                  readOnly={prefs.source === "bio"}
-                  value={
-                    values?.weight
-                      ? Number(fromKg(values.weight, unit).toFixed(3))
-                      : ""
-                  }
-                  onChange={(e) => setNumber("weight", e.target.value)}
-                />
-              </Field>
-              <Field label={t("Unidad del peso")}>
-                <select
-                  value={unit}
-                  onChange={(e) => setUnit(e.target.value as WeightUnit)}
-                >
-                  <option value="kg">{t("Kilogramos (kg)")}</option>
-                  <option value="lb">{t("Libras (lb)")}</option>
-                </select>
-              </Field>
-              <Field label={t("Sexo utilizado en la fórmula")}>
-                <select
-                  value={prefs.sex}
-                  required
-                  onChange={(e) =>
-                    set({ sex: e.target.value as NutritionPreferences["sex"] })
-                  }
-                >
-                  <option value="">{t("Seleccionar")}</option>
-                  <option value="female">{t("Femenino")}</option>
-                  <option value="male">{t("Masculino")}</option>
-                </select>
-              </Field>
+            <p className="muted">{t("Datos compartidos desde Mi cuerpo")}</p>
+            <div className="nutrition-context">
+              <div>
+                <span>{t("Edad · años")}</span>
+                <strong>{numberLabel(body.age, 0)}</strong>
+              </div>
+              <div>
+                <span>{t("Altura · cm")}</span>
+                <strong>{numberLabel(body.height)}</strong>
+              </div>
+              <div>
+                <span>{t("Peso corporal")}</span>
+                <strong>
+                  {body.weight === undefined
+                    ? "—"
+                    : numberLabel(fromKg(body.weight, unit), 2)}{" "}
+                  {unit}
+                </strong>
+              </div>
             </div>
             <p className="small muted">
-              {t(
-                "La fórmula original distingue estos dos coeficientes. Confirma cuál usar; no modifica tu identidad ni tu evaluación.",
-              )}
+              {body.weightDate
+                ? `${t("Datos del")} ${dateLabel(body.weightDate)} · ${body.weightDate.slice(0, 4)}`
+                : t("Sin fecha de peso confirmada")}
             </p>
+            <a className="btn secondary" href="#measurements">
+              {t("Actualizar en Mi cuerpo")}
+            </a>
             <Field label={t("Actividad habitual")}>
               <select
                 value={prefs.activity}
@@ -345,13 +228,7 @@ function NutritionEditor() {
           <button
             className="btn primary w-full"
             disabled={
-              busy ||
-              syncing ||
-              Boolean(profileError) ||
-              !inputs ||
-              !values?.age ||
-              !values?.height ||
-              !values?.weight
+              busy || syncing || Boolean(profileError) || !inputs || !canWrite
             }
           >
             <Save size={17} />
@@ -413,60 +290,6 @@ function NutritionEditor() {
           </details>
         </section>
       </form>
-      <section className="panel nutrition-section">
-        <h2>{t("Tu contexto corporal")}</h2>
-        <p className="muted">
-          {t(
-            "Las medidas y la bioimpedancia ayudan a seguir tu evolución. No alteran la ecuación Mifflin–St Jeor ni sustituyen una evaluación profesional.",
-          )}
-        </p>
-        <div className="nutrition-context">
-          <div>
-            <span>{t("Grasa corporal")}</span>
-            <strong>{numberLabel(latest.bio?.bodyFat)} %</strong>
-          </div>
-          <div>
-            <span>{t("Músculo esquelético")}</span>
-            <strong>{numberLabel(latest.bio?.skeletalMuscle)} %</strong>
-          </div>
-          <div>
-            <span>{t("Masa corporal magra")}</span>
-            <strong>{numberLabel(latest.bio?.leanMass)} kg</strong>
-          </div>
-        </div>
-        <p className="small muted">
-          {latest.bio
-            ? t("Bioimpedancia del {0}", {
-                0:
-                  dateLabel(latest.bio.date) +
-                  " " +
-                  latest.bio.date.slice(0, 4),
-              })
-            : t("Sin bioimpedancia registrada")}
-        </p>
-        <details>
-          <summary>
-            {latest.measurement
-              ? t("Medidas corporales del {0}", {
-                  0:
-                    dateLabel(latest.measurement.date) +
-                    " " +
-                    latest.measurement.date.slice(0, 4),
-                })
-              : t("Sin medidas corporales registradas")}
-          </summary>
-          <dl className="nutrition-measures">
-            {allMeasurementFields
-              .filter((f) => typeof latest.measurement?.[f.key] === "number")
-              .map((f) => (
-                <div key={f.key}>
-                  <dt>{t(f.label)}</dt>
-                  <dd>{numberLabel(latest.measurement![f.key])} cm</dd>
-                </div>
-              ))}
-          </dl>
-        </details>
-      </section>
     </>
   );
 }

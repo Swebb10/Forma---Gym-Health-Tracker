@@ -1,7 +1,10 @@
 import { t, useLanguage } from "../lib/i18n";
 import { exerciseUnit } from "../lib/training";
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useState, useEffect } from "react";
 import { Plus, Clock3, Dumbbell, Pencil, ChevronDown } from "lucide-react";
+import { useSubscription } from "../context/SubscriptionContext";
+import { useWorkoutDraft } from "../context/WorkoutDraftContext";
+import type { Navigate, RouteOptions } from "../lib/navigation";
 import { useData } from "../context/DataContext";
 import type { Workout, WeightUnit } from "../types";
 import { Empty, DeleteButton } from "../components/ui";
@@ -10,11 +13,29 @@ import { WorkoutForm } from "../components/WorkoutForm";
 const WorkoutProgress = lazy(
   () => import("../components/training/WorkoutProgress"),
 );
-export default function Workouts({ onNew }: { onNew: () => void }) {
+export default function Workouts({
+  onNew,
+  route,
+  onNavigate,
+}: {
+  onNew: () => void;
+  route: RouteOptions;
+  onNavigate: Navigate;
+}) {
   useLanguage();
   const { data, remove } = useData();
+  const { canWrite } = useSubscription(),
+    { draft, clear } = useWorkoutDraft();
+  const showProgress = route.view === "progress";
+  useEffect(() => {
+    if (route.session) {
+      setFilter("");
+      document
+        .getElementById(`session-${route.session}`)
+        ?.scrollIntoView({ block: "center" });
+    }
+  }, [route.session]);
   const [editing, setEditing] = useState<Workout | null>(null),
-    [showProgress, setShowProgress] = useState(false),
     [filter, setFilter] = useState(""),
     [unit, setUnit] = useState<WeightUnit>("kg");
   const sorted = [...data.workouts]
@@ -29,7 +50,7 @@ export default function Workouts({ onNew }: { onNew: () => void }) {
             {t("El trabajo de hoy es el progreso de mañana.")}
           </p>
         </div>
-        <button className="btn primary" onClick={onNew}>
+        <button className="btn primary" disabled={!canWrite} onClick={onNew}>
           <Plus size={18} /> {t("Registrar sesión")}
         </button>
       </div>
@@ -41,21 +62,24 @@ export default function Workouts({ onNew }: { onNew: () => void }) {
         <button
           className="btn secondary"
           aria-pressed={!showProgress}
-          onClick={() => setShowProgress(false)}
+          onClick={() => onNavigate("workouts")}
         >
           {t("Mis sesiones")}
         </button>
         <button
           className="btn secondary"
           aria-pressed={showProgress}
-          onClick={() => setShowProgress(true)}
+          onClick={() => onNavigate("workouts", { view: "progress" })}
         >
           {t("Progreso por series")}
         </button>
       </div>
       {showProgress ? (
         <Suspense fallback={<p>{t("Cargando…")}</p>}>
-          <WorkoutProgress />
+          <WorkoutProgress
+            key={route.exercise ?? "default"}
+            initialExercise={route.exercise}
+          />
         </Suspense>
       ) : (
         <>
@@ -95,12 +119,16 @@ export default function Workouts({ onNew }: { onNew: () => void }) {
               description={t(
                 "Registra una sesión para empezar a ver tu evolución.",
               )}
-              onAction={onNew}
+              onAction={canWrite ? onNew : undefined}
             />
           ) : (
             <div className="workout-list">
               {sorted.map((w) => (
-                <article className="panel workout-card" key={w.id}>
+                <article
+                  className="panel workout-card"
+                  key={w.id}
+                  id={`session-${w.id}`}
+                >
                   <div className="workout-summary">
                     <div className="date-block">
                       <strong>
@@ -128,13 +156,29 @@ export default function Workouts({ onNew }: { onNew: () => void }) {
                     <button
                       className="icon-btn"
                       aria-label={t("Editar sesión del {0}", { "0": w.date })}
-                      onClick={() => setEditing(structuredClone(w))}
+                      disabled={!canWrite}
+                      onClick={() => {
+                        if (draft && draft.id !== w.id) {
+                          if (
+                            !window.confirm(
+                              t(
+                                "Hay otro borrador. ¿Descartarlo para editar esta sesión?",
+                              ),
+                            )
+                          )
+                            return;
+                          clear();
+                        }
+                        setEditing(
+                          draft?.id === w.id ? draft : structuredClone(w),
+                        );
+                      }}
                     >
                       <Pencil size={17} />
                     </button>
                     <DeleteButton onDelete={() => remove("workouts", w.id)} />
                   </div>
-                  <details>
+                  <details open={route.session === w.id ? true : undefined}>
                     <summary>
                       {t("Ver ejercicios y series")} <ChevronDown size={15} />
                     </summary>
@@ -146,7 +190,7 @@ export default function Workouts({ onNew }: { onNew: () => void }) {
                             {e.sets
                               .map((s, i) =>
                                 t("Serie {0}: {1} rep × {2} {3}", {
-                                  "0": i + 1,
+                                  "0": s.position ?? i + 1,
                                   "1": s.reps,
                                   "2": numberLabel(s.weight, 2),
                                   "3": exerciseUnit(e),
@@ -165,7 +209,7 @@ export default function Workouts({ onNew }: { onNew: () => void }) {
           )}
         </>
       )}
-      {editing && (
+      {editing && canWrite && (
         <WorkoutForm initial={editing} onClose={() => setEditing(null)} />
       )}
     </>
