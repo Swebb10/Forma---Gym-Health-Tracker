@@ -1,3 +1,4 @@
+import ThemeSelector from "../components/ThemeSelector";
 import LanguageSelector from "../components/LanguageSelector";
 import { t, useLanguage } from "../lib/i18n";
 import { useState, type FormEvent } from "react";
@@ -93,6 +94,7 @@ export default function AuthPage() {
         <div className="auth-form-inner">
           <div className="auth-language">
             <LanguageSelector />
+            <ThemeSelector />
           </div>
           <span className="eyebrow">{t("TU PRÓXIMO PASO")}</span>
           <h2>

@@ -4,6 +4,7 @@ export default defineConfig({
   outputDir: "test-results/demo",
   testMatch: [
     "app.spec.ts",
+    "themes.spec.ts",
     "coherence.spec.ts",
     "i18n.spec.ts",
     "nutrition.spec.ts",

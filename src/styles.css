@@ -9,33 +9,13 @@
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
-  color: #182337;
-  background: #f5f7fb;
+  color: var(--text);
+  background: var(--bg);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  --bg: #f5f7fb;
-  --panel: #fff;
-  --text: #182337;
-  --muted: #738095;
-  --border: #e8edf4;
-  --blue: #2563eb;
-  --blue-soft: #edf3ff;
-  --hover: #f8faff;
 }
-:root.dark {
-  color-scheme: dark;
-  --bg: #10151e;
-  --panel: #181f2b;
-  --text: #edf2fc;
-  --muted: #9aa8be;
-  --border: #2a3446;
-  --blue: #6a9bff;
-  --blue-soft: #1c3154;
-  --hover: #1d2839;
-  color: var(--text);
-  background: var(--bg);
-}
+
 * {
   box-sizing: border-box;
 }
@@ -108,7 +88,7 @@ p {
 button:focus-visible,
 a:focus-visible,
 summary:focus-visible {
-  outline: 3px solid #82abff;
+  outline: 3px solid var(--blue);
   outline-offset: 3px;
 }
 input,
@@ -127,7 +107,7 @@ input:focus,
 select:focus,
 textarea:focus {
   border-color: var(--blue);
-  box-shadow: 0 0 0 3px #3b82f620;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--blue) 20%, transparent);
 }
 select {
   cursor: pointer;
@@ -168,12 +148,12 @@ strong {
   white-space: nowrap;
 }
 .primary {
-  background: #2563eb;
-  color: white;
-  box-shadow: 0 3px 6px #2563eb18;
+  background: var(--primary-bg);
+  color: var(--on-primary);
+  box-shadow: 0 3px 6px color-mix(in srgb, var(--primary-bg) 10%, transparent);
 }
 .primary:hover {
-  background: #1d4ed8;
+  background: var(--primary-hover);
 }
 .secondary {
   border-color: var(--border);
@@ -182,7 +162,7 @@ strong {
 }
 .secondary:hover {
   background: var(--hover);
-  border-color: #9bbaf4;
+  border-color: var(--blue);
 }
 .text-button {
   display: inline-flex;
@@ -212,7 +192,7 @@ strong {
   color: var(--blue);
 }
 .danger:hover {
-  color: #dc2626;
+  color: var(--danger);
   background: #ef444415;
 }
 .panel {
@@ -263,8 +243,8 @@ strong {
   padding-left: 12px;
 }
 .brand-mark {
-  background: #2563eb;
-  color: white;
+  background: var(--primary-bg);
+  color: var(--on-primary);
   width: 38px;
   height: 38px;
   border-radius: 11px;
@@ -443,7 +423,7 @@ strong {
 }
 .topbar-breadcrumb > span {
   padding: 0 13px;
-  color: #bac4d2;
+  color: var(--muted);
 }
 .topbar-breadcrumb strong {
   color: var(--text);
@@ -490,7 +470,7 @@ main {
   display: flex;
   align-items: center;
   gap: 9px;
-  border: 1px solid #2563eb22;
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 10px 14px;
   margin-bottom: 22px;
@@ -602,14 +582,14 @@ main {
 }
 .weekly-card {
   border-radius: 13px;
-  background: #2563eb;
-  color: #fff;
+  background: var(--feature-bg);
+  color: var(--feature-text);
   padding: 24px;
   position: relative;
   overflow: hidden;
 }
 .weekly-card .eyebrow {
-  color: #bcd2ff;
+  color: var(--feature-muted);
   font-size: 10px;
 }
 .weekly-card h3 {
@@ -619,12 +599,12 @@ main {
 }
 .weekly-card p {
   font-size: 12px;
-  color: #dbe7ff;
+  color: var(--feature-muted);
   margin-top: 7px;
   max-width: 185px;
 }
 .weekly-card p strong {
-  color: #fff;
+  color: var(--feature-text);
 }
 .week-days {
   display: flex;
@@ -640,7 +620,7 @@ main {
   font-size: 11px;
 }
 .week-days > div > span:first-child {
-  color: #c9daff;
+  color: var(--feature-muted);
 }
 .week-days > div > span:last-child {
   width: 27px;
@@ -648,30 +628,30 @@ main {
   display: grid;
   place-items: center;
   border-radius: 7px;
-  color: #dce8ff;
+  color: var(--feature-muted);
 }
 .week-days .done {
-  background: white;
-  color: #2563eb !important;
+  background: var(--feature-text);
+  color: var(--feature-bg) !important;
   font-weight: 700;
 }
 .week-days .today {
-  border: 1px solid #b6cfff;
+  border: 1px solid var(--feature-text);
 }
 .week-legend {
   display: flex;
   align-items: center;
   gap: 7px;
   font-size: 10px;
-  color: #d0e0ff;
-  border-top: 1px solid #ffffff25;
+  color: var(--feature-muted);
+  border-top: 1px solid color-mix(in srgb, var(--feature-text) 25%, transparent);
   margin-top: 18px;
   padding-top: 15px;
 }
 .week-legend > span {
   width: 6px;
   height: 6px;
-  background: white;
+  background: var(--feature-text);
   border-radius: 2px;
 }
 .routine-pick {
@@ -1164,17 +1144,14 @@ td {
 .error {
   border: 1px solid #ef444455;
   background: #ef444410;
-  color: #d83232;
+  color: var(--danger);
   border-radius: 8px;
   padding: 12px 15px;
   font-size: 14px;
   margin-bottom: 15px;
 }
-.dark .error {
-  color: #ff9c9c;
-}
 .success {
-  color: #15803d;
+  color: var(--success);
   font-size: 14px;
 }
 .empty {
@@ -1219,8 +1196,8 @@ td {
   background: var(--panel);
 }
 .auth-story {
-  background: #174dcc;
-  color: white;
+  background: var(--auth-bg);
+  color: var(--feature-text);
   padding: 45px 60px;
   display: flex;
   flex-direction: column;
@@ -1231,11 +1208,11 @@ td {
   padding: 0;
 }
 .auth-story .brand-mark {
-  background: white;
-  color: #2563eb;
+  background: var(--feature-text);
+  color: var(--auth-bg);
 }
 .auth-story .eyebrow {
-  color: #b4ccff;
+  color: var(--feature-muted);
 }
 .auth-story h1 {
   font-size: 58px;
@@ -1246,7 +1223,7 @@ td {
 .auth-story p {
   max-width: 340px;
   font-size: 17px;
-  color: #c3d6ff;
+  color: var(--feature-muted);
 }
 .auth-features {
   display: flex;
@@ -1265,7 +1242,7 @@ td {
 }
 .auth-story small {
   font-size: 12px;
-  color: #b4ccff;
+  color: var(--feature-muted);
 }
 .auth-form {
   padding: 50px 30px;

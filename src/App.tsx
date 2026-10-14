@@ -6,6 +6,7 @@ import {
 import { readRoute, routeHash, type Navigate } from "./lib/navigation";
 import { NutritionProvider } from "./context/NutritionContext";
 import LanguageSelector from "./components/LanguageSelector";
+import ThemeSelector from "./components/ThemeSelector";
 import { t, useLanguage, getLocale } from "./lib/i18n";
 import { useState, useEffect, lazy, Suspense } from "react";
 import {
@@ -15,8 +16,6 @@ import {
   ClipboardList,
   Ruler,
   Activity,
-  Moon,
-  Sun,
   LogOut,
   Menu,
   X,
@@ -71,23 +70,6 @@ function Workspace() {
   const [menu, setMenu] = useState(false),
     [workout, setWorkout] = useState<Workout | null>(null),
     [sessionError, setSessionError] = useState("");
-  const [dark, setDark] = useState(() => {
-    try {
-      return (
-        localStorage.getItem("forma-theme") === "dark" ||
-        (!localStorage.getItem("forma-theme") &&
-          matchMedia("(prefers-color-scheme: dark)").matches)
-      );
-    } catch {
-      return false;
-    }
-  });
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", dark);
-    try {
-      localStorage.setItem("forma-theme", dark ? "dark" : "light");
-    } catch {}
-  }, [dark]);
   useEffect(() => {
     const update = () => {
       setRoute(readRoute());
@@ -270,16 +252,7 @@ function Workspace() {
               }).format(new Date())}
             </span>
             <LanguageSelector />
-            <button
-              className="icon-btn theme-button"
-              aria-label={
-                dark ? t("Activar tema claro") : t("Activar tema oscuro")
-              }
-              aria-pressed={dark}
-              onClick={() => setDark(!dark)}
-            >
-              {dark ? <Sun size={19} /> : <Moon size={19} />}
-            </button>
+            <ThemeSelector />
           </div>
         </header>
         <main id="main">

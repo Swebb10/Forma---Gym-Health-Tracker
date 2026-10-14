@@ -13,7 +13,7 @@ import { dateLabel, numberLabel } from "../lib/metrics";
 export function ProgressChart({
   data,
   unit,
-  color = "#3875f6",
+  color = "var(--blue)",
 }: {
   data: { date: string; value: number }[];
   unit: string;

@@ -106,8 +106,9 @@ test("tema persistente, navegación móvil y ausencia de desbordamiento", async 
       page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
     )
     .toBe(true);
-  const theme = page.getByRole("button", { name: "Activar tema oscuro" });
-  if (await theme.isVisible()) await theme.click();
+  await page.getByRole("button", { name: "Elegir tema" }).click();
+  await page.getByRole("radio", { name: "Oscuro", exact: true }).check();
+  await page.getByRole("button", { name: "Listo", exact: true }).click();
   await page.reload();
   await expect(page.locator("html")).toHaveClass(/dark/);
   await page.getByRole("button", { name: "Abrir menú" }).click();

@@ -30,7 +30,9 @@ test("planes de demostración, diseño móvil y temas sin permitir pagos", async
         .evaluate((el) => el.getBoundingClientRect().right),
     )
     .toBeLessThanOrEqual(0);
-  await page.getByRole("button", { name: "Activar tema oscuro" }).click();
+  await page.getByRole("button", { name: "Elegir tema" }).click();
+  await page.getByRole("radio", { name: "Oscuro", exact: true }).check();
+  await page.getByRole("button", { name: "Listo", exact: true }).click();
   await expect(page.locator("html")).toHaveClass(/dark/);
   await expect
     .poll(() =>

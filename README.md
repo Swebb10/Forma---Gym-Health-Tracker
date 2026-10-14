@@ -48,9 +48,10 @@ src/
     Nutrition.tsx          # Objetivo, macros y guía de alimentos
     Measurements.tsx
     Bioimpedance.tsx
-  App.tsx                  # Navegación por hash, tema y shell responsivo
+  App.tsx                  # Navegación por hash y shell responsivo
   main.tsx
-  styles.css               # Tailwind y sistema visual claro/oscuro
+  styles.css               # Tailwind y estilos de componentes
+  themes.css               # Paletas y previsualizaciones de los seis temas
 docs/
   FIRESTORE.md             # Modelo, ejemplos, restricciones y decisiones
 tests/
@@ -62,6 +63,16 @@ firebase.json
 vercel.json
 .env.example
 ```
+
+## Temas de apariencia
+
+El botón de paleta junto al idioma abre seis opciones con vista previa: **Claro** y **Oscuro**, más **Cyberpunk** (azul casi negro, cian y amarillo neón), **Ónix** (negro, menta y dorado), **Brisa** (blanco, turquesa y azul) y **Resplandor** (azul noche, violeta y ámbar). También está disponible al iniciar sesión.
+
+La elección se aplica al instante, se conserva en `localStorage` (`forma-theme`) y se comparte entre pestañas del mismo navegador. Se respetan las preferencias claro/oscuro guardadas anteriormente; sin preferencia se usa el modo del sistema. No se sincroniza entre dispositivos. Las luces son degradados CSS estáticos, sin descargas ni animaciones de fondo.
+
+Esta actualización de temas solo requiere publicar el frontend en Vercel; **no añade cambios a Firebase ni a sus reglas**. Las instrucciones de reglas de la actualización de flujos anterior siguen aplicando si aún no se publicó esa versión.
+
+Las paletas están en `src/themes.css`, su selección en `src/lib/theme.ts` y el diálogo en `src/components/ThemeSelector.tsx`. `tests/themes.spec.ts` comprueba contraste de texto, persistencia, compatibilidad, teclado, móvil e idiomas.
 
 ## Conectar Firebase
 
