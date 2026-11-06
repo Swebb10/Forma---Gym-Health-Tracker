@@ -51,7 +51,7 @@ src/
   App.tsx                  # Navegación por hash y shell responsivo
   main.tsx
   styles.css               # Tailwind y estilos de componentes
-  themes.css               # Paletas y previsualizaciones de los seis temas
+  themes.css               # Paletas y previsualizaciones de los siete temas
 docs/
   FIRESTORE.md             # Modelo, ejemplos, restricciones y decisiones
 tests/
@@ -66,9 +66,9 @@ vercel.json
 
 ## Temas de apariencia
 
-El botón de paleta junto al idioma abre seis opciones con vista previa: **Claro** y **Oscuro**, más **Cyberpunk** (azul casi negro, cian y amarillo neón), **Ónix** (negro, menta y dorado), **Brisa** (blanco, turquesa y azul) y **Resplandor** (azul noche, violeta y ámbar). También está disponible al iniciar sesión.
+El botón de paleta junto al idioma abre siete opciones con vista previa: **Claro** y **Oscuro**, más **Cyberpunk** (azul casi negro, cian y amarillo neón), **Spotify** (negro y verde esmeralda), **Brisa** (blanco, turquesa y azul), **Resplandor** (negro con degradado azul) y **Netflix** (negro y rojo intenso). También está disponible al iniciar sesión.
 
-La elección se aplica al instante, se conserva en `localStorage` (`forma-theme`) y se comparte entre pestañas del mismo navegador. Se respetan las preferencias claro/oscuro guardadas anteriormente; sin preferencia se usa el modo del sistema. No se sincroniza entre dispositivos. Las luces son degradados CSS estáticos, sin descargas ni animaciones de fondo.
+La elección se aplica al instante, se conserva en `localStorage` (`forma-theme`) y se comparte entre pestañas del mismo navegador. Las preferencias guardadas de Claro y Oscuro siguen funcionando; el antiguo Ónix se convierte automáticamente a Spotify. Sin preferencia se usa el modo del sistema. No se sincroniza entre dispositivos. Las luces son degradados CSS estáticos, sin descargas ni animaciones de fondo.
 
 Esta actualización de temas solo requiere publicar el frontend en Vercel; **no añade cambios a Firebase ni a sus reglas**. Las instrucciones de reglas de la actualización de flujos anterior siguen aplicando si aún no se publicó esa versión.
 

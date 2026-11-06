@@ -23,11 +23,11 @@ export const themes = [
     background: "#020b1b",
   },
   {
-    id: "onyx",
-    name: "Ónix",
-    description: "Negro profundo, menta y un toque dorado.",
+    id: "spotify",
+    name: "Spotify",
+    description: "Negro y verde esmeralda, inspirado en Spotify.",
     dark: true,
-    background: "#080d0c",
+    background: "#090b09",
   },
   {
     id: "breeze",
@@ -39,9 +39,16 @@ export const themes = [
   {
     id: "glow",
     name: "Resplandor",
-    description: "Luz violeta y ámbar sobre azul noche.",
+    description: "Negro con un degradado azul profundo.",
     dark: true,
-    background: "#101024",
+    background: "#090d14",
+  },
+  {
+    id: "netflix",
+    name: "Netflix",
+    description: "Negro de cine con rojo intenso.",
+    dark: true,
+    background: "#080809",
   },
 ] as const;
 
@@ -49,6 +56,11 @@ export type ThemeId = (typeof themes)[number]["id"];
 const storageKey = "forma-theme";
 const valid = (value: unknown): value is ThemeId =>
   themes.some((theme) => theme.id === value);
+function savedTheme(value: string | null): ThemeId | undefined {
+  if (valid(value)) return value;
+  // Migrate the replaced Ónix palette for returning users.
+  return value === "onyx" ? "spotify" : undefined;
+}
 function systemTheme(): ThemeId {
   return typeof window !== "undefined" &&
     window.matchMedia?.("(prefers-color-scheme: dark)").matches
@@ -58,7 +70,11 @@ function systemTheme(): ThemeId {
 function initialTheme(): ThemeId {
   try {
     const saved = localStorage.getItem(storageKey);
-    if (valid(saved)) return saved;
+    const theme = savedTheme(saved);
+    if (theme) {
+      if (saved !== theme) localStorage.setItem(storageKey, theme);
+      return theme;
+    }
   } catch {
     /* A blocked storage must not prevent changing the appearance. */
   }
@@ -107,7 +123,7 @@ applyTheme();
 if (typeof window !== "undefined") {
   window.addEventListener("storage", (event) => {
     if (event.key !== storageKey && event.key !== null) return;
-    current = valid(event.newValue) ? event.newValue : systemTheme();
+    current = savedTheme(event.newValue) ?? systemTheme();
     applyTheme();
     listeners.forEach((listener) => listener());
   });

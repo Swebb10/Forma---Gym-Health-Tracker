@@ -3,18 +3,19 @@ export const themeCatalogs: Record<string, Record<string, string>> = {
     Claro: "Light",
     Oscuro: "Dark",
     Cyberpunk: "Cyberpunk",
-    Ónix: "Onyx",
+    Spotify: "Spotify",
+    Netflix: "Netflix",
     Brisa: "Breeze",
     Resplandor: "Glow",
     "El azul de Forma sobre blanco.": "Forma blue on white.",
     "El azul de siempre, al anochecer.": "The familiar blue, after dark.",
     "Cian eléctrico y amarillo neón.": "Electric cyan and neon yellow.",
-    "Negro profundo, menta y un toque dorado.":
-      "Deep black, mint and a touch of gold.",
+    "Negro y verde esmeralda, inspirado en Spotify.":
+      "Black and emerald green, inspired by Spotify.",
     "Blanco fresco, turquesa y azul intenso.":
       "Fresh white, turquoise and rich blue.",
-    "Luz violeta y ámbar sobre azul noche.":
-      "Violet and amber light on midnight blue.",
+    "Negro con un degradado azul profundo.": "Black with a deep blue gradient.",
+    "Negro de cine con rojo intenso.": "Cinematic black with vivid red.",
     "Elegir tema": "Choose theme",
     "Tema actual: {0}": "Current theme: {0}",
     "Personaliza tu espacio": "Make it your space",
@@ -27,18 +28,20 @@ export const themeCatalogs: Record<string, Record<string, string>> = {
     Claro: "Hell",
     Oscuro: "Dunkel",
     Cyberpunk: "Cyberpunk",
-    Ónix: "Onyx",
+    Spotify: "Spotify",
+    Netflix: "Netflix",
     Brisa: "Brise",
     Resplandor: "Leuchten",
     "El azul de Forma sobre blanco.": "Forma-Blau auf Weiß.",
     "El azul de siempre, al anochecer.": "Das vertraute Blau bei Nacht.",
     "Cian eléctrico y amarillo neón.": "Leuchtendes Cyan und Neongelb.",
-    "Negro profundo, menta y un toque dorado.":
-      "Tiefschwarz, Mint und ein Hauch Gold.",
+    "Negro y verde esmeralda, inspirado en Spotify.":
+      "Tiefschwarz und Smaragdgrün, inspiriert von Spotify.",
     "Blanco fresco, turquesa y azul intenso.":
       "Frisches Weiß, Türkis und kräftiges Blau.",
-    "Luz violeta y ámbar sobre azul noche.":
-      "Violettes und bernsteinfarbenes Licht auf Nachtblau.",
+    "Negro con un degradado azul profundo.":
+      "Schwarz mit tiefblauem Farbverlauf.",
+    "Negro de cine con rojo intenso.": "Filmschwarz mit kräftigem Rot.",
     "Elegir tema": "Design wählen",
     "Tema actual: {0}": "Aktuelles Design: {0}",
     "Personaliza tu espacio": "Gestalte deinen Bereich",
@@ -51,18 +54,21 @@ export const themeCatalogs: Record<string, Record<string, string>> = {
     Claro: "Светлая",
     Oscuro: "Тёмная",
     Cyberpunk: "Киберпанк",
-    Ónix: "Оникс",
+    Spotify: "Spotify",
+    Netflix: "Netflix",
     Brisa: "Бриз",
     Resplandor: "Сияние",
     "El azul de Forma sobre blanco.": "Синий цвет Forma на белом фоне.",
     "El azul de siempre, al anochecer.": "Привычный синий в тёмных тонах.",
     "Cian eléctrico y amarillo neón.": "Яркий бирюзовый и неоновый жёлтый.",
-    "Negro profundo, menta y un toque dorado.":
-      "Глубокий чёрный, мятный и немного золота.",
+    "Negro y verde esmeralda, inspirado en Spotify.":
+      "Глубокий чёрный и изумрудный, в стиле Spotify.",
     "Blanco fresco, turquesa y azul intenso.":
       "Свежий белый, бирюзовый и насыщенный синий.",
-    "Luz violeta y ámbar sobre azul noche.":
-      "Фиолетовое и янтарное сияние на ночном синем.",
+    "Negro con un degradado azul profundo.":
+      "Чёрный с глубоким синим градиентом.",
+    "Negro de cine con rojo intenso.":
+      "Кинематографичный чёрный и яркий красный.",
     "Elegir tema": "Выбрать тему",
     "Tema actual: {0}": "Текущая тема: {0}",
     "Personaliza tu espacio": "Настройте своё пространство",
@@ -75,18 +81,21 @@ export const themeCatalogs: Record<string, Record<string, string>> = {
     Claro: "Claro",
     Oscuro: "Escuro",
     Cyberpunk: "Cyberpunk",
-    Ónix: "Ônix",
+    Spotify: "Spotify",
+    Netflix: "Netflix",
     Brisa: "Brisa",
     Resplandor: "Resplendor",
     "El azul de Forma sobre blanco.": "O azul do Forma sobre branco.",
     "El azul de siempre, al anochecer.": "O azul de sempre, ao anoitecer.",
     "Cian eléctrico y amarillo neón.": "Ciano elétrico e amarelo neon.",
-    "Negro profundo, menta y un toque dorado.":
-      "Preto profundo, menta e um toque dourado.",
+    "Negro y verde esmeralda, inspirado en Spotify.":
+      "Preto profundo e verde esmeralda, inspirado no Spotify.",
     "Blanco fresco, turquesa y azul intenso.":
       "Branco fresco, turquesa e azul intenso.",
-    "Luz violeta y ámbar sobre azul noche.":
-      "Luz violeta e âmbar sobre azul noturno.",
+    "Negro con un degradado azul profundo.":
+      "Preto com um degradê azul profundo.",
+    "Negro de cine con rojo intenso.":
+      "Preto cinematográfico com vermelho intenso.",
     "Elegir tema": "Escolher tema",
     "Tema actual: {0}": "Tema atual: {0}",
     "Personaliza tu espacio": "Personalize seu espaço",
@@ -99,18 +108,20 @@ export const themeCatalogs: Record<string, Record<string, string>> = {
     Claro: "Clair",
     Oscuro: "Sombre",
     Cyberpunk: "Cyberpunk",
-    Ónix: "Onyx",
+    Spotify: "Spotify",
+    Netflix: "Netflix",
     Brisa: "Brise",
     Resplandor: "Lueur",
     "El azul de Forma sobre blanco.": "Le bleu de Forma sur fond blanc.",
     "El azul de siempre, al anochecer.": "Le bleu familier, à la nuit tombée.",
     "Cian eléctrico y amarillo neón.": "Cyan électrique et jaune néon.",
-    "Negro profundo, menta y un toque dorado.":
-      "Noir profond, menthe et touche dorée.",
+    "Negro y verde esmeralda, inspirado en Spotify.":
+      "Noir profond et vert émeraude, inspiré de Spotify.",
     "Blanco fresco, turquesa y azul intenso.":
       "Blanc frais, turquoise et bleu intense.",
-    "Luz violeta y ámbar sobre azul noche.":
-      "Lumières violette et ambrée sur bleu nuit.",
+    "Negro con un degradado azul profundo.":
+      "Noir avec un dégradé bleu profond.",
+    "Negro de cine con rojo intenso.": "Noir cinéma avec rouge vif.",
     "Elegir tema": "Choisir le thème",
     "Tema actual: {0}": "Thème actuel : {0}",
     "Personaliza tu espacio": "Personnalisez votre espace",

@@ -17,7 +17,7 @@ function contrast(a: string, b: string) {
   return (high + 0.05) / (low + 0.05);
 }
 
-test("los seis temas conservan contraste, se aplican y persisten", async ({
+test("los siete temas conservan contraste, se aplican y persisten", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
@@ -27,7 +27,7 @@ test("los seis temas conservan contraste, se aplican y persisten", async ({
   ).toBeVisible();
   for (const theme of themes) {
     await page.getByRole("button", { name: "Elegir tema" }).click();
-    await expect(page.getByRole("radio")).toHaveCount(6);
+    await expect(page.getByRole("radio")).toHaveCount(7);
     await page.getByRole("radio", { name: theme.name, exact: true }).click();
     await expect(page.locator("html")).toHaveAttribute("data-theme", theme.id);
     await expect(
@@ -112,7 +112,7 @@ test("selector accesible en móvil, teclado e idiomas", async ({ page }) => {
   await page.getByRole("radio", { name: "Cyberpunk", exact: true }).focus();
   await page.keyboard.press("ArrowRight");
   await expect(
-    page.getByRole("radio", { name: "Ónix", exact: true }),
+    page.getByRole("radio", { name: "Spotify", exact: true }),
   ).toBeChecked();
   await page.getByRole("radio", { name: "Resplandor", exact: true }).check();
   await expect
@@ -146,7 +146,7 @@ test("selector accesible en móvil, teclado e idiomas", async ({ page }) => {
   ]) {
     await language.selectOption(lang);
     await expect(page.getByRole("dialog", { name: title })).toBeVisible();
-    await expect(page.getByRole("radio")).toHaveCount(6);
+    await expect(page.getByRole("radio")).toHaveCount(7);
     await expect
       .poll(() =>
         page
@@ -162,13 +162,20 @@ test("la preferencia se comparte entre pestañas y respeta Claro y Oscuro guarda
   context,
 }) => {
   await page.goto("/");
-  for (const saved of ["dark", "light"]) {
+  for (const [saved, expected] of [
+    ["dark", "dark"],
+    ["light", "light"],
+    ["onyx", "spotify"],
+  ]) {
     await page.evaluate(
       (theme) => localStorage.setItem("forma-theme", theme),
       saved,
     );
     await page.reload();
-    await expect(page.locator("html")).toHaveAttribute("data-theme", saved);
+    await expect(page.locator("html")).toHaveAttribute("data-theme", expected);
+    expect(await page.evaluate(() => localStorage.getItem("forma-theme"))).toBe(
+      expected,
+    );
   }
   const second = await context.newPage();
   await second.goto("/");
