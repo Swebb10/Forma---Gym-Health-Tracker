@@ -223,6 +223,82 @@
 .coach-results h4 {
   margin: 0 0 8px;
 }
+.next-session-plan {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--panel);
+}
+.next-session-plan > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+}
+.next-session-plan h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 7px;
+}
+.next-session-date,
+.next-session-exercise summary > span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+.next-session-warning {
+  margin: 0;
+}
+.next-session-exercises {
+  display: grid;
+  gap: 8px;
+}
+.next-session-exercise {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.next-session-exercise summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+  background: var(--bg);
+}
+.next-session-exercise ul {
+  list-style: none;
+  margin: 0;
+  padding: 4px 14px;
+}
+.next-session-exercise li {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.next-session-exercise li:last-child {
+  border-bottom: 0;
+}
+.next-session-exercise li > span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+.next-session-exercise li strong,
+.next-session-exercise li small {
+  display: block;
+}
+.next-session-exercise li small {
+  margin-top: 3px;
+  color: var(--muted);
+  line-height: 1.45;
+}
 .set-reference {
   margin: -3px 0 14px 56px;
   color: var(--blue);
@@ -232,6 +308,15 @@
   margin: 0 26px 22px;
 }
 @media (max-width: 640px) {
+  .next-session-plan {
+    padding: 14px;
+  }
+  .next-session-plan > header {
+    flex-direction: column;
+  }
+  .next-session-date {
+    white-space: normal;
+  }
   .training-progress {
     padding: 18px;
   }

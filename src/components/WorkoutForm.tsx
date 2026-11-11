@@ -9,6 +9,7 @@ import { ExerciseEditor } from "./ExerciseEditor";
 import { priorWorkouts } from "../lib/setProgress";
 import { noteSources } from "../lib/noteCoach";
 import NotesCoach from "./training/NotesCoach";
+import NextSessionPlan from "./training/NextSessionPlan";
 import "./training/trainingProgress.css";
 import { localDate, validateExercises } from "../lib/metrics";
 import {
@@ -195,6 +196,9 @@ export function WorkoutForm({
               />
             </Field>
           </div>
+          {previousSession && (
+            <NextSessionPlan workouts={data.workouts} workout={value} />
+          )}
           <ExerciseEditor
             workout
             exercises={value.exercises}

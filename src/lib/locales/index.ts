@@ -1,5 +1,6 @@
 import { themeCatalogs } from "./themes";
 import { exportCatalogs } from "./exports";
+import { nextSessionCatalogs } from "./nextSession";
 import { coherenceCatalogs } from "./coherence";
 import { trainingCatalogs } from "./trainingProgress";
 import { bodyCatalogs } from "./bodyAnalysis";
@@ -18,6 +19,7 @@ export const catalogs = {
     ...coherenceCatalogs.en,
     ...themeCatalogs.en,
     ...exportCatalogs.en,
+    ...nextSessionCatalogs.en,
   },
   de: {
     ...de,
@@ -27,6 +29,7 @@ export const catalogs = {
     ...coherenceCatalogs.de,
     ...themeCatalogs.de,
     ...exportCatalogs.de,
+    ...nextSessionCatalogs.de,
   },
   ru: {
     ...ru,
@@ -36,6 +39,7 @@ export const catalogs = {
     ...coherenceCatalogs.ru,
     ...themeCatalogs.ru,
     ...exportCatalogs.ru,
+    ...nextSessionCatalogs.ru,
   },
   pt: {
     ...pt,
@@ -45,6 +49,7 @@ export const catalogs = {
     ...coherenceCatalogs.pt,
     ...themeCatalogs.pt,
     ...exportCatalogs.pt,
+    ...nextSessionCatalogs.pt,
   },
   fr: {
     ...fr,
@@ -54,5 +59,6 @@ export const catalogs = {
     ...coherenceCatalogs.fr,
     ...themeCatalogs.fr,
     ...exportCatalogs.fr,
+    ...nextSessionCatalogs.fr,
   },
 };
