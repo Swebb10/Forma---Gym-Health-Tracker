@@ -27,9 +27,14 @@ export default function Bioimpedance() {
     (b.date + b.time).localeCompare(a.date + a.time),
   );
   const exportColumns: ExportColumn<BioRecord>[] = [
-    { label: t("Hora"), value: (record) => record.time },
+    {
+      label: t("Hora"),
+      group: t("Datos generales"),
+      value: (record) => record.time,
+    },
     {
       label: t("Género"),
+      group: t("Datos generales"),
       value: (record) =>
         t(
           record.gender === "male"
@@ -44,6 +49,7 @@ export default function Bioimpedance() {
     ...bioSections.flatMap((section) =>
       section.fields.map((field) => ({
         label: `${t(field.label)} (${t(field.unit)})`,
+        group: t(section.title),
         value: (record: BioRecord) => {
           const value = record[field.key as keyof BioRecord];
           return typeof value === "number" ? value : "";
@@ -118,7 +124,8 @@ export default function Bioimpedance() {
       <ExportRecords
         records={sorted}
         columns={exportColumns}
-        fileName="forma-bioimpedancia.csv"
+        fileName="forma-bioimpedancia.pdf"
+        reportTitle={t("Bioimpedancia")}
       />
       <div className="info-strip">
         <Activity size={20} />

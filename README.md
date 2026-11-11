@@ -24,7 +24,7 @@ Abre la dirección que muestra Vite. Sin configuración Firebase, inicia en demo
 src/
   components/
     ui.tsx                 # Campos, diálogo accesible, estados vacíos, acciones
-    ExportRecords.tsx      # Selección por fecha y descarga CSV de datos corporales
+    ExportRecords.tsx      # Selección por fecha e informe PDF de datos corporales
     ExerciseEditor.tsx     # Ejercicios y series editables
     ProgressChart.tsx      # Gráficos reutilizables
     WorkoutForm.tsx        # Formulario de sesión reutilizable
@@ -77,7 +77,7 @@ Las paletas están en `src/themes.css`, su selección en `src/lib/theme.ts` y el
 
 ## Exportar registros corporales
 
-En **Medidas corporales** y **Bioimpedancia**, abre **Exportar registros** y marca las fechas que quieras incluir, o selecciona todos. Se descarga un CSV compatible con Excel, con fecha, hora cuando corresponde y las mediciones disponibles. No modifica ni elimina registros, y no requiere cambios en Firebase.
+En **Medidas corporales** y **Bioimpedancia**, abre **Exportar registros** y marca las fechas que quieras incluir, o selecciona todos. Se abre un informe organizado por fecha y sección corporal, listo para guardar como PDF desde la vista de impresión. No modifica ni elimina registros, y no requiere cambios en Firebase.
 
 ## Conectar Firebase
 

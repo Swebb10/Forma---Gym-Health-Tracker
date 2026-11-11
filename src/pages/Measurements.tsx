@@ -39,6 +39,11 @@ export default function Measurements() {
   const exportColumns: ExportColumn<Measurement>[] = allMeasurementFields.map(
     (field) => ({
       label: `${t(field.label)} (cm)`,
+      group: t(
+        measurementSections.find((section) =>
+          section.fields.some((candidate) => candidate.key === field.key),
+        )?.title ?? "Registros anteriores",
+      ),
       value: (record) => {
         const value = record[field.key];
         return typeof value === "number" ? value : "";
@@ -136,7 +141,8 @@ export default function Measurements() {
       <ExportRecords
         records={sorted}
         columns={exportColumns}
-        fileName="forma-medidas-corporales.csv"
+        fileName="forma-medidas-corporales.pdf"
+        reportTitle={t("Medidas corporales")}
       />
       <div
         className="zone-tabs"

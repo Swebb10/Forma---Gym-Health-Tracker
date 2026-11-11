@@ -2831,6 +2831,10 @@ td {
 .export-content > p {
   margin-bottom: 13px;
 }
+.export-content .export-print-hint {
+  margin-top: -7px;
+  font-size: 12px;
+}
 .export-select-all {
   margin-bottom: 9px;
   border-color: var(--border);
