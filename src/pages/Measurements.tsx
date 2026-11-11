@@ -21,6 +21,7 @@ import {
   ErrorMessage,
 } from "../components/ui";
 import type { Measurement } from "../types";
+import ExportRecords, { type ExportColumn } from "../components/ExportRecords";
 export default function Measurements() {
   useLanguage();
   const { canWrite } = useSubscription();
@@ -34,6 +35,15 @@ export default function Measurements() {
     [legacyKeys, setLegacyKeys] = useState<string[]>([]);
   const sorted = [...data.measurements].sort((a, b) =>
     a.date.localeCompare(b.date),
+  );
+  const exportColumns: ExportColumn<Measurement>[] = allMeasurementFields.map(
+    (field) => ({
+      label: `${t(field.label)} (cm)`,
+      value: (record) => {
+        const value = record[field.key];
+        return typeof value === "number" ? value : "";
+      },
+    }),
   );
   const sections = [
     ...measurementSections,
@@ -123,6 +133,11 @@ export default function Measurements() {
           <Plus size={18} /> {t("Añadir medidas")}
         </button>
       </div>
+      <ExportRecords
+        records={sorted}
+        columns={exportColumns}
+        fileName="forma-medidas-corporales.csv"
+      />
       <div
         className="zone-tabs"
         role="group"

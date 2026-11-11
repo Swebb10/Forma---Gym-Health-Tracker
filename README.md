@@ -24,6 +24,7 @@ Abre la dirección que muestra Vite. Sin configuración Firebase, inicia en demo
 src/
   components/
     ui.tsx                 # Campos, diálogo accesible, estados vacíos, acciones
+    ExportRecords.tsx      # Selección por fecha y descarga CSV de datos corporales
     ExerciseEditor.tsx     # Ejercicios y series editables
     ProgressChart.tsx      # Gráficos reutilizables
     WorkoutForm.tsx        # Formulario de sesión reutilizable
@@ -73,6 +74,10 @@ La elección se aplica al instante, se conserva en `localStorage` (`forma-theme`
 Esta actualización de temas solo requiere publicar el frontend en Vercel; **no añade cambios a Firebase ni a sus reglas**. Las instrucciones de reglas de la actualización de flujos anterior siguen aplicando si aún no se publicó esa versión.
 
 Las paletas están en `src/themes.css`, su selección en `src/lib/theme.ts` y el diálogo en `src/components/ThemeSelector.tsx`. `tests/themes.spec.ts` comprueba contraste de texto, persistencia, compatibilidad, teclado, móvil e idiomas.
+
+## Exportar registros corporales
+
+En **Medidas corporales** y **Bioimpedancia**, abre **Exportar registros** y marca las fechas que quieras incluir, o selecciona todos. Se descarga un CSV compatible con Excel, con fecha, hora cuando corresponde y las mediciones disponibles. No modifica ni elimina registros, y no requiere cambios en Firebase.
 
 ## Conectar Firebase
 

@@ -14,6 +14,7 @@ import {
   ErrorMessage,
 } from "../components/ui";
 import type { BioRecord } from "../types";
+import ExportRecords, { type ExportColumn } from "../components/ExportRecords";
 type Draft = Record<string, string>;
 export default function Bioimpedance() {
   useLanguage();
@@ -25,6 +26,31 @@ export default function Bioimpedance() {
   const sorted = [...data.bioimpedance].sort((a, b) =>
     (b.date + b.time).localeCompare(a.date + a.time),
   );
+  const exportColumns: ExportColumn<BioRecord>[] = [
+    { label: t("Hora"), value: (record) => record.time },
+    {
+      label: t("Género"),
+      value: (record) =>
+        t(
+          record.gender === "male"
+            ? "Masculino"
+            : record.gender === "female"
+              ? "Femenino"
+              : record.gender === "other"
+                ? "Otro"
+                : "Sin especificar",
+        ),
+    },
+    ...bioSections.flatMap((section) =>
+      section.fields.map((field) => ({
+        label: `${t(field.label)} (${t(field.unit)})`,
+        value: (record: BioRecord) => {
+          const value = record[field.key as keyof BioRecord];
+          return typeof value === "number" ? value : "";
+        },
+      })),
+    ),
+  ];
   function edit(record?: BioRecord) {
     setError("");
     setDraft(
@@ -89,6 +115,11 @@ export default function Bioimpedance() {
           <Plus size={18} /> {t("Nueva evaluación")}
         </button>
       </div>
+      <ExportRecords
+        records={sorted}
+        columns={exportColumns}
+        fileName="forma-bioimpedancia.csv"
+      />
       <div className="info-strip">
         <Activity size={20} />
         <p>

@@ -1,4 +1,5 @@
 import { themeCatalogs } from "./themes";
+import { exportCatalogs } from "./exports";
 import { coherenceCatalogs } from "./coherence";
 import { trainingCatalogs } from "./trainingProgress";
 import { bodyCatalogs } from "./bodyAnalysis";
@@ -16,6 +17,7 @@ export const catalogs = {
     ...trainingCatalogs.en,
     ...coherenceCatalogs.en,
     ...themeCatalogs.en,
+    ...exportCatalogs.en,
   },
   de: {
     ...de,
@@ -24,6 +26,7 @@ export const catalogs = {
     ...trainingCatalogs.de,
     ...coherenceCatalogs.de,
     ...themeCatalogs.de,
+    ...exportCatalogs.de,
   },
   ru: {
     ...ru,
@@ -32,6 +35,7 @@ export const catalogs = {
     ...trainingCatalogs.ru,
     ...coherenceCatalogs.ru,
     ...themeCatalogs.ru,
+    ...exportCatalogs.ru,
   },
   pt: {
     ...pt,
@@ -40,6 +44,7 @@ export const catalogs = {
     ...trainingCatalogs.pt,
     ...coherenceCatalogs.pt,
     ...themeCatalogs.pt,
+    ...exportCatalogs.pt,
   },
   fr: {
     ...fr,
@@ -48,5 +53,6 @@ export const catalogs = {
     ...trainingCatalogs.fr,
     ...coherenceCatalogs.fr,
     ...themeCatalogs.fr,
+    ...exportCatalogs.fr,
   },
 };
