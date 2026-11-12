@@ -112,5 +112,31 @@ export function demoData(): Store {
       fatMass: 17.6 - i * 0.48,
       leanMass: 62.4 + i * 0.08,
     })),
+    meals: [
+      {
+        id: "meal-breakfast",
+        date: day(0),
+        time: "07:30",
+        category: "breakfast",
+        food: "Avena con leche y banano",
+        portion: "1 tazón",
+        calories: 420,
+        protein: 21,
+        carbs: 68,
+        fat: 9,
+      },
+      {
+        id: "meal-lunch",
+        date: day(0),
+        time: "13:00",
+        category: "lunch",
+        food: "Pollo, arroz y frijoles",
+        portion: "1 plato",
+        calories: 650,
+        protein: 48,
+        carbs: 82,
+        fat: 14,
+      },
+    ],
   };
 }

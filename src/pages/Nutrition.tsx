@@ -18,6 +18,7 @@ import { fromKg } from "../lib/training";
 import { Field, ErrorMessage } from "../components/ui";
 import MacroTargets from "../components/nutrition/MacroTargets";
 import FoodGuide from "../components/nutrition/FoodGuide";
+import MealLog from "../components/nutrition/MealLog";
 export default function Nutrition() {
   useLanguage();
   const { loading, error, retry } = useNutrition();
@@ -42,6 +43,7 @@ export default function Nutrition() {
           </button>
         </div>
       )}
+      <MealLog />
       <NutritionEditor />
       <FoodGuide />
     </div>

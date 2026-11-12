@@ -13,6 +13,7 @@ users/{uid}/
   measurements/{measurementId}
   bioimpedance/{evaluationId}
   weights/{weightId}
+  meals/{mealEntryId}
 ```
 
 uid es el identificador de Firebase Authentication. El documento padre users/{uid} contiene opcionalmente bodyProfile, activeRoutineId y nutrition. No almacena contraseñas; el correo de facturación pertenece a members/{uid}. IDs generados con crypto.randomUUID. El ID se agrega a los objetos de UI al leer y no se duplica dentro del documento.
@@ -87,6 +88,26 @@ Todos los valores son cm. Se requiere al menos una circunferencia; las demás se
 Campos requeridos: date, time, gender, age, height, weight, bodyFat, bmi y timestamps. Gender: male, female, other, unspecified. El IMC se calcula en el cliente cuando no se transcribe del informe. Los demás valores son opcionales y se omiten si no se midieron. No se introducen valores 0 artificiales.
 
 La fecha y hora se registran en horario local de la prueba; no se convierten a UTC. Para consultas internacionales futuras, agregar un campo timezone explícito sin reinterpretar los registros anteriores.
+
+## meals/{id}
+
+```typescript
+{
+  date: "2026-11-11",
+  time: "13:00",
+  category: "lunch", // breakfast | lunch | dinner | snack
+  food: "Pollo, arroz y frijoles",
+  portion: "1 plato",
+  calories: 650,
+  protein: 48,
+  carbs: 82,
+  fat: 14,
+  createdAt: Timestamp,
+  updatedAt: Timestamp
+}
+```
+
+Cada documento representa un alimento o preparación consumida en una comida. Los cuatro valores nutricionales describen la porción registrada; los totales diarios se calculan en el cliente por fecha. No se consulta un proveedor externo ni se inventa la composición de un alimento.
 
 ## Consultas e índices
 

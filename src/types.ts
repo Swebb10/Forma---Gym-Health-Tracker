@@ -111,12 +111,28 @@ export type Collections = {
   measurements: Measurement;
   bioimpedance: BioRecord;
   weights: WeightRecord;
+  meals: MealEntry;
 };
 export type WeightRecord = {
   id: string;
   date: string;
   time: string;
   weight: number;
+  createdAt?: unknown;
+  updatedAt?: unknown;
+};
+export type MealCategory = "breakfast" | "lunch" | "dinner" | "snack";
+export type MealEntry = {
+  id: string;
+  date: string;
+  time: string;
+  category: MealCategory;
+  food: string;
+  portion: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
   createdAt?: unknown;
   updatedAt?: unknown;
 };
@@ -127,8 +143,8 @@ export type BodyProfile = {
   date: string;
 };
 export type Store = {
-  [K in Exclude<keyof Collections, "weights">]: Collections[K][];
-} & { weights?: WeightRecord[] };
+  [K in Exclude<keyof Collections, "weights" | "meals">]: Collections[K][];
+} & { weights?: WeightRecord[]; meals?: MealEntry[] };
 export type Page =
   | "nutrition"
   | "dashboard"

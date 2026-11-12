@@ -24,6 +24,7 @@ const empty: Store = {
   measurements: [],
   bioimpedance: [],
   weights: [],
+  meals: [],
 };
 const keys = Object.keys(empty) as (keyof Store)[];
 type DataState = {

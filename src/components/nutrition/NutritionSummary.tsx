@@ -2,11 +2,25 @@ import { ArrowUpRight, Utensils } from "lucide-react";
 import { useNutrition } from "../../context/NutritionContext";
 import { goals } from "../../lib/nutrition";
 import { regions } from "../../lib/bodyAnalysis";
+import { localDate, numberLabel, dateLabel } from "../../lib/metrics";
+import { useData } from "../../context/DataContext";
 import { t, useLanguage } from "../../lib/i18n";
 import MacroTargets from "./MacroTargets";
 export default function NutritionSummary({ onOpen }: { onOpen: () => void }) {
   useLanguage();
   const { current, loading, error } = useNutrition();
+  const { data } = useData();
+  const today = localDate();
+  const todayMeals = (data.meals ?? []).filter((entry) => entry.date === today);
+  const intake = todayMeals.reduce(
+    (total, entry) => ({
+      calories: total.calories + entry.calories,
+      protein: total.protein + entry.protein,
+      carbs: total.carbs + entry.carbs,
+      fat: total.fat + entry.fat,
+    }),
+    { calories: 0, protein: 0, carbs: 0, fat: 0 },
+  );
   return (
     <section className="panel nutrition-summary">
       <div className="panel-heading">
@@ -54,6 +68,37 @@ export default function NutritionSummary({ onOpen }: { onOpen: () => void }) {
         </p>
       )}
       {error && <p className="error nutrition-summary-note">{t(error)}</p>}
+      <div className="nutrition-intake">
+        <h4>
+          {t("Consumido hoy")} · {dateLabel(today)}
+        </h4>
+        <div className="nutrition-intake-grid">
+          {(
+            [
+              ["Calorías", intake.calories, current?.targets?.calories, "kcal"],
+              ["Proteínas", intake.protein, current?.targets?.protein, "g"],
+              ["Carbohidratos", intake.carbs, current?.targets?.carbs, "g"],
+              ["Grasas", intake.fat, current?.targets?.fat, "g"],
+            ] as const
+          ).map(([label, amount, target, unit]) => (
+            <div key={label}>
+              <span>{t(label)}</span>
+              <strong>
+                {numberLabel(amount, label === "Calorías" ? 0 : 1)}
+                {target !== undefined && (
+                  <small> / {numberLabel(target, 0)}</small>
+                )}
+                <small> {unit}</small>
+              </strong>
+            </div>
+          ))}
+        </div>
+        {!todayMeals.length && (
+          <p className="small muted">
+            {t("Todavía no has registrado comidas hoy.")}
+          </p>
+        )}
+      </div>
     </section>
   );
 }

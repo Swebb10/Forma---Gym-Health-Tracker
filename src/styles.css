@@ -2800,6 +2800,218 @@ td {
   padding: 0 24px 24px;
   margin: 0;
 }
+.nutrition-intake {
+  display: grid;
+  gap: 12px;
+  padding: 0 24px 24px;
+}
+.nutrition-intake h4 {
+  margin: 0;
+  font-size: 14px;
+}
+.nutrition-intake > p {
+  margin: 0;
+}
+.nutrition-intake-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+.nutrition-intake-grid > div {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+.nutrition-intake-grid span {
+  color: var(--muted);
+  font-size: 12px;
+}
+.nutrition-intake-grid strong {
+  overflow-wrap: anywhere;
+  font-size: 15px;
+}
+.nutrition-intake-grid small {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 400;
+}
+.meal-log {
+  display: grid;
+  gap: 20px;
+}
+.meal-log-heading,
+.meal-log-toolbar,
+.meal-form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.meal-log-heading h2 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 8px 0;
+}
+.meal-log-heading p {
+  margin: 0;
+}
+.meal-date {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--blue);
+  flex: 0 0 auto;
+}
+.meal-date input {
+  width: auto;
+  min-width: 145px;
+}
+.meal-totals {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.meal-total {
+  display: grid;
+  align-content: start;
+  gap: 9px;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+}
+.meal-total > span,
+.meal-total > small {
+  color: var(--muted);
+  font-size: 12px;
+}
+.meal-total > strong {
+  font-size: 23px;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+.meal-total > strong small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 400;
+}
+.meal-progress {
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--border);
+}
+.meal-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--blue);
+  transition: width 180ms ease;
+}
+.meal-log-notice {
+  margin: 0;
+}
+.meal-log-toolbar h3,
+.meal-form h3 {
+  margin: 0;
+}
+.meal-log-toolbar .btn {
+  flex: 0 0 auto;
+}
+.meal-form {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+}
+.meal-form > p {
+  margin: 0;
+}
+.meal-form-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+.meal-form-grid .field:nth-child(3),
+.meal-form-grid .field:nth-child(4) {
+  grid-column: span 2;
+}
+.meal-form-actions {
+  justify-content: flex-end;
+}
+.meal-list {
+  display: grid;
+  gap: 18px;
+}
+.meal-group {
+  display: grid;
+  gap: 8px;
+}
+.meal-group h4 {
+  margin: 0;
+  color: var(--blue);
+  font-size: 14px;
+}
+.meal-entry {
+  display: grid;
+  grid-template-columns: minmax(170px, 1fr) minmax(0, 1.2fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 15px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+}
+.meal-entry-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+}
+.meal-entry-main time {
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-size: 12px;
+}
+.meal-entry-main strong {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.meal-entry-main p {
+  margin: 4px 0 0;
+}
+.meal-entry-macros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.meal-entry-actions {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.meal-empty {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 28px;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  color: var(--muted);
+  text-align: center;
+}
+.meal-empty p {
+  margin: 0;
+}
+.meal-empty svg {
+  color: var(--blue);
+}
 .export-panel {
   margin: 0 0 20px;
   overflow: hidden;
@@ -2921,6 +3133,57 @@ td {
   .nutrition-summary .panel-heading {
     flex-wrap: wrap;
     gap: 10px;
+  }
+  .nutrition-intake-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .meal-log-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .meal-date {
+    width: 100%;
+  }
+  .meal-date input {
+    flex: 1;
+  }
+  .meal-totals {
+    grid-template-columns: 1fr 1fr;
+  }
+  .meal-total {
+    padding: 13px;
+  }
+  .meal-total > strong {
+    font-size: 20px;
+  }
+  .meal-form-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .meal-form-grid .field:nth-child(3),
+  .meal-form-grid .field:nth-child(4) {
+    grid-column: span 2;
+  }
+  .meal-entry {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .meal-entry-macros {
+    grid-column: 1;
+    padding-left: 42px;
+  }
+  .meal-entry-actions {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+  .meal-log-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .meal-form-actions {
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
+  .meal-form-actions .btn {
+    justify-content: center;
   }
   .export-list {
     grid-template-columns: 1fr;

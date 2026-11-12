@@ -178,6 +178,22 @@ service cloud.firestore {
         && request.resource.data.time is string && request.resource.data.time.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$')
         && request.resource.data.weight is number && request.resource.data.weight >= 1 && request.resource.data.weight <= 500;
     }
+    match /users/{uid}/meals/{id} {
+      allow read: if owner(uid);
+      allow delete: if canWrite(uid);
+      allow create, update: if canWrite(uid) && audit() && validMeal(request.resource.data);
+    }
+    function validMeal(d) {
+      return d.keys().hasOnly(['date','time','category','food','portion','calories','protein','carbs','fat','createdAt','updatedAt'])
+        && d.keys().hasAll(['date','time','category','food','portion','calories','protein','carbs','fat'])
+        && date(d) && d.time is string && d.time.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$')
+        && d.category in ['breakfast','lunch','dinner','snack']
+        && text(d,'food',100) && text(d,'portion',100)
+        && optionalNumber(d,'calories',0,10000)
+        && optionalNumber(d,'protein',0,500)
+        && optionalNumber(d,'carbs',0,1000)
+        && optionalNumber(d,'fat',0,500);
+    }
     function exercises(d) { return d.exercises is list && d.exercises.size() > 0 && d.exercises.size() <= 100; }
     match /users/{uid}/routines/{id} {
       allow read: if owner(uid);

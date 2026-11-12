@@ -4,11 +4,15 @@
 
 1. Abre el proyecto **forma-gym-tracker** en la consola de Firebase.
 2. Entra en **Firestore Database → Reglas**.
-3. Copia **todo** el archivo `firestore.rules` de este proyecto y reemplaza el contenido del editor. Pulsa **Publicar**. Conserva las reglas de las funcionalidades anteriores; el archivo incluye el bloque nuevo para el perfil nutricional privado.
+3. Copia **todo** el archivo `firestore.rules` de este proyecto y reemplaza el contenido del editor. Pulsa **Publicar**. Conserva las reglas anteriores; el archivo permite ahora guardar el diario en `users/{uid}/meals` con validación por usuario.
 4. Despliega la versión actual del frontend mediante tu flujo habitual de Vercel.
 5. En Forma, confirma el perfil y peso en **Mi cuerpo**, luego abre **Nutrición**, elige tu objetivo y actividad, y pulsa **Guardar objetivo y metas**. Recarga y comprueba el resumen de nutrición en **Resumen**.
 
 No necesitas crear documentos a mano, nuevos índices, credenciales, variables de entorno, funciones de Firebase ni servicios de IA. El perfil se crea al guardar por primera vez. Si no publicas las reglas nuevas, la app mostrará un error de acceso al perfil nutricional; no presenta un guardado fallido como exitoso.
+
+## Registro diario de comidas
+
+En **Nutrición → Comidas y macros**, elige una fecha, agrega cada alimento o preparación y anota la porción realmente consumida junto con sus calorías, proteínas, carbohidratos y grasas. El resumen suma los registros del día y, cuando hay metas guardadas, muestra el avance y lo que falta o excede cada meta. Se pueden editar o eliminar entradas; el resumen de **Resumen** también muestra la ingesta del día actual. En la demostración se usan datos ficticios locales. Los valores se introducen desde la etiqueta o una fuente fiable: no se asume que una receta o marca tenga una composición exacta.
 
 ## Uso
 

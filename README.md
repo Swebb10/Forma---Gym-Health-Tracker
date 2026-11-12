@@ -27,6 +27,7 @@ src/
     ExportRecords.tsx      # Selección por fecha e informe PDF de datos corporales
     ExerciseEditor.tsx     # Ejercicios y series editables
     ProgressChart.tsx      # Gráficos reutilizables
+    nutrition/MealLog.tsx  # Registro diario y totales de macros
     WorkoutForm.tsx        # Formulario de sesión reutilizable
   context/
     AuthContext.tsx        # Sesión Firebase y demostración
@@ -46,7 +47,7 @@ src/
     Routines.tsx
     Workouts.tsx
     Body.tsx               # Perfil, peso, figura, medidas y bioimpedancia
-    Nutrition.tsx          # Objetivo, macros y guía de alimentos
+    Nutrition.tsx          # Objetivo, registro diario, macros y guía de alimentos
     Measurements.tsx
     Bioimpedance.tsx
   App.tsx                  # Navegación por hash y shell responsivo
