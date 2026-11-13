@@ -92,23 +92,31 @@ export default function Dashboard({
   const chosen = names.some((n) => n.key === exercise)
     ? exercise
     : (names[0]?.key ?? "");
+  const chosenExercise = names.find((n) => n.key === chosen);
+  const bodyweightExercise = chosenExercise?.loadType === "bodyweight";
   const strengthSince = new Date();
   strengthSince.setDate(strengthSince.getDate() - Number(strengthRange));
   const strengthCutoff =
     strengthRange === "all" ? "0000-00-00" : localDate(strengthSince);
   const strengthDays = new Map<string, number>();
   exerciseHistory(data.workouts, chosen).forEach((h) => {
-    const max = exerciseTotals(h.exercise).max;
-    if (max !== undefined)
+    const totals = exerciseTotals(h.exercise);
+    const value = bodyweightExercise ? totals.reps : totals.max;
+    if (Number.isFinite(value))
       strengthDays.set(
         h.workout.date,
-        Math.max(strengthDays.get(h.workout.date) ?? 0, max),
+        bodyweightExercise
+          ? (strengthDays.get(h.workout.date) ?? 0) + value
+          : Math.max(strengthDays.get(h.workout.date) ?? 0, value),
       );
   });
   const exerciseData = [...strengthDays]
     .sort(([a], [b]) => a.localeCompare(b))
     .filter(([date]) => date >= strengthCutoff)
-    .map(([date, value]) => ({ date, value: fromKg(value, strengthUnit) }));
+    .map(([date, value]) => ({
+      date,
+      value: bodyweightExercise ? value : fromKg(value, strengthUnit),
+    }));
   const monday = new Date();
   monday.setHours(0, 0, 0, 0);
   monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
@@ -421,7 +429,13 @@ export default function Dashboard({
         <div className="panel-heading">
           <div>
             <span className="eyebrow">{t("PROGRESO DE FUERZA")}</span>
-            <h3>{t("El peso de tu constancia")}</h3>
+            <h3>
+              {t(
+                bodyweightExercise
+                  ? "Repeticiones con peso corporal"
+                  : "El peso de tu constancia",
+              )}
+            </h3>
           </div>
           <select
             aria-label={t("Ejercicio del gráfico")}
@@ -434,6 +448,7 @@ export default function Dashboard({
             {names.map((n) => (
               <option key={n.key} value={n.key}>
                 {n.name} · {t(n.group)}
+                {n.loadType === "bodyweight" ? ` · ${t("Peso corporal")}` : ""}
                 {n.occurrence > 0
                   ? ` · ${t("Bloque {0}", { 0: n.occurrence + 1 })}`
                   : ""}
@@ -455,21 +470,30 @@ export default function Dashboard({
             </select>
           </label>
           <label>
-            {t("Mostrar pesos en")}{" "}
-            <select
-              aria-label={t("Unidad del gráfico de fuerza")}
-              value={strengthUnit}
-              onChange={(e) => setStrengthUnit(e.target.value as WeightUnit)}
-            >
-              <option value="kg">{t("Kilogramos (kg)")}</option>
-              <option value="lb">{t("Libras (lb)")}</option>
-            </select>
+            {bodyweightExercise
+              ? t("Repeticiones totales")
+              : t("Mostrar pesos en")}{" "}
+            {!bodyweightExercise && (
+              <select
+                aria-label={t("Unidad del gráfico de fuerza")}
+                value={strengthUnit}
+                onChange={(e) => setStrengthUnit(e.target.value as WeightUnit)}
+              >
+                <option value="kg">{t("Kilogramos (kg)")}</option>
+                <option value="lb">{t("Libras (lb)")}</option>
+              </select>
+            )}
           </label>
         </div>
-        <ProgressChart data={exerciseData} unit={strengthUnit} />
+        <ProgressChart
+          data={exerciseData}
+          unit={bodyweightExercise ? t("rep") : strengthUnit}
+        />
         <p className="chart-footnote">
           {t(
-            "Mayor peso registrado por día para el ejercicio seleccionado. Los registros en kg y lb se convierten a la unidad elegida para compararlos.",
+            bodyweightExercise
+              ? "Total de repeticiones por sesión para este ejercicio; el peso corporal no se cuenta como carga externa."
+              : "Mayor peso registrado por día para el ejercicio seleccionado. Los registros en kg y lb se convierten a la unidad elegida para compararlos.",
           )}
         </p>
         <button

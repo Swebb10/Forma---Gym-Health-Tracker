@@ -6,6 +6,7 @@ import {
   type SetPlanAction,
 } from "../../lib/nextSessionPlan";
 import { t } from "../../lib/i18n";
+import { exerciseLoadLabel } from "../../lib/exerciseDisplay";
 
 const actionText: Record<SetPlanAction, string> = {
   repeat: "Repite la última marca para consolidarla.",
@@ -78,7 +79,7 @@ export default function NextSessionPlan({
                 const value =
                   set.weight === null || set.reps === null
                     ? null
-                    : `${numberLabel(set.weight, 2)} ${unit} × ${numberLabel(set.reps, 0)} ${t("rep")}`;
+                    : `${exerciseLoadLabel(exercise, set.weight, unit)} × ${numberLabel(set.reps, 0)} ${t("rep")}`;
                 return (
                   <li key={set.position}>
                     <span>{t("Serie {0}", { 0: set.position })}</span>

@@ -41,6 +41,7 @@ export const freshExercise = (): Exercise => ({
   name: "",
   group: "",
   unit: "kg",
+  loadType: "external",
   sets: [{ reps: 10, weight: 0 }],
 });
 export const freshDay = (index = 0): RoutineDay => ({

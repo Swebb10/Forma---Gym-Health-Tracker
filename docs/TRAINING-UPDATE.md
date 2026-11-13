@@ -2,7 +2,8 @@
 
 ## Entregado
 
-- Pesos de gimnasio en kg o lb por ejercicio, tanto en rutinas como en entrenamientos.
+- Pesos de gimnasio en kg o lb por ejercicio, tanto en rutinas como en entrenamientos; ejercicios con carga externa o peso corporal.
+- Notas propias en cada ejercicio de una rutina y de cada entrenamiento. La nota de rutina se copia al iniciar una sesión y la copia puede editarse sin cambiar la rutina.
 - Historial conserva la unidad ingresada; volumen y gráficos convierten los valores antes de compararlos. Cambiar la unidad en el formulario conserva el número ingresado; selecciona la unidad de la máquina o pesa.
 - 14 grupos musculares agrupados en Tren Superior, Tren Inferior y Zona Media.
 - 17 medidas corporales con lado y punto anatómico, agrupadas por zona. Gráficos individuales, historial compacto, consulta de cada evaluación y edición.
@@ -22,6 +23,8 @@
 Exercise = {
   id, name, group,
   unit?: "kg" | "lb", // ausencia = kg
+  loadType?: "external" | "bodyweight", // ausencia = external
+  notes?: string,
   sets: [{ reps, weight }] // valores originales de la unidad seleccionada
 }
 
@@ -45,6 +48,8 @@ Workout = {
 }
 ```
 
+En ejercicios con `loadType: "bodyweight"`, `sets[].weight` es únicamente el peso adicional (lastre); 0 representa peso corporal sin carga añadida. La masa corporal no se calcula ni se suma al volumen. El historial separa esta modalidad de la misma variante con carga externa y en el resumen principal grafica repeticiones por sesión. La nota general del entrenamiento sigue siendo un campo distinto de las notas por ejercicio.
+
 La rutina admite hasta 14 sesiones y 100 ejercicios totales. Las medidas nuevas son:
 
 - Superior: neck, shoulders, chest, leftArmRelaxed, leftArmFlexed, rightArmRelaxed, rightArmFlexed, leftForearm, rightForearm.
@@ -59,6 +64,8 @@ Todos los valores corporales siguen en cm; solo se exige una medida por registro
 El archivo `firestore.rules` del proyecto se adaptó para permitir `days`, `routineDayId` y las nuevas circunferencias, manteniendo el aislamiento por usuario y las validaciones de rangos.
 
 **Antes de usar esta versión en producción deben publicarse esas reglas.** Las reglas anteriores rechazan esos campos nuevos. No se modificaron credenciales, proyectos remotos ni configuración de Vercel, y no se ejecutó ningún despliegue. Publica las reglas junto con esta versión cuando decidas actualizar producción.
+
+El tipo de carga y las notas son campos anidados de los ejercicios; no agregan campos a los documentos de rutina o entrenamiento ni requieren otra actualización de reglas.
 
 No se implementaron todavía suscripciones, cobros ni administración.
 

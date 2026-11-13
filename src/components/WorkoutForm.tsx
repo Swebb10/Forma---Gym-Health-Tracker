@@ -213,7 +213,7 @@ export function WorkoutForm({
               <NotesCoach sources={noteSources(data.workouts, value, false)} />
             </details>
           )}
-          <Field label={t("Notas de la sesión")}>
+          <Field label={t("Notas generales del entrenamiento")}>
             <textarea
               maxLength={1000}
               value={value.notes}

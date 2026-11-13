@@ -28,6 +28,8 @@ Cada documento incluye createdAt y updatedAt (Timestamp de servidor). Las actual
   description: "Fuerza",
   exercises: [
     { id: "uuid", name: "Press de banca", group: "Pecho",
+      loadType: "external", // external | bodyweight; absence = external
+      notes: "Controlar la bajada", // opcional, hasta 500 caracteres en la interfaz
       sets: [{ reps: 10, weight: 60 }, { reps: 8, weight: 65 }] }
   ],
   createdAt: Timestamp,
@@ -51,6 +53,8 @@ Cada documento incluye createdAt y updatedAt (Timestamp de servidor). Las actual
 ```
 
 No se hace join con la rutina para reconstruir sesiones. Eliminar o editar una rutina no modifica entrenamientos guardados. La evolución usa el catálogo por identidad de ejercicio o nombre y grupo normalizados para los personalizados. El máximo diario y la comparación por series usan la misma identidad y separan bloques repetidos.
+
+En ejercicios `bodyweight`, `sets[].weight` representa solo el lastre añadido; 0 significa que se usó únicamente el peso corporal. Sus historiales se separan de la variante con carga externa y el resumen de fuerza muestra las repeticiones. Las notas del ejercicio viven en cada elemento y se copian al iniciar una sesión desde una rutina; editar la copia del entrenamiento no modifica la rutina.
 
 ## measurements/{id}
 

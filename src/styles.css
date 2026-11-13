@@ -1108,6 +1108,15 @@ td {
   border-radius: 10px;
   background: var(--bg);
 }
+.exercise-note-help {
+  margin: -8px 0 0;
+}
+.exercise-note-preview {
+  max-width: 460px;
+  margin-top: 4px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
 .exercise-title {
   display: flex;
   align-items: center;

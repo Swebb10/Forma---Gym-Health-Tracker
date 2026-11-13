@@ -2,9 +2,12 @@ import { t, useLanguage } from "../lib/i18n";
 import { useId } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import type { Exercise, WeightUnit } from "../types";
-import { exerciseOccurrences, exerciseIdentity } from "../lib/setProgress";
+import {
+  exerciseOccurrences,
+  exerciseRecordIdentity,
+} from "../lib/setProgress";
+import { exerciseLoadLabel } from "../lib/exerciseDisplay";
 import { toKg } from "../lib/training";
-import { numberLabel } from "../lib/metrics";
 import { exerciseCatalog, catalogByName } from "../lib/exerciseCatalog";
 import { Field } from "./ui";
 import {
@@ -101,9 +104,28 @@ export function ExerciseEditor({
                 ))}
               </select>
             </Field>
+            <Field label={t("Tipo de carga")}>
+              <select
+                value={e.loadType ?? "external"}
+                onChange={(ev) =>
+                  update(i, {
+                    loadType: ev.target.value as Exercise["loadType"],
+                  })
+                }
+              >
+                <option value="external">{t("Peso externo")}</option>
+                <option value="bodyweight">{t("Peso corporal")}</option>
+              </select>
+            </Field>
           </div>
           <div className="weight-unit-row">
-            <Field label={t("Unidad del peso")}>
+            <Field
+              label={t(
+                e.loadType === "bodyweight"
+                  ? "Unidad de carga adicional"
+                  : "Unidad del peso",
+              )}
+            >
               <select
                 value={exerciseUnit(e)}
                 onChange={(ev) =>
@@ -116,22 +138,42 @@ export function ExerciseEditor({
             </Field>
             <p className="small muted">
               {t(
-                "Usa la unidad indicada en la máquina o pesa. Cambiarla conserva los números ingresados.",
+                e.loadType === "bodyweight"
+                  ? "En peso corporal, registra aquí solo el lastre; deja 0 si no agregaste peso. El peso de tu cuerpo no se suma al volumen externo."
+                  : "Usa la unidad indicada en la máquina o pesa. Cambiarla conserva los números ingresados.",
               )}
             </p>
           </div>
+          <Field label={t("Notas del ejercicio")}>
+            <textarea
+              maxLength={500}
+              value={e.notes ?? ""}
+              placeholder={t(
+                "Ej. Mantener el agarre neutro y controlar la bajada.",
+              )}
+              onChange={(ev) => update(i, { notes: ev.target.value })}
+            />
+          </Field>
+          {workout && (
+            <p className="small muted exercise-note-help">
+              {t(
+                "Puedes adaptar estas notas para esta sesión; los cambios no modifican la rutina guardada.",
+              )}
+            </p>
+          )}
           <div className="set-head">
             <span>{t("Serie")}</span>
             <span>{t("Repeticiones")}</span>
             <span>
-              {t("Peso ·")} {exerciseUnit(e)}
+              {t(e.loadType === "bodyweight" ? "Peso adicional ·" : "Peso ·")}{" "}
+              {exerciseUnit(e)}
             </span>
             <span />
           </div>
           {e.sets.map((s, j) => {
             const occurrence = exerciseOccurrences(exercises)[i].occurrence;
             const previous = previousExercises?.filter(
-              (p) => exerciseIdentity(p) === exerciseIdentity(e),
+              (p) => exerciseRecordIdentity(p) === exerciseRecordIdentity(e),
             )[occurrence];
             const prior = previous?.sets.find(
               (p, k) => (p.position ?? k + 1) === (s.position ?? j + 1),
@@ -160,10 +202,15 @@ export function ExerciseEditor({
                     }
                   />
                   <input
-                    aria-label={t("Peso ejercicio {0} serie {1}", {
-                      "0": i + 1,
-                      "1": s.position ?? j + 1,
-                    })}
+                    aria-label={t(
+                      e.loadType === "bodyweight"
+                        ? "Carga adicional ejercicio {0} serie {1}"
+                        : "Peso ejercicio {0} serie {1}",
+                      {
+                        "0": i + 1,
+                        "1": s.position ?? j + 1,
+                      },
+                    )}
                     required={!workout || s.completed}
                     type="number"
                     min="0"
@@ -215,17 +262,17 @@ export function ExerciseEditor({
                 )}
                 {prior && previous && (
                   <p className="set-reference">
-                    {t("Anterior · serie {0}: {1} {2} × {3} rep", {
+                    {t("Anterior · serie {0}: {1} × {2} rep", {
                       0: s.position ?? j + 1,
-                      1: numberLabel(
+                      1: exerciseLoadLabel(
+                        previous,
                         fromKg(
                           toKg(prior.weight, exerciseUnit(previous)),
                           exerciseUnit(e),
                         ),
-                        2,
+                        exerciseUnit(e),
                       ),
-                      2: exerciseUnit(e),
-                      3: prior.reps,
+                      2: prior.reps,
                     })}
                   </p>
                 )}

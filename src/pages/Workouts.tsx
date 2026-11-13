@@ -1,5 +1,6 @@
 import { t, useLanguage } from "../lib/i18n";
 import { exerciseUnit } from "../lib/training";
+import { exerciseLoadLabel } from "../lib/exerciseDisplay";
 import { lazy, Suspense, useState, useEffect } from "react";
 import { Plus, Clock3, Dumbbell, Pencil, ChevronDown } from "lucide-react";
 import { useSubscription } from "../context/SubscriptionContext";
@@ -149,7 +150,7 @@ export default function Workouts({
                         </span>
                         <span>
                           {numberLabel(volume(w, unit), 1)} {unit}{" "}
-                          {t("de volumen")}
+                          {t("de volumen externo")}
                         </span>
                       </div>
                     </div>
@@ -189,15 +190,24 @@ export default function Workouts({
                           <p className="muted">
                             {e.sets
                               .map((s, i) =>
-                                t("Serie {0}: {1} rep × {2} {3}", {
+                                t("Serie {0}: {1} rep · {2}", {
                                   "0": s.position ?? i + 1,
                                   "1": s.reps,
-                                  "2": numberLabel(s.weight, 2),
-                                  "3": exerciseUnit(e),
+                                  "2": exerciseLoadLabel(
+                                    e,
+                                    s.weight,
+                                    exerciseUnit(e),
+                                  ),
                                 }),
                               )
                               .join(" · ")}
                           </p>
+                          {e.notes && (
+                            <p className="small muted exercise-note-preview">
+                              <strong>{t("Nota del ejercicio")}:</strong>{" "}
+                              {e.notes}
+                            </p>
+                          )}
                         </div>
                       ))}
                       {w.notes && <p>{w.notes}</p>}

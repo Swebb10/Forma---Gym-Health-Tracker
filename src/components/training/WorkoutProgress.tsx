@@ -24,6 +24,7 @@ import { noteSources } from "../../lib/noteCoach";
 import { t, useLanguage } from "../../lib/i18n";
 import { numberLabel, dateLabel } from "../../lib/metrics";
 import { fromKg, toKg } from "../../lib/training";
+import { exerciseLoadLabel } from "../../lib/exerciseDisplay";
 import type { WeightUnit } from "../../types";
 import { Field } from "../ui";
 import SetComparison from "./SetComparison";
@@ -75,6 +76,9 @@ export default function WorkoutProgress({
               {options.map((o) => (
                 <option value={o.key} key={o.key}>
                   {o.name} · {t(o.group)}
+                  {o.loadType === "bodyweight"
+                    ? ` · ${t("Peso corporal")}`
+                    : ""}
                   {o.occurrence > 0
                     ? ` · ${t("Bloque {0}", { 0: o.occurrence + 1 })}`
                     : ""}
@@ -185,6 +189,7 @@ function SessionAnalysis({
     before = previous
       ? exerciseTotals(previous.exercise, targetKg, targetReps)
       : undefined;
+  const bodyweight = current.exercise.loadType === "bodyweight";
   const seriesCount = Math.max(
     ...history.map((h) => normalizedSets(h.exercise).length),
     1,
@@ -224,7 +229,9 @@ function SessionAnalysis({
       </p>
       <div className="series-kpis">
         <div>
-          <span>{t("Peso máximo")}</span>
+          <span>
+            {t(bodyweight ? "Carga adicional máxima" : "Peso máximo")}
+          </span>
           <strong>
             {numberLabel(fromKg(now.max, unit), 2)} <small>{unit}</small>
           </strong>
@@ -237,7 +244,11 @@ function SessionAnalysis({
           )}
         </div>
         <div>
-          <span>{t("Volumen del ejercicio")}</span>
+          <span>
+            {t(
+              bodyweight ? "Volumen de carga externa" : "Volumen del ejercicio",
+            )}
+          </span>
           <strong>
             {numberLabel(fromKg(now.volume, unit), 0)}{" "}
             <small>
@@ -270,7 +281,15 @@ function SessionAnalysis({
           </p>
         </div>
         <div className="form-grid">
-          <Field label={t("Peso de referencia") + ` · ${unit}`}>
+          <Field
+            label={
+              t(
+                bodyweight
+                  ? "Carga adicional de referencia"
+                  : "Peso de referencia",
+              ) + ` · ${unit}`
+            }
+          >
             <input
               type="number"
               min="0"
@@ -339,7 +358,7 @@ function SessionAnalysis({
       <div className="series-chart-legend">
         <span>
           <i className="weight-line" />
-          {t("Peso")} ({unit})
+          {t(bodyweight ? "Carga adicional" : "Peso")} ({unit})
         </span>
         <span>
           <i className="reps-line" />
@@ -348,7 +367,9 @@ function SessionAnalysis({
       </div>
       <p className="small muted">
         {t(
-          "Peso en el eje izquierdo y repeticiones en el derecho. Cada línea tiene su propia escala.",
+          bodyweight
+            ? "Carga adicional en el eje izquierdo y repeticiones en el derecho. Cada línea tiene su propia escala."
+            : "Peso en el eje izquierdo y repeticiones en el derecho. Cada línea tiene su propia escala.",
         )}
       </p>
       <div
@@ -400,7 +421,9 @@ function SessionAnalysis({
               }
               formatter={(v, name) => [
                 `${numberLabel(Number(v), name === "weight" ? 2 : 0)} ${name === "weight" ? unit : t("rep")}`,
-                name === "weight" ? t("Peso") : t("Repeticiones"),
+                name === "weight"
+                  ? t(bodyweight ? "Carga adicional" : "Peso")
+                  : t("Repeticiones"),
               ]}
               contentStyle={{
                 background: "var(--panel)",
@@ -445,7 +468,7 @@ function SessionAnalysis({
               <strong>
                 {p.weight === null || p.reps === null
                   ? t("Sin serie")
-                  : `${numberLabel(p.weight, 2)} ${unit} × ${numberLabel(p.reps, 0)} ${t("rep")}`}
+                  : `${exerciseLoadLabel(current.exercise, p.weight, unit)} × ${numberLabel(p.reps, 0)} ${t("rep")}`}
               </strong>
             </li>
           ))}

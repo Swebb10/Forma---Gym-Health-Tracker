@@ -1,4 +1,5 @@
 export type WeightUnit = "kg" | "lb";
+export type ExerciseLoadType = "external" | "bodyweight";
 export type SetEntry = {
   reps: number;
   weight: number;
@@ -10,6 +11,9 @@ export type Exercise = {
   name: string;
   group: string;
   movementId?: string;
+  /** Missing on legacy records means an external load. */
+  loadType?: ExerciseLoadType;
+  notes?: string;
   /** Missing on legacy records means kilograms. */
   unit?: WeightUnit;
   sets: SetEntry[];

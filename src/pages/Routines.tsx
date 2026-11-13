@@ -23,6 +23,7 @@ import {
 } from "../components/ui";
 import { ExerciseEditor } from "../components/ExerciseEditor";
 import { validateExercises, numberLabel } from "../lib/metrics";
+import { exerciseLoadLabel } from "../lib/exerciseDisplay";
 import {
   routineDays,
   freshDay,
@@ -244,15 +245,17 @@ export default function Routines({
                                 <small className="block muted">
                                   {t(exercise.group)}
                                 </small>
+                                {exercise.notes && (
+                                  <small className="block muted exercise-note-preview">
+                                    {t("Nota del ejercicio")}: {exercise.notes}
+                                  </small>
+                                )}
                               </span>
                               <span>
                                 {exercise.sets
-                                  .map((set) =>
-                                    t("{0} rep × {1} {2}", {
-                                      "0": set.reps,
-                                      "1": numberLabel(set.weight, 2),
-                                      "2": exerciseUnit(exercise),
-                                    }),
+                                  .map(
+                                    (set) =>
+                                      `${numberLabel(set.reps, 0)} ${t("rep")} · ${exerciseLoadLabel(exercise, set.weight, exerciseUnit(exercise))}`,
                                   )
                                   .join(" · ")}
                               </span>

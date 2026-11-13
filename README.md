@@ -25,7 +25,7 @@ src/
   components/
     ui.tsx                 # Campos, diálogo accesible, estados vacíos, acciones
     ExportRecords.tsx      # Selección por fecha e informe PDF de datos corporales
-    ExerciseEditor.tsx     # Ejercicios y series editables
+    ExerciseEditor.tsx     # Ejercicios, tipo de carga, notas y series
     ProgressChart.tsx      # Gráficos reutilizables
     nutrition/MealLog.tsx  # Registro diario y totales de macros
     WorkoutForm.tsx        # Formulario de sesión reutilizable

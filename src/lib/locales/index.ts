@@ -2,6 +2,7 @@ import { themeCatalogs } from "./themes";
 import { exportCatalogs } from "./exports";
 import { nextSessionCatalogs } from "./nextSession";
 import { mealLogCatalogs } from "./mealLog";
+import { exerciseDetailsCatalogs } from "./exerciseDetails";
 import { coherenceCatalogs } from "./coherence";
 import { trainingCatalogs } from "./trainingProgress";
 import { bodyCatalogs } from "./bodyAnalysis";
@@ -22,6 +23,7 @@ export const catalogs = {
     ...exportCatalogs.en,
     ...nextSessionCatalogs.en,
     ...mealLogCatalogs.en,
+    ...exerciseDetailsCatalogs.en,
   },
   de: {
     ...de,
@@ -33,6 +35,7 @@ export const catalogs = {
     ...exportCatalogs.de,
     ...nextSessionCatalogs.de,
     ...mealLogCatalogs.de,
+    ...exerciseDetailsCatalogs.de,
   },
   ru: {
     ...ru,
@@ -44,6 +47,7 @@ export const catalogs = {
     ...exportCatalogs.ru,
     ...nextSessionCatalogs.ru,
     ...mealLogCatalogs.ru,
+    ...exerciseDetailsCatalogs.ru,
   },
   pt: {
     ...pt,
@@ -55,6 +59,7 @@ export const catalogs = {
     ...exportCatalogs.pt,
     ...nextSessionCatalogs.pt,
     ...mealLogCatalogs.pt,
+    ...exerciseDetailsCatalogs.pt,
   },
   fr: {
     ...fr,
@@ -66,5 +71,6 @@ export const catalogs = {
     ...exportCatalogs.fr,
     ...nextSessionCatalogs.fr,
     ...mealLogCatalogs.fr,
+    ...exerciseDetailsCatalogs.fr,
   },
 };

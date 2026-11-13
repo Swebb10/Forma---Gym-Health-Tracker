@@ -61,6 +61,8 @@ export function validateExercises(
   exercises: {
     name: string;
     unit?: WeightUnit;
+    loadType?: "external" | "bodyweight";
+    notes?: string;
     sets: { reps: number; weight: number }[];
   }[],
 ) {
@@ -71,6 +73,11 @@ export function validateExercises(
       (e) =>
         e.name.trim().length > 0 &&
         e.name.trim().length <= 100 &&
+        (e.loadType === undefined ||
+          e.loadType === "external" ||
+          e.loadType === "bodyweight") &&
+        (e.notes === undefined ||
+          (typeof e.notes === "string" && e.notes.length <= 500)) &&
         (e.unit === undefined || e.unit === "kg" || e.unit === "lb") &&
         e.sets.length > 0 &&
         e.sets.every(

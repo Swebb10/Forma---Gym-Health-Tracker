@@ -1,16 +1,28 @@
-import type { Exercise, SetEntry, WeightUnit, Workout } from "../types";
+import type {
+  Exercise,
+  ExerciseLoadType,
+  SetEntry,
+  WeightUnit,
+  Workout,
+} from "../types";
 import { exerciseUnit, fromKg, toKg } from "./training";
 import { localDate } from "./metrics";
 import { movementIdentity, normalizeName } from "./exerciseCatalog";
 
 export const normalizeExercise = normalizeName;
 export const exerciseIdentity = movementIdentity;
+export const exerciseRecordIdentity = (exercise: Exercise) =>
+  JSON.stringify([
+    exerciseIdentity(exercise),
+    exercise.loadType ?? ("external" satisfies ExerciseLoadType),
+  ]);
 export type ExerciseOccurrence = {
   key: string;
   identity: string;
   occurrence: number;
   name: string;
   group: string;
+  loadType: ExerciseLoadType;
 };
 export type ExerciseSession = {
   key: string;
@@ -23,7 +35,7 @@ export function exerciseOccurrences(
 ): ExerciseOccurrence[] {
   const counts = new Map<string, number>();
   return exercises.map((e) => {
-    const identity = exerciseIdentity(e),
+    const identity = exerciseRecordIdentity(e),
       occurrence = counts.get(identity) ?? 0;
     counts.set(identity, occurrence + 1);
     return {
@@ -32,6 +44,7 @@ export function exerciseOccurrences(
       occurrence,
       name: e.name,
       group: e.group,
+      loadType: e.loadType ?? "external",
     };
   });
 }
@@ -91,7 +104,7 @@ export function trainingContext(workout: Workout): string {
     : JSON.stringify([
         "free",
         normalizeExercise(workout.name),
-        workout.exercises.map(exerciseIdentity).sort(),
+        workout.exercises.map(exerciseRecordIdentity).sort(),
       ]);
 }
 export function priorWorkouts(
